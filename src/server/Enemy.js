@@ -74,7 +74,7 @@ const scalarToRarity = {
 
 class Rock {
     constructor(rarity, dimensions, bossLevel) {
-      this.bossLevel = bossLevel ?? 0;
+      this.bossLevel = !bossLevel ? 0 : bossLevel;
         const scalar = rarityToScalar[rarity];
         this.r = (6 * (scalar ** 2.25) - 4) * (0.8 + Math.random() * 0.4) * 1.25;
         if (rarity === 'common') {
@@ -1267,7 +1267,7 @@ class Bullet {
 
 class MopeMouse {
     constructor(rarity, dimensions, bossLevel) {
-        this.bossLevel = bossLevel ?? 0;
+        this.bossLevel = !bossLevel ? 0 : bossLevel;
         const scalar = rarityToScalar[rarity];
         this.r = 12 + 4 * (scalar ** 2); //(6*(scalar**2.25)-4)*(0.8+Math.random()*0.4)*1.25;
         this.baseR = this.r;

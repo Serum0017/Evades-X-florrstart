@@ -50,12 +50,18 @@ module.exports = class Player{
         this.lastInputTimer = Date.now();
     }
     attack(data){
-        this.attacking = data.attack ?? false;
+        this.attacking = data.attack;
+        if(this.attacking !== false && this.attacking !== true){
+          this.attacking = false;//👀
+        }
         this.updateAttackState();
         this.lastInputTimer = Date.now();
     }
     defend(data){
-        this.defending = data.defend ?? false;
+        this.defending = data.defend;
+        if(this.defending !== false && this.defending !== true){
+          this.defending = false;//👀
+        }
         this.updateAttackState();
         this.lastInputTimer = Date.now();
     }
