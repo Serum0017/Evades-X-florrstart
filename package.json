@@ -1,0 +1,18 @@
+{
+  "name": "evades7",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "msgpack-lite": "^0.1.26",
+    "uuid": "^8.3.2",
+    "ws": "^8.8.0"
+  }
+}
