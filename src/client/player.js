@@ -187,7 +187,8 @@ class Player{
 
         ctx.fillStyle = '#73de36'
         ctx.beginPath();
-        ctx.roundRect(this.renderX - this.r*1.5+1.5, this.renderY + this.r*1.7+1.5, (this.r*3-3)*this.renderHp/maxHp, Math.max(0,this.r*0.35-3), this.r*0.25, (this.r*3-3));
+        ctx.oldRoundRect(this.renderX - this.r*1.5+1.5, this.renderY + this.r*1.7+1.5, (this.r*3-3)*this.renderHp/maxHp, Math.max(0,this.r*0.35-3), this.r*0.25);
+        // ctx.roundRect(this.renderX - this.r*1.5+1.5, this.renderY + this.r*1.7+1.5, (this.r*3-3)*this.renderHp/maxHp, Math.max(0,this.r*0.35-3), this.r*0.25, (this.r*3-3));
         ctx.fill();
         ctx.closePath();
 

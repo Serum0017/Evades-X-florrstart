@@ -56,6 +56,17 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r, maxW=w) 
   this.arcTo(x,   y,   x+w, y,   r);
 };
 
+// for player hp so you don't die at 20%
+CanvasRenderingContext2D.prototype.oldRoundRect = function (x, y, w, h, r) {
+  if (w < 2 * r) r = w / 2;
+  if (h < 2 * r) r = h / 2;
+  this.moveTo(x+r, y);
+  this.arcTo(x+w, y,   x+w, y+h, r);
+  this.arcTo(x+w, y+h, x,   y+h, r);
+  this.arcTo(x,   y+h, x,   y,   r);
+  this.arcTo(x,   y,   x+w, y,   r);
+};
+
 // CanvasRenderingContext2D.prototype.fill = function(a) {
 //     return function(a,b) {
 //         if(this.globalAlpha !== 1){
