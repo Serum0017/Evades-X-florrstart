@@ -1,0 +1,40 @@
+The game is florr.io but dungeons. It's more structured like the OG florr with leaderboards
+
+Everyone is in the same map. This map is composed of ROOMS and OBSTACLES that are kinda randomly generated
+
+The map is made up of tiles. The further top and right you explore, the harder things get. 
+
+Flowers belong (and only send/recieve messages from) to a singular room. A room cannot be left until all of the 1-3 waves of mobs are defeated. There are doors at the end of the rooms that fade out (or some that try and attack you once before going) when you defeat all enemies.
+
+You heal to full in between battles, although you dont heal at all in between.
+
+Rarities
+- common
+- unusual
+- rare
+- epic
+- legendary
+- omnipotent
+
+Enemy types: 
+- tree: like florr.io rock. Drops bark/wood petal (like florr.io rock). Grows slowly?
+- anti-flower: has their own petals that they fight you with. They drop one of their petals they use at random. Renders as red flower.
+- mouse: rendered as mope.io sprite, chases you. Drops cheese (3 honeys in 1) and drops mouse that's basically beetle egg
+
+Omnipotent Enemies:
+Omnipotent enemies are the strongest in the game. They all have special abilities that make them really formidable
+- rock: can jump around and crush you. When landing, they create a shock wave that stuns and does 1/3 of your hp
+- anti-flower: has 3rd eye from florr.io and 12 petals
+- mouse: evolves into mope.io dragon
+
+Leveling: 
+- you always start out at level 0. When you kill enemies, you gain xp. Getting levels gives you some hp over time and more petal slots (lv 15: 6, lv 30: 7, lv 45: 8) you also gain one more petal slot for killing an omnipotent enemy.
+
+Inventory: 
+- There will be an inventory of petals that you have each run. The tringer (strongest petal) will have 3 stingers when you first use it, 2 the second time, and 1 the third time (going down in rarity).
+
+Good Graphics:
+- The game is very graphically intense. Whenever rooms are cleared, there is gonna be a yellow gradient next to open exits as well as an animated arrow pointing to all 4 exits.
+
+Camera:
+I was originally thinking that the camera could be fixed in the middle of the room, but idk if i really like that idea. What if the rooms get bigger or i want some exploration? => The camera should be tied to the player, maybe with some interpolation like rb so that it follows behind.
