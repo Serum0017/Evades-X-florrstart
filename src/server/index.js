@@ -295,7 +295,7 @@ setInterval(() => {
         const room = rooms[x][y];
         if(room.active === true){
             for(let p in room.players){
-                if(now - room.players[p].lastInputTimer > 100000){// 100 secs
+                if(now - room.players[p].lastInputTimer > 10/*0000*/){// 100 secs
                     console.log('closing');
                     clients[p].close();
                 }
