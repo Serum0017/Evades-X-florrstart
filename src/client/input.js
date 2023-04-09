@@ -1,4 +1,4 @@
-window.chatOpen = false;
+const chatOpen = false;
 
 function trackKeys(event, input) {
     if(document.activeElement === ref.chatInput){
@@ -29,6 +29,7 @@ function trackKeys(event, input) {
         return;
     }
     if (chatOpen) return;
+    // actual input
 }
 
 const mouse = {
@@ -48,51 +49,4 @@ window.addEventListener('mousemove', (e) => {
     }
 });
 
-document.body.addEventListener("touchmove", (e) => {
-    const touch = e.touches[0];
-    // mouse movement
-    mouse.x = touch.pageX;
-    mouse.y = touch.pageY;
-
-    if(connected === true){
-        const player = players[selfId];
-        const dY = mouse.y - player.y + camera.y;
-        const dX = mouse.x - player.x + camera.x;
-        send({angle: Math.atan2(dY, dX), magnitude: Math.min(300,Math.sqrt(dY**2+dX**2))});
-    }
-}, false);
-
-ref.canvas.addEventListener('mousedown', (e) => {
-	// attacking = true;
-    if (e.button === 0) {
-        send({attack: true});
-    } else if (e.button === 2){
-        send({defend: true});
-    }
-    event.preventDefault();
-});
-
-ref.canvas.addEventListener('mouseup', (e) => {
-    // attacking = false;
-    if (e.button === 0) {
-        send({attack: false});
-    } else if (e.button === 2){
-        send({defend: false});
-    }
-    event.preventDefault();
-});
-
 window.addEventListener("contextmenu", e => e.preventDefault());
-
-let mobileAttackingState = false;
-let mobileDefendingState = false;
-
-ref.attackButton.addEventListener('click', (e) => {
-    mobileAttackingState = !mobileAttackingState;
-    send({attack: mobileAttackingState});
-}, false);
-
-ref.defendButton.addEventListener('click', (e) => {
-    mobileDefendingState = !mobileDefendingState;
-    send({defend: mobileDefendingState});
-}, false);

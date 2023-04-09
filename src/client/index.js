@@ -19,6 +19,9 @@ let processMsg = {
     time: (msg) => {},
     playerId: (msg) => {},
     petalId: (msg) => {},
+    dev: (msg) => {
+        players[msg.dev].dev = true;
+    },
     initialState: (msg) => {
         players = {};
         enemies = [];
@@ -111,7 +114,7 @@ ws.addEventListener("message", ( datas ) => {
         if(processMsg[key]){
             processMsg[key](msg);// hash table faster :D
         } else {
-            console.log(`Client Sided response for ${key} isnt defined! go to index.js and define it rn.`);
+            console.log(`Client Sided response for ${key} isnt defined! index.js.`);
         }
     }
 });

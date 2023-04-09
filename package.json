@@ -1,5 +1,5 @@
 {
-  "name": "evades7",
+  "name": "evades-x",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.1",
+    "express": "^4.18.2",
     "msgpack-lite": "^0.1.26",
     "uuid": "^8.3.2",
     "ws": "^8.8.0"
