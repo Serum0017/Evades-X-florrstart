@@ -80,4 +80,4 @@ function runIdleEffects(player, obstacle, other){
     IdleEffects[obstacle.effect]?.(player, obstacle, other);
 }
 
-module.exports = { runEffects, runIdleEffects };
+export default { runEffects, runIdleEffects };

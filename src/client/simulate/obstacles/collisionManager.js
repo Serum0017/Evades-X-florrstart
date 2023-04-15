@@ -1,7 +1,5 @@
 const flip = fn => (b, a) => fn(a, b);
 
-const SAT = require('../../SAT.js');
-
 // we want to be able to call Collisions.collide(square)(circle)
 class Collision {
     constructor(){
@@ -13,8 +11,8 @@ class Collision {
         // these need to be specified in the same order
         this._addCollisionMap('circle', 'square', (circle, square) => {
             // if (
-            //     /*distX*/Math.abs(circle.x - square.top.x/2 - square.bottom.x/2) < square.w / 2 + circle.radius &&
-            //     /*distY*/Math.abs(circle.y - square.top.y/2 - square.bottom.y/2) < square.h / 2 + circle.radius
+            //     /*distX*/Math.abs(circle.x - square.top.x/2 - square.bottom.x/2) < square.w / 2 + circle.r &&
+            //     /*distY*/Math.abs(circle.y - square.top.y/2 - square.bottom.y/2) < square.h / 2 + circle.r
             // ) {
                 const res = new SAT.Response();
                 if (SAT.testPolygonCircle(square.sat, circle.sat, res)) {
@@ -25,7 +23,7 @@ class Collision {
         });
 
         this._addCollisionMap('circle', 'circle', (circle1, circle2) => {
-            if((circle1.x-circle2.x)**2+(circle1.y-circle2.y)**2 < (circle1.radius+circle2.radius)**2){
+            if((circle1.x-circle2.x)**2+(circle1.y-circle2.y)**2 < (circle1.r+circle2.r)**2){
                 // return true;
                 const res = new SAT.Response();
                 SAT.testCircleCircle(circle2.sat, circle1.sat, res);

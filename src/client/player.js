@@ -20,9 +20,13 @@ export default class Player{
         for(let key in init){
             this[key] = init[key];
         }
+
+        this.renderX = this.x;
+        this.renderY = this.y;
     }
-    simulate(){
-        simulatePlayer(this);// run the mini simulate function for 1 tick (prediction)
+    simulate(map){
+        // basic simulation that doesnt require anything else; same thing used in prediction
+        simulatePlayer(this, map);
     }
     render(ctx, canvas, camera) {
         ctx.fillStyle = 'black';

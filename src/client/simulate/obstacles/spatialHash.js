@@ -1,6 +1,6 @@
 const hashDistance = 50;// memory vs efficiency tradeoff
 
-class SpatialHash {
+export default class SpatialHash {
     constructor(){
         // positions: { x: {y: [entities at this hash] } }
         this.positions = {};
@@ -37,6 +37,8 @@ class SpatialHash {
     }
     calculateHashPoints(entity){
         const positions = {};
+
+        // TODO: fix these bs expansion and verify that player is being spatially hashed correctly
         const topSpatial = {
             x: entity.top.x - (entity.top.x % hashDistance),
             y: entity.top.y - (entity.top.y % hashDistance)
@@ -80,5 +82,3 @@ class SpatialHash {
         return Object.values(collisions);
     }
 }
-
-export default SpatialHash;

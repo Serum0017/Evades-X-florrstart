@@ -41,7 +41,7 @@ module.exports = class Map {
     }
     updatePack(){
         // todo: return minpack optimization
-        return this;
+        return {...this, update: true};
     }
     addPlayer(p){
         this.players[p.id] = p;
@@ -55,7 +55,7 @@ function toNumber(num, defaultNumber=0){
     try {
         let n = Number(num);
         if(isNaN(n)){
-            return defaultNumber
+            return defaultNumber;
         } else {
             return n;
         }

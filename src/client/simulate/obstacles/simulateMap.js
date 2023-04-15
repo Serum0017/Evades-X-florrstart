@@ -1,7 +1,6 @@
-const satFactory = require('../../Init/satFactory.js');
-const effectMap = require('./effectMap.js');
-
-const SimulateEnemy = require('./simulateEnemy.js');
+import transformManager from './transformBody.js';
+import effectMap from './effectMap.js';
+import SimulateEnemy from './simulateEnemy.js';
 
 const SimulateMap = {
     normal: () => {},
@@ -58,7 +57,8 @@ const SimulateMap = {
             let angle = Math.atan2(obstacle.pointTo.y - obstacle.pointOn.y, obstacle.pointTo.x - obstacle.pointOn.x);
             obstacle.xv = Math.cos(angle) * obstacle.speed;
             obstacle.yv = Math.sin(angle) * obstacle.speed;
-            SimulateMap.move(player, obstacle, {}, 1);
+            // TODO: uncomment
+            // SimulateMap.move(player, obstacle, {}, timeRemain);
         }
     },
 
@@ -67,11 +67,11 @@ const SimulateMap = {
     }
 };
 
-module.exports = function Simulate(player, o, other){
+export default function Simulate(player, o, other){
     const last = {x: o.x, y: o.y};
     SimulateMap[o.simulate](player, o, other);
     effectMap.runIdleEffects(player, o, other);
     if(last.x !== o.x || last.y !== o.y){
-        satFactory.transformBody(o, /*positional delta: */{ x: o.x-last.x, y: o.y-last.y });
+        transformManager.transformBody(o, /*positional delta: */{ x: o.x-last.x, y: o.y-last.y });
     }
 }

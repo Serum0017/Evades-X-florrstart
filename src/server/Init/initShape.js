@@ -5,7 +5,7 @@ function defineSquare(obs, init) {
 }
 
 function defineCircle(obs, init) {
-    obs.radius = init.radius;
+    obs.r = init.r;
 }
 
 const initShapeMap = {

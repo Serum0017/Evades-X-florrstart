@@ -76,6 +76,8 @@ export default class InputHandler {
 
         // send the changed input to be used for player prediction
         this.client.send({input: this.input});// TODO: optimize with bitwise conversion
+
+        this.map.self.input = this.input;
     }
     handleMouse(e) {
         this.mouse.x = e.x;

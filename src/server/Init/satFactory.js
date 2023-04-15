@@ -1,6 +1,6 @@
 // SATFactory.generateSAT.square(x,y,w,h);
 // TODO: remove sat file and replace once internet is back
-const SAT = require('../SAT.js');//require('sat');
+const SAT = require('sat');//require('sat');
 
 class SATFactory {
     constructor() {
@@ -22,10 +22,10 @@ class SATFactory {
                     bottom: {x: x+w/2, y: y+h/2},
                 };
             },
-            circle: ({ x=0,y=0,radius=0 }) => {
+            circle: ({ x=0,y=0,r=0 }) => {
                 return {
-                    top: {x: x-radius, y: y-radius},
-                    bottom: {x: x+radius, y: y+radius},
+                    top: {x: x-r, y: y-r},
+                    bottom: {x: x+r, y: y+r},
                 };
             },
             poly: ({ points }) => {
@@ -53,14 +53,6 @@ class SATFactory {
                 };
             }
         };
-        this.transform = {
-            poly: (o, { x,y }) => {
-                for(let p of o.points){
-                    p[0] += x;
-                    p[1] += y;
-                }
-            }
-        };
     }
 }
 
@@ -74,16 +66,4 @@ function generateDimensions(params){
     return factory.generateDimensions[params.shape](params);
 }
 
-function transformBody(obstacle, delta){
-    obstacle.top.x += delta.x;
-    obstacle.top.y += delta.y;
-    obstacle.bottom.x += delta.x;
-    obstacle.bottom.y += delta.y;
-    // no need to create new sats every frame :)
-    obstacle.sat.setOffset(new SAT.Vector(obstacle.sat.offset.x+delta.x, obstacle.sat.offset.y+delta.y));
-    if(factory.transform[obstacle.shape] !== undefined){
-        factory.transform[obstacle.shape](obstacle,delta);
-    }
-}
-
-module.exports = { generateSAT, generateDimensions, transformBody };
+module.exports = { generateSAT, generateDimensions };

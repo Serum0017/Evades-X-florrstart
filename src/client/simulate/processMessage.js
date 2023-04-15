@@ -4,12 +4,16 @@ let processMsg = {
     chat: (msg) => {
         appendChatMessage(msg.chat);
     },
-    init: (msg, player, messageHandler) => {
-        messageHandler.map.init(msg.init);
+    init: (msg, player, handler) => {
+        handler.game.initState(msg.init);
         
-        messageHandler.client.inputHandler.start();
-        messageHandler.client.game.start();
-    }
+        handler.client.inputHandler.start();
+        handler.client.game.start();
+    },
+    // update: Map object {players, obstacles, settings, name}
+    update: (msg, player, handler) => {
+        handler.map.updatePack(msg.update);
+    } 
 }
 
 export default class MessageHandler {

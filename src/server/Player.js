@@ -7,6 +7,9 @@ module.exports = class Player{
 
         this.frictions = {};
 
+        this.speed = 430 / 100;
+        this.friction = 0.4;
+
         this.map = init.map.name;
 
         // input
@@ -23,10 +26,12 @@ module.exports = class Player{
         }
 
         this.shape = 'circle';
-    }
-    simulate(){
-        // basic simulation that doesnt require anything else; same thing used in prediction
-        simulatePlayer(this);
+        
+        this.xv = init.xv;
+        this.yv = init.yv;
+
+        this.top = {x: this.x - this.r, y: this.y - this.r};
+        this.bottom = {x: this.x + this.r, y: this.y + this.r};
     }
     initPack(){
         return this;

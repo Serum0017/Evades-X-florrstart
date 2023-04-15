@@ -1,4 +1,5 @@
 import Player from './player.js';
+import simulateObstacles from './simulate/obstacles/!simulateObstacles.js';
 
 export default class Map {
     constructor(){
@@ -17,11 +18,56 @@ export default class Map {
         }
 
         this.obstacles = data.obstacles;
-        console.log({obs: data.obstacles});
+        console.log({data});
+
+        for(let i = 0; i < this.obstacles.length; i++){
+            if(this.obstacles[i].sat.points === undefined){
+                // no points - its a circle
+                const lastData = {offset: {x: this.obstacles[i].sat.offset.x, y: this.obstacles[i].sat.offset.y}};
+                this.obstacles[i].sat = new SAT.Circle(new SAT.Vector(this.obstacles[i].sat.pos.x, this.obstacles[i].sat.pos.y), this.obstacles[i].sat.r);
+                this.obstacles[i].sat.setOffset(lastData.offset);
+            } else {
+                // there are points - its a polygon
+                const lastData = {angle: this.obstacles[i].sat.angle, offset: {x: this.obstacles[i].sat.offset.x, y: this.obstacles[i].sat.offset.y}};
+                this.obstacles[i].sat = new SAT.Polygon(new SAT.Vector(), ...this.obstacles[i].sat.points.map(p => new SAT.Vector(p.x, p.y)));
+                this.obstacles[i].sat.setOffset(lastData.offset);
+                this.obstacles[i].sat.setAngle(lastData.angle);
+            }
+        }
+
         this.settings = data.settings;
         this.name = data.name;
 
         this.selfId = data.selfId;
         this.self = this.players[this.selfId];
+    }
+    updatePack(data){
+        for(let id in data.players){
+            this.players[id].updatePack(data.players[id]);
+        }
+
+        // obstacles will be simulated server side, rest is client side.
+    }
+    simulate(){
+        // refer to miro for ordering
+        // simulate everything
+        // Full simulation structure with player prediction and server sided objects:
+
+        // TODO: implement simulation culling (only simulate other players that are inside the client's screen)
+        for(let id in this.players){
+            this.players[id].simulate(this);
+        }
+
+        simulateObstacles(this.self, this.players, this.obstacles);
+        // - simulate player
+        // - update the player's sat
+        // - simulate other players in player's screen with small movement simulation function (although follow the <2x last update state's distance covered rule - see arrow)
+        // -- refer to !simulateObstacles.js for how we simulate obstacles --
+        // - get all colliding objects (spatial hash)
+        // - for each object:
+        //  - run collision effects
+        //  - update the player's sat
+        // - for each server sided object:
+        //  - if we have influenced it, then send changes to server
     }
 }

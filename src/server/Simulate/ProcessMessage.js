@@ -1,6 +1,6 @@
 let processMsg = {
-    chat: (msg, player, messageHandler) => {
-        messageHandler.server.broadcastInMap(player.map, {chat: /*processChat module if anything more than slice is needed*/msg.chat.slice(0,100)});
+    chat: (msg, player, handler) => {
+        handler.server.broadcastInMap(player.map, {chat: /*processChat module if anything more than slice is needed*/msg.chat.slice(0,100)});
     },
     angle: (msg, player, handler) => {
         player.angle = msg.angle;
@@ -9,6 +9,7 @@ let processMsg = {
     },
     input: (msg, player, handler) => {
         player.input = msg.input;
+        // player's input is not broadcast here; this will be taken care of in updatepack
     }
 }
 

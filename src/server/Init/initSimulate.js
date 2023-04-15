@@ -1,3 +1,5 @@
+const enemyFactory = require('./initEnemy.js');
+
 const initSimulateMap = {
     normal: () => {},
     move: (obs, init) => {
@@ -26,6 +28,7 @@ const initSimulateMap = {
     },
     enemy: (obs, init) => {
         //{type: 'circle-enemy-normal', bound: {x: 0, y: 0, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/}
+        assign(obs, enemyFactory.initEnemy(init));
         obs.type = 'enemy';
         obs.enemyType = init.enemyType;
         obs.bound = {
@@ -34,13 +37,25 @@ const initSimulateMap = {
             w: init.bound.w,
             h: init.bound.h
         };
-        obs.x ||= init.x;
-        obs.y ||= init.y;
+
+        // if this is undefined it will be assigned later
+        obs.x = init.x;
+        obs.y = init.y;
     }
 };
 
+function assign(prev, next){
+    for(let key in next){
+        prev[key] = next[key];
+    }
+}
+
+function assignIfUndefined(v1, v2){
+    if(v1 === undefined){ v1 = v2; }
+}
+
 module.exports = function initSimulate(params) {
-    let init = {};
+    let init = {};// TODO: rethink if we should actually be assigning things twice or if we can just directly assign to obstacle once
     if(params.simulate === undefined || initSimulateMap[params.simulate] === undefined) {
         console.error("Obstacle simulate undefined! " + JSON.stringify(params)); return;
     }

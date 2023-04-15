@@ -1,51 +1,38 @@
-export default function simulatePlayer(player, input, map) {
-	const delta = 1 / 60;
-	let xSpeed = (input.right - input.left) * player.speed;
-	let ySpeed = (input.down - input.up) * player.speed;
-	// apply velocity
-	player.xv += xSpeed * delta;
-	player.yv += ySpeed * delta;
-	player.xv *= Math.pow(player.friction, delta * 60);
-	player.yv *= Math.pow(player.friction, delta * 60);
+// simple simulate function for simulating the p based on input
+export default function simulatePlayer(p, map) {
+	p.xv += (p.input.right - p.input.left) * p.speed;
+	p.yv += (p.input.down - p.input.up) * p.speed;
+	p.xv *= p.friction;
+	p.yv *= p.friction;
     
     // frictions coeff: {vec of amount}
-    for(let key in player.frictions){
-        const {x, y} = player.frictions[key];
-        player.x += x;
-        player.y += y;
-        player.frictions[key].x *= key;
-        player.frictions[key].y *= key;
+    for(let key in p.frictions){
+        const {x, y} = p.frictions[key];
+        p.x += x;
+        p.y += y;
+        p.frictions[key].x *= key;
+        p.frictions[key].y *= key;
     }
+
 	// move player
-	player.x += player.xv * (60 * delta);
-	player.y += player.yv * (60 * delta);
+	p.x += p.xv;
+	p.y += p.yv;
+
+	// bound player against the map
+	if (p.x - p.r < 0) {
+		p.x = p.r;
+	}
+	if (p.x + p.r > map.settings.dimensions.x) {
+		p.x = map.settings.dimensions.x - p.r;
+	}
+	if (p.y - p.r < 0) {
+		p.y = p.r;
+	}
+	if (p.y + p.r > map.settings.dimensions.y) {
+		p.y = map.settings.dimensions.y - p.r;
+	}
 	
-	// constraint player
-	if (player.x - player.radius < 0) {
-		player.x = player.radius;
-	}
-	if (player.x + player.radius > map.settings.arena.width) {
-		player.x = map.settings.arena.width - player.radius;
-	}
-	if (player.y - player.radius < 0) {
-		player.y = player.radius;
-	}
-	if (player.y + player.radius > map.settings.arena.height) {
-		player.y = map.settings.arena.height - player.radius;
-	}
-
-    // temp
-    player.shape = 'circle';
-    player.top = {x: player.x - player.radius/2, y: player.y - player.radius/2}
-    player.bottom = {x: player.x + player.radius/2, y: player.y + player.radius/2};
-    
-	return player;
-}
-
-function deepCopy(obj) {
-	const object = {};
-	for (const key of Object.keys(obj)) {
-		object[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key];
-	}
-	return object;
+    p.top = {x: p.x - p.r/2, y: p.y - p.r/2}
+    p.bottom = {x: p.x + p.r/2, y: p.y + p.r/2};
+	p.sat = new SAT.Circle(new SAT.Vector(p.x, p.y), p.r);// temp; will have generation later
 }

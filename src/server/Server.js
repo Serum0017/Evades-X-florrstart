@@ -48,7 +48,7 @@ module.exports = class Server {
             this.clients[clientId] = ws;
         
             this.addPlayer(clientId);
-
+            
             this.send({init: {selfId: clientId, ...this.game.packMap(clientId)}}, clientId);
             
             ws.on("message",(data)=>{

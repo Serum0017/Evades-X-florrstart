@@ -20,7 +20,10 @@ const initEnemyMap = {
     },
 };
 
+const transformManager = require('./transformBody.js');
+
 function initEnemyPosition(e){
+    const last = {x: e.top.x, y: e.top.y};
     // halfwidth? since we always div by 2?
     e.width = e.bottom.x - e.top.x;
     if(!isNaN(e.x)){
@@ -41,6 +44,9 @@ function initEnemyPosition(e){
         e.top.y = top;
         e.bottom.y = top + e.height;
     }
+
+    // making sure that things like poly are offset correctly
+    transformManager.runTransformMap(e, {x: e.top.x - last.x, y: e.top.y - last.y});
 }
 
 function initEnemy(params) {
@@ -49,7 +55,6 @@ function initEnemy(params) {
         console.error("Obstacle enemyType undefined! " + JSON.stringify(params)); return;
     }
     initEnemyMap[params.enemyType](init, params);
-    init.x = 0; init.y = 0;// so that generateSAT doesn't return undefiend... we'll recalculate these later
     return init;
 }
 

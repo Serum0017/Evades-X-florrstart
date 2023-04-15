@@ -2,13 +2,13 @@
 const renderShapeMap = {
     circle: (o, ctx, advanced) => {
         ctx.beginPath();
-        ctx.arc(o.x, o.y, o.radius, 0, Math.PI*2);
+        ctx.arc(o.x, o.y, o.r, 0, Math.PI*2);
         fsin(ctx);
         ctx.closePath();
     },
     square: (o, ctx, advanced) => {
-        if(ctx.toFill === true)ctx.fillRect(o.x,o.y,o.w,o.h);
-        if(ctx.toStroke === true)ctx.strokeRect(o.x,o.y,o.w,o.h);
+        if(ctx.toFill === true)ctx.fillRect(o.x-o.w/2,o.y-o.h/2,o.w,o.h);
+        if(ctx.toStroke === true)ctx.strokeRect(o.x-o.w/2,o.y-o.h/2,o.w,o.h);
     },
     poly: (o, ctx, advanced) => {
         ctx.beginPath();

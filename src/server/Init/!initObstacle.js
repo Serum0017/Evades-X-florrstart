@@ -43,5 +43,5 @@ function assign(prev, next){
 function definePosition(o){
     o.x = (o.top.x + o.bottom.x)/2;
     o.y = (o.top.y + o.bottom.y)/2;
-    o.difference = {x: o.top.x - o.bottom.x, y: o.top.y - o.bottom.y};
+    o.difference = {x: o.bottom.x - o.top.x, y: o.bottom.y - o.top.y};
 }
