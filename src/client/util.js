@@ -2,7 +2,8 @@ let connected = false;
 let disconnected = false;
 
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');ctx.lineJoin = 'round';
+const ctx = canvas.getContext('2d');
+ctx.lineJoin = 'round';
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -58,7 +59,6 @@ let mobile = navigator.userAgent.match(/Android/i) || navigator.userAgent.match(
 
 export default {
   mobile,
-  roundRect,
   ref,
   connected,
   disconnected

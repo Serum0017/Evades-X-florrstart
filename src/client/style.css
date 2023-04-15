@@ -51,43 +51,10 @@ body {
     justify-content: center;
 }
 
-/* .petalcontainer {
-    color: white;
-    height: calc(100% - 6px);
-    position: absolute;
-    aspect-ratio: 1;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.common {
-    background-color: #7eef6d;
-    border: 3px solid #66c258;
-}
-
-.petaltext {
-    -webkit-text-stroke: 0.5px black;
-    text-align: center;
-    overflow: hidden;
-}
-
-.petal-slot {
-    margin: 1px;
-    color: grey;
-    height: 100%;
-    aspect-ratio: 1;
-    background-color: #cccccc;
-    border: 3px solid #a5a5a5;
-} */
-
 canvas {
     position: absolute;
     left: 0;
     top: 0;
-    background-color: #20a464 !important;
 }
 
 .chatDiv {
@@ -170,34 +137,4 @@ input::-webkit-input-placeholder {
 
 input::hover {
     cursor: text;
-}
-
-.attackButton {
-    position: fixed;
-    right: 0;
-    transform: translate(-20%, 10%);
-    border-radius: 20%;
-    background: rgba( 34, 34, 34, .1 );
-    width: 10%;
-    aspect-ratio: 1;
-    color: white;
-    border: 3px solid rgba( 34, 34, 34, .3 );
-    text-align: center;
-    font-size: 2vw;
-    visibility: hidden;
-}
-
-.defendButton {
-    position: fixed;
-    right: 0;
-    transform: translate(-140%, 10%);
-    border-radius: 20%;
-    background: rgba( 34, 34, 34, .1 );
-    width: 10%;
-    aspect-ratio: 1;
-    color: white;
-    border: 3px solid rgba( 34, 34, 34, .3 );
-    text-align: center;
-    font-size: 2vw;
-    visibility: hidden;
 }

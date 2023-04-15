@@ -2,24 +2,16 @@ const express = require('express');
 const WebSocket = require('ws');
 const msgpack = require("msgpack-lite");
 
-
 const Map = require('./Simulate/Map.js');
-const Player = require('./Player.js');
-const newId = require('./Modules/GenerateId.js');
+const newId = require('./Simulate/GenerateId.js');
+const MessageHandler = require('./Simulate/ProcessMessage.js');
+const Game = require('./Simulate/Game.js');
 
-class Server {
+module.exports = class Server {
     constructor(){
         this.clients = {};
 
         this.defineModules();
-
-        this.defaultState = {
-            x: 25,
-            y: 25,
-            angle: 0,
-            magnitude: 0,
-            dev: false
-        }
     }
     run() {
         this.setupWS();
@@ -28,7 +20,7 @@ class Server {
     }
     defineModules(){
         this.messageHandler = new MessageHandler(this);
-        this.game = new Game();
+        this.game = new Game(this);
     }
     setupWS(){
         this.app = express();
@@ -39,11 +31,12 @@ class Server {
         this.app.get("/", function (req, res) {
             res.sendFile("index.html");
         });
-
-        const srvr = app.listen(3000);
+        
+        const srvr = this.app.listen(3000);
+        console.log('Server listing on port ' + 3000);
         srvr.on('upgrade', (request, socket, head) => {
-            wss.handleUpgrade(request, socket, head, socket => {
-                wss.emit('connection', socket, request);
+            this.wss.handleUpgrade(request, socket, head, socket => {
+                this.wss.emit('connection', socket, request);
             });
         });
 
@@ -54,22 +47,26 @@ class Server {
             const clientId = newId();
             this.clients[clientId] = ws;
         
-            this.addPlayer(clientId, defaultState);
+            this.addPlayer(clientId);
+
+            this.send({init: {selfId: clientId, ...this.game.packMap(clientId)}}, clientId);
             
             ws.on("message",(data)=>{
-                MessageHandler.processMsg(msgpack.decode(new Uint8Array(data)));
+                this.messageHandler.processMsg(msgpack.decode(new Uint8Array(data)), clientId);
             })
             ws.on('close',() => {
                 this.removePlayer(clientId);
             })
         })
     }
-    addPlayer(id, init){
+    addPlayer(id){
         // add player to the game
-        this.game.addPlayerToMap(new Player(id, init));
+        this.game.addPlayerToMap(id);
+
+        // send init data as well
     }
     removePlayer(id) {
-        this.game.removePlayerFromMap(players[id], players[id].map);
+        this.game.removePlayerFromMap(id);
         delete this.clients[id];
     }
     send(msg,id){

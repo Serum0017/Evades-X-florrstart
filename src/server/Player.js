@@ -15,7 +15,14 @@ module.exports = class Player{
 
         this.dev = init.dev;
 
-        this.lastRenderState = this.createRenderState();
+        this.input = {
+            up: false,
+            left: false,
+            down: false,
+            right: false
+        }
+
+        this.shape = 'circle';
     }
     simulate(){
         // basic simulation that doesnt require anything else; same thing used in prediction

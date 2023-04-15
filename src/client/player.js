@@ -1,15 +1,11 @@
-import simulatePlayer from './somewhere.js';
+import simulatePlayer from './simulate/simulatePlayer.js';
 
-const playerSpeed = 1;
-const petalDistance = 61.1;
-const maxHp = 100;
-
-class Player{
+export default class Player{
     constructor(id, init){
         this.id = id;
-        this.x = init.x;
-        this.y = init.y;
-        this.r = init.r;
+        // this.x = init.x;
+        // this.y = init.y;
+        // this.r = init.r;
 
         this.frictions = {};
 
@@ -17,14 +13,18 @@ class Player{
         this.angle = 0;
         this.magnitude = 0;
 
-        this.dev = init.dev;
+        this.dev = false;
 
         this.lastRenderState = this.createRenderState();
+
+        for(let key in init){
+            this[key] = init[key];
+        }
     }
     simulate(){
-        simulatePlayer(this);// run the mini simulate function for 1 tick
+        simulatePlayer(this);// run the mini simulate function for 1 tick (prediction)
     }
-    render() {
+    render(ctx, canvas, camera) {
         ctx.fillStyle = 'black';
         
         ctx.beginPath();
@@ -38,7 +38,6 @@ class Player{
         return {
             x: this.x,
             y: this.y,
-            hp: this.hp
         }
     }
     updatePack(data){

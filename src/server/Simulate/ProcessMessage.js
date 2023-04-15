@@ -7,6 +7,9 @@ let processMsg = {
         player.magnitude = Math.min(300, msg.magnitude);
         player.lastInputTimer = Date.now();
     },
+    input: (msg, player, handler) => {
+        player.input = msg.input;
+    }
 }
 
 module.exports = class MessageHandler {
@@ -16,7 +19,7 @@ module.exports = class MessageHandler {
     processMsg(msg={}, id){
         for(let key in msg){
             if(processMsg[key] !== undefined){
-                processMsg[key](msg, server.players[id], this);
+                processMsg[key](msg, this.server.game.players[id], this);
             }
         }
     }
