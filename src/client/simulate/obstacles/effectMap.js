@@ -24,11 +24,11 @@ const Effects = {
             y: obstacle.bounciness*sat.overlapN.y
         }, player, obstacle.friction);
     },
-    breakable: (sat, player, obstacle) => {
+    breakable: (sat, player, obstacle, {tick}) => {
         if(obstacle.strength > 0){
             bound(sat, player);
             obstacle.strength--;
-            obstacle.lastBrokeTime = player.tick;
+            obstacle.lastBrokeTime = tick;
         }
     },
     resetFriction: (sat, player, obstacle) => {

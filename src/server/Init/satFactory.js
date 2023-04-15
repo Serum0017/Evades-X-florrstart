@@ -4,12 +4,13 @@ const SAT = require('sat');//require('sat');
 
 class SATFactory {
     constructor() {
+        // IMPORTANT: make sure to copy any changes made to this.generateSAT to the client sided satFactory.js
         this.generateSAT = {
             square: ({ x,y,w,h }) => {
                 return new SAT.Box(new SAT.Vector(x-w/2, y-h/2), w, h).toPolygon();
             },
-            circle: ({ x,y,radius }) => {
-                return new SAT.Circle(new SAT.Vector(x, y), radius);
+            circle: ({ x,y,r }) => {
+                return new SAT.Circle(new SAT.Vector(x, y), r);
             },
             poly: ({ points }) => {
                 return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0], p[1]))]);

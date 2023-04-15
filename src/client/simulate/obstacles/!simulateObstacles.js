@@ -5,17 +5,14 @@ import effectMap from './effectMap.js';
 
 const hash = new SpatialHash();
 
-// simulate obstacles, run collision, run collision effects
-// run this for one player
-export default function simulateObstacles(player, players, obstacles){
+// literally just simulate obstacles, nothing else
+function simulateObstacles(player, players, obstacles, tick){
     // simulating obstacles
-    
-    const other = {obstacles, players};
     for(let i = 0; i < obstacles.length; i++){
         // simulate the obstacle
-        Simulate(player, obstacles[i], other);
+        Simulate(player, obstacles[i], {obstacles, players, tick});
         // simualteEffectsFunction
-        effectMap.runIdleEffects(player, obstacles[i], other);
+        effectMap.runIdleEffects(player, obstacles[i], {obstacles, players, tick});
         // TODO: if the obstacle is server sided, simulate it in relation to nearby players
     }
 
@@ -38,3 +35,23 @@ export default function simulateObstacles(player, players, obstacles){
     //      - if the object is server sided:
     //          - simulate in relation to near players
 }
+
+function runObstacleCollisions(player, players, obstacles, tick){
+    // - get all colliding objects (spatial hash)
+    // - for each object:
+    //  - run collision effects
+    //  - update the player's sat
+    // - for each server sided object:
+    //  - if we have influenced it, then send changes to server
+
+    // TODO: spatial hashing
+    for(let i = 0; i < obstacles.length; i++){
+        const response = Collide(player, obstacles[i]);
+        if(response !== false){
+            // run collision response
+            effectMap.runEffects(response, player, obstacles[i], {obstacles, players, tick});
+        }
+    }
+}
+
+export default {simulateObstacles, runObstacleCollisions};

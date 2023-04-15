@@ -1,5 +1,6 @@
 import Player from './player.js';
-import simulateObstacles from './simulate/obstacles/!simulateObstacles.js';
+import ObstacleManager from './simulate/obstacles/!simulateObstacles.js';
+import generateSAT from './simulate/obstacles/satFactory.js';
 
 export default class Map {
     constructor(){
@@ -21,18 +22,63 @@ export default class Map {
         console.log({data});
 
         for(let i = 0; i < this.obstacles.length; i++){
-            if(this.obstacles[i].sat.points === undefined){
-                // no points - its a circle
-                const lastData = {offset: {x: this.obstacles[i].sat.offset.x, y: this.obstacles[i].sat.offset.y}};
-                this.obstacles[i].sat = new SAT.Circle(new SAT.Vector(this.obstacles[i].sat.pos.x, this.obstacles[i].sat.pos.y), this.obstacles[i].sat.r);
-                this.obstacles[i].sat.setOffset(lastData.offset);
-            } else {
-                // there are points - its a polygon
-                const lastData = {angle: this.obstacles[i].sat.angle, offset: {x: this.obstacles[i].sat.offset.x, y: this.obstacles[i].sat.offset.y}};
-                this.obstacles[i].sat = new SAT.Polygon(new SAT.Vector(), ...this.obstacles[i].sat.points.map(p => new SAT.Vector(p.x, p.y)));
-                this.obstacles[i].sat.setOffset(lastData.offset);
-                this.obstacles[i].sat.setAngle(lastData.angle);
-            }
+            // if(this.obstacles[i].sat.points === undefined){
+            //     // no points - its a circle
+            //     const lastData = {offset: {x: this.obstacles[i].sat.offset.x, y: this.obstacles[i].sat.offset.y}};
+            //     this.obstacles[i].sat = new SAT.Circle(new SAT.Vector(this.obstacles[i].sat.pos.x, this.obstacles[i].sat.pos.y), this.obstacles[i].sat.r);
+            //     this.obstacles[i].sat.setOffset(lastData.offset);
+                
+            //     // const sat = new SAT.Circle();
+            //     // for(let key in this.obstacles[i].sat){
+            //     //     const prop = this.obstacles[i].sat[key];
+            //     //     // converting to SAT.vector if necessary
+            //     //     if(Array.isArray(prop)){
+            //     //         for(let p = 0; p < prop.length; p++){
+            //     //             if(prop[p].x !== undefined && prop[p].y !== undefined){
+            //     //                 sat[key] = new SAT.Vector(prop[p].x, prop[p].y);
+            //     //             } else {
+            //     //                 sat[key] = prop[p];
+            //     //             }
+            //     //         }
+            //     //     } else {
+            //     //         if(prop.x !== undefined && prop.y !== undefined){
+            //     //             sat[key] = new SAT.Vector(prop.x, prop.y);
+            //     //         } else {
+            //     //             sat[key] = prop;
+            //     //         }
+            //     //     }
+            //     // }
+            //     // this.obstacles[i].sat = sat;
+            // } else {
+            //     // there are points - its a polygon
+            //     const lastData = {angle: this.obstacles[i].sat.angle, offset: {x: this.obstacles[i].sat.offset.x, y: this.obstacles[i].sat.offset.y}};
+            //     this.obstacles[i].sat = new SAT.Polygon(new SAT.Vector(), ...this.obstacles[i].sat.points.map(p => new SAT.Vector(p.x, p.y)));
+            //     this.obstacles[i].sat.setOffset(lastData.offset);
+            //     this.obstacles[i].sat.setAngle(lastData.angle);
+
+            //     // const sat = new SAT.Polygon();
+            //     // for(let key in this.obstacles[i].sat){
+            //     //     const prop = this.obstacles[i].sat[key];
+            //     //     // converting to SAT.vector if necessary
+            //     //     if(Array.isArray(prop)){
+            //     //         for(let p = 0; p < prop.length; p++){
+            //     //             if(prop[p].x !== undefined && prop[p].y !== undefined){
+            //     //                 sat[key] = new SAT.Vector(prop[p].x, prop[p].y);
+            //     //             } else {
+            //     //                 sat[key] = prop[p];
+            //     //             }
+            //     //         }
+            //     //     } else {
+            //     //         if(prop.x !== undefined && prop.y !== undefined){
+            //     //             sat[key] = new SAT.Vector(prop.x, prop.y);
+            //     //         } else {
+            //     //             sat[key] = prop;
+            //     //         }
+            //     //     }
+            //     // }
+            //     // this.obstacles[i].sat = sat;
+            // }
+            this.obstacles[i].sat = generateSAT(this.obstacles[i]);
         }
 
         this.settings = data.settings;
@@ -40,6 +86,8 @@ export default class Map {
 
         this.selfId = data.selfId;
         this.self = this.players[this.selfId];
+
+        this.tick = 0;
     }
     updatePack(data){
         for(let id in data.players){
@@ -58,16 +106,15 @@ export default class Map {
             this.players[id].simulate(this);
         }
 
-        simulateObstacles(this.self, this.players, this.obstacles);
+        ObstacleManager.simulateObstacles(this.self, this.players, this.obstacles, this.tick);
+        ObstacleManager.runObstacleCollisions(this.self, this.players, this.obstacles, this.tick);
+
+        this.tick++;
+
         // - simulate player
         // - update the player's sat
         // - simulate other players in player's screen with small movement simulation function (although follow the <2x last update state's distance covered rule - see arrow)
         // -- refer to !simulateObstacles.js for how we simulate obstacles --
-        // - get all colliding objects (spatial hash)
-        // - for each object:
-        //  - run collision effects
-        //  - update the player's sat
-        // - for each server sided object:
-        //  - if we have influenced it, then send changes to server
+        // -- refer to !simulateObstacles.js for how we collide with obstacles --
     }
 }

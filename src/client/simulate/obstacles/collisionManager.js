@@ -9,7 +9,7 @@ class Collision {
         // another idea/ necessity: in order for the game to be sucessful at all we need decoration blocks right on release
         
         // these need to be specified in the same order
-        this._addCollisionMap('circle', 'square', (circle, square) => {
+        this.addCollisionMap('circle', 'square', (circle, square) => {
             // if (
             //     /*distX*/Math.abs(circle.x - square.top.x/2 - square.bottom.x/2) < square.w / 2 + circle.r &&
             //     /*distY*/Math.abs(circle.y - square.top.y/2 - square.bottom.y/2) < square.h / 2 + circle.r
@@ -22,9 +22,8 @@ class Collision {
             return false;
         });
 
-        this._addCollisionMap('circle', 'circle', (circle1, circle2) => {
+        this.addCollisionMap('circle', 'circle', (circle1, circle2) => {
             if((circle1.x-circle2.x)**2+(circle1.y-circle2.y)**2 < (circle1.r+circle2.r)**2){
-                // return true;
                 const res = new SAT.Response();
                 SAT.testCircleCircle(circle2.sat, circle1.sat, res);
                 return res;
@@ -32,16 +31,18 @@ class Collision {
             return false;
         });
 
-        this._addCollisionMap('square', 'square', (square1, square2) => {
-            if(square1.x > square2.x + square2.w || square1.x+square1.w < square2.x) return false;
-            if(square1.y > square2.y + square2.h || square2.y > square1.y + square1.h) return false;
+        this.addCollisionMap('square', 'square', (square1, square2) => {
+            // if(square1.x > square2.x + square2.w || square1.x+square1.w < square2.x) return false;
+            // if(square1.y > square2.y + square2.h || square2.y > square1.y + square1.h) return false;
+            if(!intersectingBoundingBox(square1, square2)){
+                return false;
+            }
             const res = new SAT.Response();
-            
             SAT.testPolygonPolygon(square1.sat, square2.sat, res);
             return res;
         });
 
-        this._addCollisionMap('poly', 'square', (poly, square) => {
+        this.addCollisionMap('poly', 'square', (poly, square) => {
             if(!intersectingBoundingBox(poly, square)){
                 return false;
             }
@@ -52,7 +53,11 @@ class Collision {
             return false;
         });
 
-        this._addCollisionMap('circle', 'poly', (circle, poly) => {
+        this.addCollisionMap('circle', 'poly', (circle, poly) => {
+            if(!intersectingBoundingBox(circle, poly)){
+                return false;
+            }
+            
             const res = new SAT.Response();
             if (SAT.testPolygonCircle(poly.sat, circle.sat, res)) {
                 return res;
@@ -60,7 +65,7 @@ class Collision {
             return false;
         });
 
-        this._addCollisionMap('poly1', 'poly2', (poly1, poly2) => {
+        this.addCollisionMap('poly1', 'poly2', (poly1, poly2) => {
             if(!intersectingBoundingBox(poly1, poly2)){
                 return false;
             }
@@ -72,7 +77,7 @@ class Collision {
         });
     }
 	// outsource this later
-    _addCollisionMap(type1, type2, fn) {
+    addCollisionMap(type1, type2, fn) {
         if(this.collisionMap[type1] === undefined){
             this.collisionMap[type1] = {};
         }

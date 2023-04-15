@@ -15,29 +15,6 @@ export default class Game {
     }
     start() {
         this.renderer.start();
-
-        // simulate ticks with leftovers
-        // setInterval(() => {
-        //     // simulating lag (for testing)
-        //     // if(Math.random() > 0.98){
-        //     //     console.log('lag');
-        //     //     for(let i = 0; i < 10000000000; i++){
-        //     //         // this.tick();
-        //     //     }
-        //     // }
-            
-        //     this.simulationFrames = Date.now() - this.lastDate;
-        //     this.lastDate = Date.now();
-        
-        //     let i = 0;
-        //     while (i < this.simulationFrames) {
-        //         this.simulate();
-        //         i += 1000/60;// this.globalState.delta
-        //     }
-        
-        //     // compensating for leftovers
-        //     // this.lastDate += this.simulationFrames - i;
-        // }, 1000/60);
         requestAnimationFrame(this.run.bind(this));
     }
     initState(data){

@@ -18,9 +18,6 @@ function simulateNormal(e){
         e.yv = -e.yv;
         e.y = e.bound.y * 2 - e.y + e.difference.y;
     }
-    if(e.shape === 'poly' || e.shape === 'polygon'){
-        console.log(e);
-    }
 }
 
 const SimulateEnemyMap = {

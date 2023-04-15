@@ -67,10 +67,11 @@ export default class Renderer {
         for(let o of obstacles){
             ctx.toStroke = false;
             ctx.toFill = true;
-            ctx.globalAlpha = 1;
 
             renderEffect(o, ctx, {canvas, obstacles, players, colors: this.colors});
             renderShape(o, ctx, {canvas, obstacles, players, colors: this.colors});
+
+            ctx.globalAlpha = 1;
         }
     }
     renderTiles(tileOffset={x: 0, y: 0}){
