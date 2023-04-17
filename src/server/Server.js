@@ -2,7 +2,6 @@ const express = require('express');
 const WebSocket = require('ws');
 const msgpack = require("msgpack-lite");
 
-const Map = require('./Simulate/Map.js');
 const newId = require('./Simulate/GenerateId.js');
 const MessageHandler = require('./Simulate/ProcessMessage.js');
 const Game = require('./Simulate/Game.js');
@@ -16,7 +15,7 @@ module.exports = class Server {
     run() {
         this.setupWS();
 
-        this.game.run();
+        this.game.start();
     }
     defineModules(){
         this.messageHandler = new MessageHandler(this);
@@ -47,9 +46,7 @@ module.exports = class Server {
             const clientId = newId();
             this.clients[clientId] = ws;
         
-            this.addPlayer(clientId);
-            
-            this.send({init: {selfId: clientId, ...this.game.packMap(clientId)}}, clientId);
+            this.initPlayer(clientId);
             
             ws.on("message",(data)=>{
                 this.messageHandler.processMsg(msgpack.decode(new Uint8Array(data)), clientId);
@@ -59,27 +56,52 @@ module.exports = class Server {
             })
         })
     }
-    addPlayer(id){
-        // add player to the game
-        this.game.addPlayerToMap(id);
-
-        // send init data as well
+    initPlayer(id){
+        this.requestInitFor(id, this.game.defaultState.mapName);
     }
     removePlayer(id) {
         this.game.removePlayerFromMap(id);
         delete this.clients[id];
     }
-    send(msg,id){
+    requestInitFor(id, mapName){
+        if(Object.keys(this.game.maps[mapName].players).length === 0){
+            if(this.game.players[id] !== undefined){
+                this.game.removePlayerFromMap(id);
+            }
+
+            this.game.addPlayerToMap(id, mapName);
+
+            this.send(id, {init: {selfId: id, initTime: Date.now(), ...this.game.packMap(mapName)}});
+        } else {
+            // TODO: make sure this is safe and that the player will always recieve a map
+            const idsInMap = Object.keys(this.game.maps[mapName].players).filter(playerId => playerId !== id);
+            const idToRequest = idsInMap[Math.floor(Math.random()*idsInMap.length)];
+            this.send(idToRequest, {requestMap: true, idfor: id});
+        }
+    }
+    recievedMap(id, mapData, now){
+        if(this.game.players[id] !== undefined){
+            this.game.removePlayerFromMap(id);
+        }
+        
+        this.game.addPlayerToMap(id, mapData.name);
+
+        this.send(id, {init: {selfId: id, initTime: now, ...mapData, players: this.game.maps[mapData.name].players}});
+    }
+    send(id, msg){
         this.clients[id].send(msgpack.encode(msg));
     }
     broadcastInMap(mapName, msg){
         for(let id in this.game.maps[mapName].players){
-            this.send(msg, id);
+            this.send(id, msg);
         }
     }
     forEachMap(fn){
         for(let mapName in this.game.maps){
             fn(this.game.maps[mapName]);
         }
+    }
+    movePlayerToMap(id, mapName){
+        this.requestInitFor(id, mapName);
     }
 }

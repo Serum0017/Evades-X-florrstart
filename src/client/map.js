@@ -3,7 +3,10 @@ import ObstacleManager from './simulate/obstacles/!simulateObstacles.js';
 import generateSAT from './simulate/obstacles/satFactory.js';
 
 export default class Map {
-    constructor(){
+    constructor(client){
+        this.client = client;
+        this.game = this.client.game;
+
         this.players = {};
         this.obstacles = {};
 
@@ -14,6 +17,10 @@ export default class Map {
         this.self = null;
     }
     init(data){
+        if(this.self !== null){
+            this.players = {[this.selfId]: this.self};
+        }
+
         for(let id in data.players){
             this.players[id] = new Player(id, data.players[id]);
         }
@@ -89,9 +96,11 @@ export default class Map {
 
         this.tick = 0;
     }
-    updatePack(data){
-        for(let id in data.players){
-            this.players[id].updatePack(data.players[id]);
+    updatePack(playerData){
+        for(let id in playerData){
+            if(id !== this.selfId.toString()){
+                this.players[id].updatePack(playerData[id]);
+            }
         }
 
         // obstacles will be simulated server side, rest is client side.
@@ -106,8 +115,8 @@ export default class Map {
             this.players[id].simulate(this);
         }
 
-        ObstacleManager.simulateObstacles(this.self, this.players, this.obstacles, this.tick);
-        ObstacleManager.runObstacleCollisions(this.self, this.players, this.obstacles, this.tick);
+        ObstacleManager.simulateObstacles(this.self, this.players, this.obstacles, this.tick, this.client);
+        ObstacleManager.runObstacleCollisions(this.self, this.players, this.obstacles, this.tick, this.client);
 
         this.tick++;
 
@@ -116,5 +125,19 @@ export default class Map {
         // - simulate other players in player's screen with small movement simulation function (although follow the <2x last update state's distance covered rule - see arrow)
         // -- refer to !simulateObstacles.js for how we simulate obstacles --
         // -- refer to !simulateObstacles.js for how we collide with obstacles --
+    }
+    addPlayer(id, init){
+        this.players[id] = new Player(id, init);
+    }
+    removePlayer(id){
+        delete this.players[id];
+    }
+    initPack(){
+        return {
+            obstacles: this.obstacles,
+            settings: this.settings,
+            name: this.name,
+            players: this.players
+        };
     }
 }

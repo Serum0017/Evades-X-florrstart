@@ -6,13 +6,13 @@ import effectMap from './effectMap.js';
 const hash = new SpatialHash();
 
 // literally just simulate obstacles, nothing else
-function simulateObstacles(player, players, obstacles, tick){
+function simulateObstacles(player, players, obstacles, tick, client){
     // simulating obstacles
     for(let i = 0; i < obstacles.length; i++){
         // simulate the obstacle
         Simulate(player, obstacles[i], {obstacles, players, tick});
         // simualteEffectsFunction
-        effectMap.runIdleEffects(player, obstacles[i], {obstacles, players, tick});
+        effectMap.runIdleEffects(player, obstacles[i], {obstacles, players, tick, client});
         // TODO: if the obstacle is server sided, simulate it in relation to nearby players
     }
 
@@ -36,7 +36,7 @@ function simulateObstacles(player, players, obstacles, tick){
     //          - simulate in relation to near players
 }
 
-function runObstacleCollisions(player, players, obstacles, tick){
+function runObstacleCollisions(player, players, obstacles, tick, client){
     // - get all colliding objects (spatial hash)
     // - for each object:
     //  - run collision effects
@@ -49,7 +49,7 @@ function runObstacleCollisions(player, players, obstacles, tick){
         const response = Collide(player, obstacles[i]);
         if(response !== false){
             // run collision response
-            effectMap.runEffects(response, player, obstacles[i], {obstacles, players, tick});
+            effectMap.runEffects(response, player, obstacles[i], {obstacles, players, tick, client});
         }
     }
 }

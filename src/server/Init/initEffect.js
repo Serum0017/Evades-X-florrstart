@@ -9,6 +9,9 @@ const initEffectMap = {
             obs.friction = 0.2;
         }
     },
+    changeMap: (obs, init) => {
+        obs.map = init.map ?? 'Winroom';
+    },
     breakable: (obs, init) => {
         // all timings are in frames
         obs.strength = init.maxStrength;

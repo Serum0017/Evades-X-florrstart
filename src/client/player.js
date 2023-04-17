@@ -50,4 +50,8 @@ export default class Player{
             this[key] = data[key];
         }
     }
+    pack(){
+        // what we send to the server (TODO: differencepack)
+        return this;
+    }
 }

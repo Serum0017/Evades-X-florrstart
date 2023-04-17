@@ -24,12 +24,22 @@ const Effects = {
             y: obstacle.bounciness*sat.overlapN.y
         }, player, obstacle.friction);
     },
+    changeMap: (sat, player, obstacle, {client}) => {
+        bound(sat, player);
+        client.send({changeMap: obstacle.map});
+    },
     breakable: (sat, player, obstacle, {tick}) => {
         if(obstacle.strength > 0){
             bound(sat, player);
             obstacle.strength--;
-            obstacle.lastBrokeTime = tick;
+            if(obstacle.strength < 0){
+                obstacle.strength = 0;
+            }
         }
+
+        // we dont want breakable obstacles to be able to regenerate on top of you
+        // if you see this past uni 4 then make a canRegenOnTop param ;)
+        obstacle.lastBrokeTime = tick;
     },
     resetFriction: (sat, player, obstacle) => {
         player.frictions = {};
@@ -60,15 +70,13 @@ const Effects = {
 // stuff that is mandatory for effects but shouldnt count as a simulation type
 const IdleEffects = {
     breakable: (player, obstacle, { tick }) => {
-        if (obstacle.strength < obstacle.maxStrength) {
-            if(tick-obstacle.lastBrokeTime > obstacle.regenTime){
-                obstacle.strength += obstacle.healSpeed;
-                if(obstacle.strength >= obstacle.maxStrength){
-                    obstacle.lastBrokeTime = tick;
-                    obstacle.strength = obstacle.maxStrength;
-                }
+        if (obstacle.strength < obstacle.maxStrength && tick-obstacle.lastBrokeTime > obstacle.regenTime) {
+            obstacle.strength += obstacle.healSpeed;
+            if(obstacle.strength >= obstacle.maxStrength){
+                obstacle.lastBrokeTime = tick;
+                obstacle.strength = obstacle.maxStrength;
             }
-        } 
+        }
     }
 }
 

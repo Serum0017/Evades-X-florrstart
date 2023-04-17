@@ -20,6 +20,8 @@ export default class Game {
     initState(data){
         // initializes map client side
         this.map.init(data);
+        console.log('simulating for ' + (Date.now() - data.initTime) * 1000 / 60 + ' ticks');
+        this.accum += Date.now() - data.initTime;
     }
 
     // tick every 1/60th of a second no matter the fps
@@ -39,5 +41,16 @@ export default class Game {
     simulate(){
         // simulate 1 tick
         this.map.simulate();
+
+        this.sendState();
+    }
+    sendState(){
+        this.client.send({update: this.map.self.pack()});
+    }
+    addPlayer(id, init){
+        this.map.addPlayer(id, init);
+    }
+    removePlayer(id){
+        this.map.removePlayer(id);
     }
 }

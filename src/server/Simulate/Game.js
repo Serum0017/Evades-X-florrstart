@@ -1,54 +1,26 @@
+const Player = require('./Player.js');
 const Map = require('./Map.js');
-const Player = require('../Player.js');
+const mapData = require('../mapData.js');
 // run all maps basically
-
-// when outsourcing this to another folder, make sure that you add maps in the game constructor to preserve modularity
-// class Game {constructor(server, maps){}...}
-const testmap = {
-    name: 'Planet of Bad Commit Messages',
-    init: [
-        {type: 'settings', dimensions: {x: 500, y: 500}},// settings obstacle will always be the first obstacle, otherwise default to saved settings
-        // shape, simulate, effect
-        // {type: 'square-move-normal', /*x: 350, y: 350,*/ w: 60, h: 60, currentPoint: 0, path: [[350, 350], [350, 300], [400, 350]], speed: 2},
-        // {type: 'circle-move-normal', /*x: 150, y: 150,*/ r: 50, currentPoint: 0, path: [[150, 350], [150, 300], [200, 350]], speed: 1},
-        // //{type: 'circle-move-bounce', /*x: 150, y: 150,*/ r: 20, currentPoint: 0, path: [[10, 10], [490, 10], [490, 490], [0, 490]], bounciness: 120, speed: 1},
-        
-        {type: 'square-normal-normal', x: 400, y: 150, w: 50, h: 50, bounciness: 1, friction: 0.98 },
-        {type: 'circle-normal-bounce', x: 75, y: 425, r: 50, bounciness: 10, friction: 0.9 },
-        {type: 'circle-normal-resetFriction', x: 250, y: 250, r: 50},
-        {type: 'circle-normal-tp', x: 250, y: 150, r: 50, tp: {x: 450, y: 50}},
-        //{type: 'poly-move-normal', x: 400, y: 400, w: 100, h: 100, points: [[100, 100], [150, 100], [150, 150]], path: [[400, 400], [350, 400], [350, 450]], currentPoint: 0, speed: 0.5},
-        // {type: 'poly-normal-breakable', points: [[50, 50], [150, 50], [100, 125], [50, 100]], maxStrength: 100 },
-        {type: 'poly-move-breakable', x: 0, y: 0, points: [[0, 0], [100, 0], [50, 75]], path: [[0, 0], [200, 200], [100, 200]], currentPoint: 0, speed: 3, maxStrength: 20, regenTime: 100, healSpeed: .1},
-
-        {type: 'circle-enemy-breakable', bound: {x: 350, y: 350, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 3, r: 10, maxStrength: 100, regenTime: 100, healSpeed: 10},
-        {type: 'circle-enemy-breakable', bound: {x: 350, y: 350, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 3, r: 10, maxStrength: 100, regenTime: 100, healSpeed: 10},
-        {type: 'circle-enemy-breakable', bound: {x: 350, y: 350, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 3, r: 10, maxStrength: 100, regenTime: 100, healSpeed: 10},
-        {type: 'square-enemy-breakable', bound: {x: 350, y: 350, w: 100, h: 100}, w: 40, h: 40, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 1.8, r: 10, maxStrength: 100, regenTime: 100, healSpeed: 10},
-        {type: 'poly-enemy-breakable', points: [[0, 0], [40, 0], [20, 30]], bound: {x: 350, y: 350, w: 100, h: 100}, w: 40, h: 40, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 1.8, r: 10, maxStrength: 100, regenTime: 100, healSpeed: 10},
-        // {type: 'circle-enemy-normal', bound: {x: 350, y: 350, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 3, r: 10},
-        // {type: 'circle-enemy-normal', bound: {x: 350, y: 350, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 3, r: 10},
-        // {type: 'circle-enemy-normal', bound: {x: 350, y: 350, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 3, r: 10},
-    ]
-}
 
 module.exports = class Game {
     constructor(server){
         this.players = {};
         this.server = server;
-        this.mapData = {[testmap.name]: testmap};// data required to unload/ load maps
+        this.mapData = mapData;//{[testmap.name]: testmap};// data required to unload/ load maps
         this.maps = {};
         for(let key in this.mapData){
             this.maps[key] = new Map();
         }
         this.defaultState = {
-            x: 100,
-            y: 100,
+            xv: 0,
+            yv: 0,
             r: 24.5,
             angle: 0,
             magnitude: 0,
             dev: false,
-            map: this.mapData[testmap.name]
+            map: this.maps.Hub,
+            mapName: 'Hub',
         }
     }
     loadMap(mapName){
@@ -57,15 +29,21 @@ module.exports = class Game {
     unloadMap(mapName){
         this.maps[mapName] = this.maps[mapName].unload();
     }
-    addPlayerToMap(id, mapName=this.defaultState.map.name) {
-        this.players[id] = new Player(id, this.defaultState);
-
+    addPlayerToMap(id, mapName=this.defaultState.mapName) {
         if(Object.keys(this.maps[mapName].players).length === 0){
             this.loadMap(mapName);
         }
+
+        this.players[id] = new Player(id, this.defaultState);
+
         this.maps[mapName].addPlayer(this.players[id]);
+        this.players[id].map = mapName;
+
+        this.server.broadcastInMap(mapName, {join: this.players[id].initPack()});
     }
     removePlayerFromMap(id){
+        this.server.broadcastInMap(this.players[id].map, {leave: id});
+
         const mapName = this.players[id].map;
         this.maps[mapName].removePlayer(this.players[id]);
         delete this.players[id];
@@ -83,21 +61,20 @@ module.exports = class Game {
         // send update pack
         
         // TODO: updatepack (also rerun this function for every leftovers tick)
-        // for(let mapId in this.maps){
-        //     this.server.broadcastInMap(mapId, this.updatePackMap(mapId));
-        // }
+        for(let mapId in this.maps){
+            this.server.broadcastInMap(mapId, this.updatePackMap(mapId));
+        }
 
         // simulate anti cheat and stuff
     }
-    packMap(id){
-        return this.maps[this.players[id].map].initPack();
+    packMap(mapName){
+        return this.maps[mapName].initPack();
     }
     updatePackMap(mapId){
         return this.maps[mapId].updatePack();
     }
     moveToMap(id, mapName){
-        this.removePlayerFromMap(this.players[id].map);
-        this.players[id].map = mapName;
-        this.addPlayerToMap(this.players[id], mapName);
+        this.removePlayerFromMap(id);
+        this.addPlayerToMap(id, mapName);
     }
 }

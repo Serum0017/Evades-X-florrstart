@@ -4,16 +4,28 @@ let processMsg = {
     chat: (msg) => {
         appendChatMessage(msg.chat);
     },
-    init: (msg, player, handler) => {
+    init: (msg, handler, player) => {
         handler.game.initState(msg.init);
         
         handler.client.inputHandler.start();
         handler.client.game.start();
     },
     // update: Map object {players, obstacles, settings, name}
-    update: (msg, player, handler) => {
-        handler.map.updatePack(msg.update);
-    } 
+    update: (msg, handler, player) => {
+        handler.map.updatePack(msg.players);
+    },
+    leave: (msg, handler, player) => {
+        handler.game.removePlayer(msg.leave);
+    },
+    join: (msg, handler, player) => {
+        if(msg.join.id === handler.map.selfId){
+            return;
+        }
+        handler.game.addPlayer(msg.join.id, msg.join);
+    },
+    requestMap: (msg, handler, player) => {
+        handler.client.send({mapData: handler.map.initPack(), now: Date.now(), idfor: msg.idfor});
+    }
 }
 
 export default class MessageHandler {
@@ -26,7 +38,7 @@ export default class MessageHandler {
     processMsg(msg={}){
         for(let key in msg){
             if(processMsg[key] !== undefined){
-                processMsg[key](msg, this.me, this);
+                processMsg[key](msg, this, this.me);
             }
         }
     }

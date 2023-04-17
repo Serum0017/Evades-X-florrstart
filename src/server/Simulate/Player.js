@@ -7,7 +7,7 @@ module.exports = class Player{
 
         this.frictions = {};
 
-        this.speed = 430 / 100;
+        this.speed = 430 / 60 //equal to 430 / 60, the same speed from semioldevade
         this.friction = 0.4;
 
         this.map = init.map.name;
@@ -39,5 +39,12 @@ module.exports = class Player{
     updatePack() {
         // TODO: implement differencePack optimization
         return this;
+    }
+    updateState(data) {
+        // console.log(data);
+        // TODO: make sure this is safe and wont crash the server (also difference pack)
+        for(let key in data){
+            this[key] = data[key];
+        }
     }
 }

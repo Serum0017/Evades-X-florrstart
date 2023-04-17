@@ -10,6 +10,13 @@ const renderEffectMap = {
     bounce: (o, ctx, advanced) => {
         ctx.fillStyle = 'blue';
     },
+    changeMap: (o, ctx, advanced) => {
+        if(o.map === 'Winroom'){
+            ctx.fillStyle = `hsl(${Date.now()/12},50%,50%)`;
+        } else {
+            ctx.fillStyle = 'yellow';// TODO: draw difficulty images like in semioldevade
+        }
+    },
     resetFriction: (o, ctx, advanced) => {
         ctx.fillStyle = 'orange';
         ctx.strokeStyle = 'black';
