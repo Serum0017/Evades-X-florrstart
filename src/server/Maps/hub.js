@@ -7,7 +7,7 @@ module.exports = {
         // {type: 'circle-move-normal', /*x: 150, y: 150,*/ r: 50, currentPoint: 0, path: [[150, 350], [150, 300], [200, 350]], speed: 1},
         // //{type: 'circle-move-bounce', /*x: 150, y: 150,*/ r: 20, currentPoint: 0, path: [[10, 10], [490, 10], [490, 490], [0, 490]], bounciness: 120, speed: 1},
 
-        {type: 'square-normal-changeMap', x: 400, y: 400, w: 50, h: 50, map: 'Planet of Simple Challenges' },
+        {type: 'circle-normal-changeMap', x: 400, y: 400, r: 25, w: 50, h: 50, map: 'Planet of Simple Challenges' },
         
         {type: 'square-normal-normal', x: 400, y: 150, w: 50, h: 50, bounciness: 1, friction: 0.98 },
         {type: 'circle-normal-bounce', x: 75, y: 425, r: 50, bounciness: 10, friction: 0.9 },

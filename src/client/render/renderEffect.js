@@ -1,3 +1,4 @@
+import Utils from '../util.js';
 // ok basically this file basically renders effects
 // wow such insight
 
@@ -14,7 +15,9 @@ const renderEffectMap = {
         if(o.map === 'Winroom'){
             ctx.fillStyle = `hsl(${Date.now()/12},50%,50%)`;
         } else {
-            ctx.fillStyle = 'yellow';// TODO: draw difficulty images like in semioldevade
+            ctx.toClip = true;// TODO: add difficulty param to changemap obstacles or get it from serv
+            ctx.toClipFn = (o, ctx, advanced) => {ctx.drawImage(Utils.difficultyImages.peaceful, o.top.x, o.top.y, o.bottom.x-o.top.x, o.bottom.y-o.top.y)};
+            ctx.toFill = false;
         }
     },
     resetFriction: (o, ctx, advanced) => {

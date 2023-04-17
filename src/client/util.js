@@ -24,6 +24,14 @@ const ref = {
   attackButton: document.querySelector('.attackButton'),
 };
 
+const difficultyFileNames = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Undefined'];
+const difficultyImages = {};
+for(let i = 0; i < difficultyFileNames.length; i++){
+  const key = difficultyFileNames[i].toLowerCase();
+  difficultyImages[key] = new Image();
+  difficultyImages[key].src = `./gfx/difficultyimages/${difficultyFileNames[i]}.png`;
+}
+
 // for player hp so you don't die at 20%
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
   if (w < 2 * r) r = w / 2;
@@ -61,5 +69,6 @@ export default {
   mobile,
   ref,
   connected,
-  disconnected
+  disconnected,
+  difficultyImages
 }

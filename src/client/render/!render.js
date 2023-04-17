@@ -67,6 +67,7 @@ export default class Renderer {
         for(let o of obstacles){
             ctx.toStroke = false;
             ctx.toFill = true;
+            ctx.toClip = false;
 
             renderEffect(o, ctx, {canvas, obstacles, players, colors: this.colors});
             renderShape(o, ctx, {canvas, obstacles, players, colors: this.colors});

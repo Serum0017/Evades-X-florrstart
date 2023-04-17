@@ -1,14 +1,17 @@
+import Utils from '../util.js';
 // body type will basically be solely responsible for drawing the shape
 const renderShapeMap = {
     circle: (o, ctx, advanced) => {
         ctx.beginPath();
         ctx.arc(o.x, o.y, o.r, 0, Math.PI*2);
-        fsin(ctx);
+        fsin(o, ctx, advanced);
         ctx.closePath();
     },
     square: (o, ctx, advanced) => {
-        if(ctx.toFill === true)ctx.fillRect(o.x-o.w/2,o.y-o.h/2,o.w,o.h);
-        if(ctx.toStroke === true)ctx.strokeRect(o.x-o.w/2,o.y-o.h/2,o.w,o.h);
+        ctx.beginPath();
+        ctx.rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h);
+        fsin(o, ctx, advanced);
+        ctx.closePath();
     },
     poly: (o, ctx, advanced) => {
         ctx.beginPath();
@@ -17,15 +20,21 @@ const renderShapeMap = {
             ctx.lineTo(o.points[i][0], o.points[i][1]);
         }
         ctx.lineTo(o.points[0][0], o.points[0][1]);
-        fsin(ctx);
+        fsin(o, ctx, advanced);
         ctx.closePath();
     }
 }
 
 // fill stroke if needed
-function fsin(ctx){
+function fsin(o, ctx, advanced){
     if(ctx.toFill === true)ctx.fill();
     if(ctx.toStroke === true)ctx.stroke();
+    if(ctx.toClip === true){
+        ctx.save();
+        ctx.clip();
+        ctx.toClipFn(o, ctx, advanced);
+        ctx.restore();
+    }
 }
 
 export default function renderShape(o, ctx, advanced) {
