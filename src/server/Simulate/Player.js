@@ -22,7 +22,8 @@ module.exports = class Player{
             up: false,
             left: false,
             down: false,
-            right: false
+            right: false,
+            shift: false
         }
 
         this.shape = 'circle';
@@ -32,6 +33,9 @@ module.exports = class Player{
 
         this.top = {x: this.x - this.r, y: this.y - this.r};
         this.bottom = {x: this.x + this.r, y: this.y + this.r};
+
+        this.spawn = init.map.settings.spawn;
+        this.dead = false;
     }
     initPack(){
         return this;

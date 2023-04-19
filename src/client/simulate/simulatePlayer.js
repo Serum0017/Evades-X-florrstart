@@ -1,7 +1,11 @@
 // simple simulate function for simulating the p based on input
 export default function simulatePlayer(p, map) {
-	p.xv += (p.input.right - p.input.left) * p.speed;
-	p.yv += (p.input.down - p.input.up) * p.speed;
+	if(p.dead === true){
+		return;
+	}
+	
+	p.xv += (p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1);
+	p.yv += (p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1);
 	p.xv *= p.friction;
 	p.yv *= p.friction;
     

@@ -8,6 +8,15 @@ const renderEffectMap = {
     normal: (o, ctx, {colors}) => {
         ctx.fillStyle = colors.tile;
     },
+    lava: (o, ctx, advanced) => {
+        ctx.fillStyle = '#c70000';
+        if (o.solid === false) {
+            ctx.fillStyle = '#9e0000';
+        }
+        ctx.strokeStyle = 'black';
+        ctx.toStroke = true;
+        ctx.lineWidth = 2;
+    },
     bounce: (o, ctx, advanced) => {
         ctx.fillStyle = 'blue';
     },
@@ -19,6 +28,9 @@ const renderEffectMap = {
             ctx.toClipFn = (o, ctx, advanced) => {ctx.drawImage(Utils.difficultyImages.peaceful, o.top.x, o.top.y, o.bottom.x-o.top.x, o.bottom.y-o.top.y)};
             ctx.toFill = false;
         }
+    },
+    changeColor: (o, ctx, advanced) => {
+        ctx.toFill = false;
     },
     resetFriction: (o, ctx, advanced) => {
         ctx.fillStyle = 'orange';

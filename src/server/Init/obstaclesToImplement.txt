@@ -1,0 +1,127 @@
+TODO: implement these obstacles
+
+--- Shape: ---
+None,
+Oval,
+CircularHollowSlice,
+Text,
+RoundedCorners,
+Bezier?,
+
+--- Simulate: ---
+NOTE: TODO: make simulateTypes an array before you add any of these types!
+Rotating,
+Growing (with anchor pt param and separate x and y growing),
+Switch,
+RotatePause,
+MovingPause,
+RotatingHoming (sentry -> except it has array of targets that can include obstacle ids [5,6,112] as well as a toRotateHomeToPlayers boolean that decides if we should home towards players. Homes towards the closest target. Damping object multiplictively determines how much less you home over distance (in this case its angle) like {2: 0.8} /*if you get twice as far away, you have 0.8x the speed*/),
+MovingHoming (sentry -> except it has array of targets that can include obstacle ids [5,6,112] as well as a toMoveHomeToPlayers boolean that decides if we should home towards players. homes towards the closest target. Damping object multiplictively determines how much less you home over distance like {2: 0.8} /*if you get twice as far away, you have 0.8x the speed*/),
+TurningHoming (like e2 homing enemies; moves but doesnt face the direction of the target instantly. Has an array of targets that can include obstacle ids [5,6,112] as well as a toTurnMoveHomeToPlayers boolean that decides if we should home towards players. homes towards the closest target. 2 damping objects (one for speed, one for change in angle) multiplictively determines how much less you home over distance like {2: 0.8} /*if you get twice as far away, you have 0.8x the speed*/),
+CollideWithTypes (like selfCollide enemy but with obstacles except you can supply an array of obstacle ids types that this obstacle can collide with. Also has a toCollideWithPlayers boolean that determines if the obstacle can collide w/ players. Default collides w/ all obstacle types),
+Repel (you can supply obstacle ids that this obstacle repels from like [1,2,123]. Default repels from all obstacle types. Damping object multiplicitively determines how much less you repel over distance {2: 0.8}/*if you are twice as far away, you will be repelled 0.8x as much*/ Has a repelStrength param that is global repelling strength.),
+Spawner (spawns other obstacles),
+Accel (changes simulateParams with keyframes ex. [{keyChain: ['moveSpeed'], startTime: 0, loop: true,/*if loop set to false, parameters will stop animating after keyframe 100. If loop set to true, after 100 is reached keyframes start back at 0.*/ keyFrames: {0: [20, 30, 10]/*set to 20, increase by 30+10*t each frame*/, 50: [10]/*set speed to 10*/, 100: [1,23,12,1,7]/*values before get increased by the values after each frame (position, speed, acceleration, jerk, ...)*/}, {keyChain: ['grav','x']/*.grav.x to acess subobject parameters*/, .../*you can modify multiple params at the same time*/}}]),
+Follow (follow another obstacle's parameters ex. follows x, y, moveSpeed of another enemy that has the same FollowId. Property on each key to either follow or interpolate, ex. [{keyChain: ['moveSpeed'], type: 'follow', bounds: {lower: 5, upper: 10} /*bounds to limit to (both keys are optional). only applies for numbers*/, numberOffset: -20 /*if this param is a number, the specified param will be set */}, {keyChain: ['grav','x']/*acessing subparameters*/, type: 'interpolate'}, keyChainTo: ['grav','y']/*we dont always wanna assign otherObstacle.x to this.x. If keyChainTo parameter is specified, assign keyChain param of other object to keyChainTo parameter of other object. Default keyChainTo to keyChain if not specified. Safety check is needed to make sure the two are the same type*/]),
+FollowId (defines id that other obstacles can follow, but doesnt do anything in itself),
+FollowPlayer (copies player's x and y position so that other obstacles can follow this (with interpolation on the other obstacle's end if needed). Boolean value parameter to copy ALL the player's parameters instead of just x and y.),
+EventResponse that triggers something when an event with matching id is fired. Possible things to trigger are:
+    - spawning an obstacle
+    - removing an obstacle
+    - changing a parameter of this: {keyChain: ['grav','y']}, output: (id, obstacle) => {if(id === this.); this.getKeyInChain(this.eventResponse)/*['grav','x'] turns into this.grav.x*/}
+    in practice, an obstacle with an eventResponse could be defined like this: {type: 'square-none-grav',x:0,y:0,w:100,h:100,direction:'down',force:100,eventResponses: [{type: 'changeParameter', id: 5, keyChain: ['amongUs','subparameter']},{type: 'changeParameter'/*you can change multiple parameters with a singular event*/, id: 5/*<- if i wanted to listen for 2 diff events and trigger two different things then i could set this id to 6*/, keyChain: ['otherParameter'/*can be same subparameter or different*/,'otherSubParameter']}]}
+EventEmitters (stuff emits an event with id, eventType, as well as event-specific parameters whenever something happens). Multiple EventEmitters should be able to be attached to the same object. Types of EventEmitters are:
+    - parameterEqualTo input: {keyChain: ['grav','x'], value: 3000}, emit: {id, obstacle}
+    - parameterLessThan input: {keyChain: ['moveSpeed'], value: 2}, emit: {id, obstacle}
+    - parameterGreaterThan input: {keyChain: ['moveSpeed'], value: 2}, emit: {id, obstacle}
+    in practice, an obstacle with an eventEmitter could be defined like this: {type: 'square-none-grav',x:0,y:0,w:100,h:100,direction:'down',force:100,eventEmitters: [{type: 'parameterEqualTo', keyChain: ['grav','z'], value: 100, id: 5}/*i could attach another parameterEqualTo to this array to check if its equal to one of two values if i wanted*/]}. If you wanted to get really spicy 
+    NOTE: TODO: we should have presets in the editor for common things like an enemy hitting a wall or pushing buttons so that ppl dont get scared away from eventEmitters
+Enemy: 
+    - NOTE: TODO: make simulateEnemyTypes an array before you add any of these enemy types!
+    - dasher
+    - e2dasher
+    - turning
+    - enemyGrav (pulls other enemies in)
+    - rain (as well as warper)
+    - memory
+    - flower
+    - pointAccel
+    - wavy
+    - jump
+    - pointAccel
+    - simulateSpawn (like semioldevade fire; stops and then spawns stuff in front of it where it will be <- include warning marker)
+
+--- Effect: ---
+Tp,
+Safe,
+Lava,
+SpeedObstacle,
+BoostPad (speedobstacle but it continues increasing like a timetrap)
+Conveyor (gravobstacle),
+Checkpoint,
+StoryDisplay,
+Zone,
+SpeedTrap,
+WB,
+SizePlayer,
+Slip,
+FrictionChanger,
+Pushbox (make this a simulate?),
+Tornado,
+SnapGrid,
+VinetteIncrease,
+ColorChange,
+Pusher (block with an x with a min and max)
+Coin,
+Platformer,
+TimeTrap (timeTrap, tpTrap, deathTrap, speedTrap, radiusTrap, etc.),
+InvincibilityPowerup,
+ToxicLava, (green lava w/ outline so that we dont confuse w/ tp that ignores inv)
+Filter,
+Particles,
+DeadMove,
+Revive,
+DrawObstacle,
+Clone (should support 2 types of clones: 1. basically another player being simulated, 2: same thing but changes to you are changes to clone),
+Ship,
+CoinDoor,
+MusicChange,
+Redirect,
+CookieCheck,
+Typing,
+Mashing,
+RevivePowerup,
+Raycasting,
+Spring,
+CircularSnap,
+IDIT,
+CameraChange,
+Gun,
+Golf,
+Zoom,
+Deathmark (and DeathCure),
+RestrictAxis,
+FallingArrow,
+HomingEnemy,
+Invert,
+DragonPowerup,
+PlayerCollide,
+CrowdButton,
+Hole,
+AmogusPowerup,
+GunslingerPowerup,
+Demo,
+GrapplePowerup,
+GrapplePoint,
+ResetCoins,
+Bonus,
+CameraChange,
+Rail,
+DeadPusher,
+Wind (moves you in direction obstacles is moving w/ strength param.),
+GravityAura (pulls player to a point, default to center of obs),
+Portal (has an id, blue/orange boolean. When entering a portal, you will be teleported to a random portal that has both the opposite parity (orange->blue, blue->orange) and same id. If none exist, you will be sent to {x: 0, y: 0})
+
+
+--- Renders: ---
+Block (transparency and color),

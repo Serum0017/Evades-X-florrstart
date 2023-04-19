@@ -28,8 +28,18 @@ export default class Player{
         // basic simulation that doesnt require anything else; same thing used in prediction
         simulatePlayer(this, map);
     }
+    respawn(){
+        // TODO
+        // this.renderRadius = 0;
+        this.x = this.spawn.x;
+        this.y = this.spawn.y;
+        this.dead = false;
+    }
     render(ctx, canvas, camera) {
         ctx.fillStyle = 'black';
+        if(this.dead === true){
+            ctx.fillStyle = 'red';
+        }
         
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);

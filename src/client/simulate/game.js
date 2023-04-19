@@ -17,13 +17,15 @@ export default class Game {
         this.renderer.start();
         requestAnimationFrame(this.run.bind(this));
     }
+    reset() {
+        this.renderer.reset();
+    }
     initState(data){
         // initializes map client side
         this.map.init(data);
         console.log('simulating for ' + (Date.now() - data.initTime) * 1000 / 60 + ' ticks');
         this.accum += Date.now() - data.initTime;
     }
-
     // tick every 1/60th of a second no matter the fps
     run(){
         this.accum += performance.now() - this.lastTime;

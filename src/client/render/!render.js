@@ -15,10 +15,15 @@ export default class Renderer {
 
         this.stopped = false;
 
-        this.colors = {
-            tile: '#415048',// the stroke
-            background: '#4d5f56',// the fill
-            safe: '#0f0f0',// the safecolor
+        this.defaultColors = {
+            tile: '#0d0d0d',// the stroke and outside of arena
+            background: '#383838',// the fillcolor
+            safe: '#8c8c8c'// the safe
+        }
+
+        this.colors = {};
+        for(let key in this.defaultColors){
+            this.colors[key] = this.defaultColors;
         }
     }
     start(){
@@ -32,6 +37,11 @@ export default class Renderer {
     }
     stop(){
         this.stopped = true;
+    }
+    reset(){
+        for(let key in this.defaultColors){
+            this.colors[key] = this.defaultColors[key];
+        }
     }
     render(){
         const { map } = this.client.game;
@@ -52,11 +62,22 @@ export default class Renderer {
 
         this.camera.resetTranslate();
 
+        if (me.dead === true){
+            this.renderRespawnPrompt();
+        }
+
         if(this.stopped === true){
             this.renderDisconnectedText();
         } else {
             requestAnimationFrame(this.render.bind(this));
         }
+    }
+    renderRespawnPrompt(){
+        ctx.fillStyle = 'white';
+        ctx.font = '30px Inter';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('R to respawn', canvas.width / 2, canvas.height - 85);
     }
     renderPlayers(players){
         for(let id in players){
@@ -104,13 +125,11 @@ export default class Renderer {
         ctx.lineWidth = 3;
     }
     renderDisconnectedText(){
-        ctx.font = '700 30px Inter';
         ctx.fillStyle = 'white';
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 3;
-        this.camera.resetTranslate();
-        ctx.strokeText('Disconnected', canvas.width/2, canvas.height/2 - 70);
-        ctx.fillText('Disconnected', canvas.width/2, canvas.height/2 - 70);
+        ctx.font = '40px Inter';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('DISCONNECTED', canvas.width - 170, canvas.height - 40);
         // idea: make it bounce around like the dvd logo?
     }
 }

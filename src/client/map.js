@@ -10,7 +10,7 @@ export default class Map {
         this.players = {};
         this.obstacles = {};
 
-        this.settings = {dimensions: {x: 1000, y: 1000}};
+        this.settings = {dimensions: {x: 1000, y: 1000}, spawn: {x: 50, y: 50}};
         this.name = "Planet of Unnamed";
 
         this.selfId = null;
@@ -93,6 +93,8 @@ export default class Map {
 
         this.selfId = data.selfId;
         this.self = this.players[this.selfId];
+        
+        this.client.reset();
 
         this.tick = 0;
     }

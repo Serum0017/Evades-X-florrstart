@@ -1,16 +1,17 @@
 const initEffectMap = {
     lava: (obs, init) => {
-        obs.collidable = init.collidable;
+        obs.solid = toBoolean(init.solid, true);
     },
     bounce: (obs, init) => {
-        obs.bounciness = init.bounciness;
-        obs.friction = Math.min(1, init.friction);
-        if(isNaN(obs.friction)){
-            obs.friction = 0.2;
-        }
+        obs.bounciness = toNumber(init.bounciness, 10);
+        obs.friction = Math.min(1, toNumber(init.friction, 0.2));
     },
+    // TODO: make sure all of these are safe for any input (same for other files)
     changeMap: (obs, init) => {
         obs.map = init.map ?? 'Winroom';
+    },
+    changeColor: (obs, init) => {
+        obs.colorsToChange = {background: init.backgroundColor, tile: init.tileColor, safe: init.safeColor};
     },
     breakable: (obs, init) => {
         // all timings are in frames
@@ -28,6 +29,14 @@ const initEffectMap = {
         obs.buttonId = init.buttonId;
     }
 };
+
+function toBoolean(key, defaultValue=false){
+    return (key !== false && key !== true) ? defaultValue : key;
+}
+
+function toNumber(num, defaultNumber=0){
+    return Number.isFinite(num) ? num : defaultNumber;
+}
 
 module.exports = function initEffect(params) {
     let init = {};

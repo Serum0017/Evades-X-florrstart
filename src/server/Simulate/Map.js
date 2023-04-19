@@ -68,6 +68,15 @@ function toNumber(num, defaultNumber=0){
     return Number.isFinite(num) ? num : defaultNumber;
 }
 
+function toHex(hex, defaultHex="#ff0000"){
+    for(let i = 0; i < hex.length; i++){
+        if(i === 0 && hex[i] === '#')continue;
+        if(Number.isFinite(hex[i]) === true)continue;
+        return defaultHex;
+    }
+    return hex;
+}
+
 function mapObject(obj, fn){
     Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)]))
 }

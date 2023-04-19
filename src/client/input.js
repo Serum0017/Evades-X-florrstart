@@ -9,6 +9,8 @@ const keycodes = {
     ArrowLeft: 'left',
     ArrowDown: 'down',
     ArrowRight: 'right',
+    ShiftLeft: 'shift',
+    ShiftRight: 'shift',
 }
 
 export default class InputHandler {
@@ -24,7 +26,8 @@ export default class InputHandler {
             up: false,
             down: false,
             left: false,
-            right: false
+            right: false,
+            shift: false
         };
 
         this.mouse = {x: window.innerWidth / 2, y: window.innerHeight / 2};
@@ -56,6 +59,11 @@ export default class InputHandler {
                 this.chatOpen = false;
                 Utils.ref.chatInput.value = '';
                 Utils.ref.chatInput.blur();
+
+                // reset inputs to prevent ghosting
+                for(let key in this.input){
+                    this.input[key] = false;
+                }
             } else if (e.type === 'keydown') {
                 // focus chat
                 this.chatOpen = true;
@@ -70,6 +78,12 @@ export default class InputHandler {
 
         // if we're not typing and we repeat keys, return
         if (e.repeat && this.chatOpen === false) return e.preventDefault();
+
+        // if player is dead and key is r, respawn
+        if (this.map.self.dead === true && e.code === 'KeyR'){
+            this.map.self.respawn();
+            return e.preventDefault();
+        }
 
         // otherwise, set inputs in this.inputs as they're mapped by keycodes
         this.input[keycodes[e.code]] = e.type === 'keydown';
@@ -86,5 +100,11 @@ export default class InputHandler {
         const dY = this.mouse.y - this.client.me().y + this.renderer.camera.y;
         const dX = this.mouse.x - this.client.me().x + this.renderer.camera.x;
         this.client.send({angle: Math.atan2(dY, dX), magnitude: Math.min(300,Math.sqrt(dY**2+dX**2))});
+    }
+    applyInputs(inputsToApply){
+        // re apply inputs to the reset player
+        for(let key in this.input){
+            inputsToApply[key] = this.input[key];
+        }
     }
 }

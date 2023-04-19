@@ -45,11 +45,13 @@ function runObstacleCollisions(player, players, obstacles, tick, client){
     //  - if we have influenced it, then send changes to server
 
     // TODO: spatial hashing
-    for(let i = 0; i < obstacles.length; i++){
-        const response = Collide(player, obstacles[i]);
-        if(response !== false){
-            // run collision response
-            effectMap.runEffects(response, player, obstacles[i], {obstacles, players, tick, client});
+    if(player.dead !== true){
+        for(let i = 0; i < obstacles.length; i++){
+            const response = Collide(player, obstacles[i]);
+            if(response !== false){
+                // run collision response
+                effectMap.runEffects(response, player, obstacles[i], {obstacles, players, tick, client});
+            }
         }
     }
 }

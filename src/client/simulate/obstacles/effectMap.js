@@ -17,6 +17,12 @@ const Effects = {
     normal: (sat, player) => {
         bound(sat, player);
     },
+    lava: (sat, player, obstacle) => {
+        if(obstacle.solid === true){
+            bound(sat, player);
+        }
+        player.dead = true;
+    },
     bounce: (sat, player, obstacle) => {
         bound(sat, player);
         bounce({
@@ -27,6 +33,9 @@ const Effects = {
     changeMap: (sat, player, obstacle, {client}) => {
         bound(sat, player);
         client.send({changeMap: obstacle.map});
+    },
+    changeColor: (sat, player, obstacle, {client}) => {
+        client.game.renderer.colors = obstacle.colorsToChange;
     },
     breakable: (sat, player, obstacle, {tick}) => {
         if(obstacle.strength > 0){
@@ -43,12 +52,6 @@ const Effects = {
     },
     resetFriction: (sat, player, obstacle) => {
         player.frictions = {};
-    },
-    lava: (sat, player, obstacle) => {
-        if(obstacle.collidable === true){
-            bound(sat, player);
-        }
-        player.dead = true;// btw lava doesnt work yet
     },
     tp: (sat, player, obstacle) => {
         player.x = obstacle.tp.x;

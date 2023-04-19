@@ -39,18 +39,6 @@ body {
     flex-direction: column;
 }
 
-#petalui {
-    position: fixed;
-    top: 90%;
-    left: 20%;
-    width: 60%;
-    height: 5%;
-    display: flex;
-    margin: auto;
-    align-items: center;
-    justify-content: center;
-}
-
 canvas {
     position: absolute;
     left: 0;

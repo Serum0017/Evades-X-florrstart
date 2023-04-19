@@ -30,7 +30,13 @@ export default class Client {
 
         this.ws.addEventListener('close', (event) => {
             this.disconnected = true;
+            this.game.renderer.stop();
         })
+    }
+    reset() {
+        this.inputHandler.applyInputs(this.game.map.self.input);
+        console.log(this.game.map.self.input);
+        this.game.reset();
     }
     send(msg){
         this.ws.send(msgpack.encode(msg));
