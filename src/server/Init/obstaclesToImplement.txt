@@ -52,9 +52,9 @@ Enemy:
     - simulateSpawn (like semioldevade fire; stops and then spawns stuff in front of it where it will be <- include warning marker)
 
 --- Effect: ---
-Tp,
+✅ Tp,
 Safe,
-Lava,
+✅ Lava,
 SpeedObstacle,
 BoostPad (speedobstacle but it continues increasing like a timetrap)
 Conveyor (gravobstacle),
@@ -70,7 +70,7 @@ Pushbox (make this a simulate?),
 Tornado,
 SnapGrid,
 VinetteIncrease,
-ColorChange,
+✅ ColorChange,
 Pusher (block with an x with a min and max)
 Coin,
 Platformer,
@@ -107,7 +107,7 @@ Invert,
 DragonPowerup,
 PlayerCollide,
 CrowdButton,
-Hole,
+Hole (has to do an ainb check in sats. if player is inside this then it is doesnt collide w/ anything),
 AmogusPowerup,
 GunslingerPowerup,
 Demo,
