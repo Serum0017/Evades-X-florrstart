@@ -23,8 +23,8 @@ export default class Game {
     initState(data){
         // initializes map client side
         this.map.init(data);
-        console.log('simulating for ' + (Date.now() - data.initTime) * 1000 / 60 + ' ticks');
-        this.accum += Date.now() - data.initTime;
+        console.log('simulating for ' + data.initTick + ' ticks');
+        // this.accum += data.initTick;
     }
     // tick every 1/60th of a second no matter the fps
     run(){

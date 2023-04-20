@@ -63,6 +63,7 @@ module.exports = class Game {
         // TODO: updatepack (also rerun this function for every leftovers tick)
         for(let mapId in this.maps){
             this.server.broadcastInMap(mapId, this.updatePackMap(mapId));
+            this.maps[mapId].tick++;
         }
 
         // simulate anti cheat and stuff

@@ -17,6 +17,7 @@ module.exports = class Map {
             }
         }
         this.name = name;
+        this.tick = 0;
         return this;
     }
     loadSettings(data){

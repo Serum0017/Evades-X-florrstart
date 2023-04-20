@@ -139,7 +139,8 @@ export default class Map {
             obstacles: this.obstacles,
             settings: this.settings,
             name: this.name,
-            players: this.players
+            players: this.players,
+            tick: this.tick
         };
     }
 }

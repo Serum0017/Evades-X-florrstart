@@ -36,7 +36,7 @@ export default function simulatePlayer(p, map) {
 		p.y = map.settings.dimensions.y - p.r;
 	}
 	
-    p.top = {x: p.x - p.r/2, y: p.y - p.r/2}
-    p.bottom = {x: p.x + p.r/2, y: p.y + p.r/2};
+    p.top = {x: p.x - p.r, y: p.y - p.r};
+    p.bottom = {x: p.x + p.r, y: p.y + p.r};
 	p.sat = new SAT.Circle(new SAT.Vector(p.x, p.y), p.r);// temp; will have generation later
 }

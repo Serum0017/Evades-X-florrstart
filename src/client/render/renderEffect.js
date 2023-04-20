@@ -25,7 +25,6 @@ const renderEffectMap = {
             ctx.fillStyle = `hsl(${Date.now()/12},50%,50%)`;
         } else {
             ctx.toClip = true;// TODO: add difficulty param to changemap obstacles or get it from serv
-            ctx.toClipFn = (o, ctx, advanced) => {ctx.drawImage(Utils.difficultyImages.peaceful, o.top.x, o.top.y, o.bottom.x-o.top.x, o.bottom.y-o.top.y)};
             ctx.toFill = false;
         }
     },
@@ -51,7 +50,17 @@ const renderEffectMap = {
     },
 }
 
-export default function renderEffect(o, ctx, advanced) {
+const renderEffectAfterShapeMap = {
+    changeMap: (o, ctx, advanced) => {
+        // Note: if ctx.toClip is specified then a renderEffectAfterShape is required to restore ctx.
+        ctx.drawImage(Utils.difficultyImages.peaceful, o.top.x, o.top.y, o.bottom.x-o.top.x, o.bottom.y-o.top.y);
+        ctx.restore();
+    },
+}
+
+// TODO: renderEffectAfterShape function that renders the effect after shape is finished for things not in fsin 
+
+function renderEffect(o, ctx, advanced) {
     // no try catch or anything because its SO MUCH SLOWER
     // gl finding the error if you didn't define the render
     // if(renderEffectMap[o.effect] !== undefined){
@@ -60,3 +69,9 @@ export default function renderEffect(o, ctx, advanced) {
     //     console.log('render effect map not defined for ' + JSON.parse(o));
     // }
 }
+
+function renderEffectAfterShape(o, ctx, advanced) {
+    renderEffectAfterShapeMap[o.effect](o, ctx, advanced);
+}
+
+export default {renderEffect, renderEffectAfterShapeMap, renderEffectAfterShape}

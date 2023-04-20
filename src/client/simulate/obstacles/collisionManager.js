@@ -10,6 +10,9 @@ class Collision {
         
         // these need to be specified in the same order
         this.addCollisionMap('circle', 'square', (circle, square) => {
+            if(!intersectingBoundingBox(circle, square)){
+                return false;
+            }
             // if (
             //     /*distX*/Math.abs(circle.x - square.top.x/2 - square.bottom.x/2) < square.w / 2 + circle.r &&
             //     /*distY*/Math.abs(circle.y - square.top.y/2 - square.bottom.y/2) < square.h / 2 + circle.r

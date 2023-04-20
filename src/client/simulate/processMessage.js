@@ -24,7 +24,7 @@ let processMsg = {
         handler.game.addPlayer(msg.join.id, msg.join);
     },
     requestMap: (msg, handler, player) => {
-        handler.client.send({mapData: handler.map.initPack(), now: Date.now(), idfor: msg.idfor});
+        handler.client.send({mapData: handler.map.initPack(), idfor: msg.idfor});
     }
 }
 

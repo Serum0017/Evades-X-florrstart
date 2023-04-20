@@ -5,7 +5,6 @@ let processMsg = {
     angle: (msg, player, handler) => {
         player.angle = msg.angle;
         player.magnitude = Math.min(300, msg.magnitude);
-        player.lastInputTimer = Date.now();
     },
     input: (msg, player, handler) => {
         player.input = msg.input;
@@ -21,7 +20,7 @@ let processMsg = {
     },
     mapData: (msg, player, handler) => {
         // sending the map back to the server either for anti cheat or init
-        handler.server.recievedMap(msg.idfor, msg.mapData, msg.now);
+        handler.server.recievedMap(msg.idfor, msg.mapData);
     }
 }
 

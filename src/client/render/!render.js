@@ -1,6 +1,6 @@
 import Utils from '../util.js';
 
-import renderEffect from './renderEffect.js'
+import EffectManager from './renderEffect.js'
 import renderShape from './renderShape.js';
 import renderSimulate from './renderSimulate.js';
 
@@ -51,7 +51,7 @@ export default class Renderer {
         ctx.fillStyle = this.colors.background;
         ctx.fillRect(0,0,canvas.width,canvas.height);
 
-        this.renderTiles({x: -me.x + canvas.width / 2, y: -me.y + canvas.height / 2});
+        this.renderTiles({x: (-me.x + canvas.width / 2) % 50, y: (-me.y + canvas.height / 2) % 50});
         
         this.camera.setTranslate({x: -me.x + canvas.width / 2, y: -me.y + canvas.height / 2});
     
@@ -90,8 +90,11 @@ export default class Renderer {
             ctx.toFill = true;
             ctx.toClip = false;
 
-            renderEffect(o, ctx, {canvas, obstacles, players, colors: this.colors});
+            EffectManager.renderEffect(o, ctx, {canvas, obstacles, players, colors: this.colors});
             renderShape(o, ctx, {canvas, obstacles, players, colors: this.colors});
+            if(EffectManager.renderEffectAfterShapeMap[o.effect] !== undefined){
+                EffectManager.renderEffectAfterShape(o, ctx, {canvas, obstacles, players, colors: this.colors});
+            }
 
             ctx.globalAlpha = 1;
         }
@@ -101,7 +104,7 @@ export default class Renderer {
         ctx.strokeStyle = this.colors.tile;
         ctx.lineWidth = 2;
     
-        for (let x = 0; x < canvas.width; x += 50) {
+        for (let x = 0; x < canvas.width+ctx.lineWidth+50; x += 50) {
             ctx.beginPath();
             ctx.moveTo(x+tileOffset.x, 0);
             ctx.lineTo(x+tileOffset.x, canvas.height);
@@ -109,7 +112,7 @@ export default class Renderer {
             ctx.closePath();
         }
     
-        for (let y = 0; y < canvas.height; y += 50) {
+        for (let y = 0; y < canvas.height+ctx.lineWidth+50; y += 50) {
             ctx.beginPath();
             ctx.moveTo(0, y+tileOffset.y);
             ctx.lineTo(canvas.width, y+tileOffset.y);

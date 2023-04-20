@@ -32,8 +32,6 @@ function fsin(o, ctx, advanced){
     if(ctx.toClip === true){
         ctx.save();
         ctx.clip();
-        ctx.toClipFn(o, ctx, advanced);
-        ctx.restore();
     }
 }
 

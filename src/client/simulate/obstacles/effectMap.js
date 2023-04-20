@@ -18,6 +18,9 @@ const Effects = {
         bound(sat, player);
     },
     lava: (sat, player, obstacle) => {
+        if(sat.overlap < 0.01){
+            return;
+        }
         if(obstacle.solid === true){
             bound(sat, player);
         }
@@ -32,7 +35,11 @@ const Effects = {
     },
     changeMap: (sat, player, obstacle, {client}) => {
         bound(sat, player);
-        client.send({changeMap: obstacle.map});
+        if(obstacle.hasTriggeredWin !== true){
+            obstacle.hasTriggeredWin = true;
+            client.send({changeMap: obstacle.map});
+        }
+        
     },
     changeColor: (sat, player, obstacle, {client}) => {
         client.game.renderer.colors = obstacle.colorsToChange;
