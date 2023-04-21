@@ -20,7 +20,10 @@ let processMsg = {
     },
     mapData: (msg, player, handler) => {
         // sending the map back to the server either for anti cheat or init
-        handler.server.recievedMap(msg.idfor, msg.mapData);
+        handler.server.recievedMap(msg.idfor, msg.mapData, msg.initTime);
+    },
+    pong: (msg, player, handler) => {
+        player.clientInitTime = performance.now();
     }
 }
 

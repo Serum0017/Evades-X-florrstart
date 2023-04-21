@@ -37,9 +37,9 @@ const Effects = {
         bound(sat, player);
         if(obstacle.hasTriggeredWin !== true){
             obstacle.hasTriggeredWin = true;
+            client.game.mapRequestedTime = performance.now();
             client.send({changeMap: obstacle.map});
         }
-        
     },
     changeColor: (sat, player, obstacle, {client}) => {
         client.game.renderer.colors = obstacle.colorsToChange;
