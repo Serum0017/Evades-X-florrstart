@@ -39,7 +39,7 @@ export default class Client {
         this.game.reset();
     }
     send(msg){
-        this.ws.send(msgpack.encode(msg));;
+        this.ws.send(msgpack.encode(msg));
     }
     me(){
         return this.map.self;

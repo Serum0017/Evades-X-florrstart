@@ -12,10 +12,6 @@ export default class Game {
 
         this.lastTime = performance.now();
         this.accum = 0;
-
-        this.mapRequestedTime = 0;
-
-        this.serverTimeOffset = 0;
     }
     start() {
         this.renderer.start();
@@ -28,18 +24,12 @@ export default class Game {
         // initializes map client side
         this.map.init(data);
 
-        this.accum += performance.now()-this.getServerTime();
-        this.serverTimeOffset = data.initTime-performance.now();
-        // this.accum += performance.now() - this.mapRequestedTime;
-        // console.log(performance.now(), this.mapRequestedTime);
-        // console.log('simulating for ' + ((performance.now() - this.mapRequestedTime) * 60/1000) + ' ticks');
+        if(data.extraSimulateTime !== undefined){
+            // we came in late, dont rely on other player's ping
+            this.accum += data.extraSimulateTime;
+            console.log('simulating for extra time: ' + data.extraSimulateTime);
+        }
     }
-    getServerTime(){
-        // server time is the server's time + one way ping to client
-        return this.serverTimeOffset + performance.now();
-        // when we send it in the init map, we recieve time offset by oneWayClientPing - otherWayClientPing at the server. This effectively cancels out.
-    }
-    // tick every 1/60th of a second no matter the fps
     run(){
         this.accum += performance.now() - this.lastTime;
         this.lastTime = performance.now();

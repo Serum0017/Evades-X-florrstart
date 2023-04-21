@@ -9,8 +9,6 @@ let processMsg = {
         
         handler.client.inputHandler.start();
         handler.client.game.start();
-
-        handler.client.send({pong: handler.client.game.map.initTime});
     },
     // update: Map object {players, obstacles, settings, name}
     update: (msg, handler, player) => {
@@ -26,7 +24,7 @@ let processMsg = {
         handler.game.addPlayer(msg.join.id, msg.join);
     },
     requestMap: (msg, handler, player) => {
-        handler.client.send({mapData: handler.map.initPack(), idfor: msg.idfor, initTime: handler.game.getServerTime()});
+        handler.client.send({mapData: handler.map.initPack(), idfor: msg.idfor, initTime: msg.initTime});
     }
 }
 

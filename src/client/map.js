@@ -97,8 +97,6 @@ export default class Map {
         this.client.reset();
 
         this.tick = 0;
-
-        this.initTime = performance.now();
     }
     updatePack(playerData){
         for(let id in playerData){

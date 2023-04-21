@@ -36,9 +36,6 @@ module.exports = class Player{
 
         this.spawn = init.map.settings.spawn;
         this.dead = false;
-
-        this.initTime = performance.now();
-        this.clientInitTime = performance.now();
     }
     initPack(){
         return this;

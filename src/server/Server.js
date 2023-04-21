@@ -71,12 +71,12 @@ module.exports = class Server {
 
             this.game.addPlayerToMap(id, mapName);
 
-            this.send(id, {init: {selfId: id, initTime: performance.now(), ...this.game.packMap(mapName)}});
+            this.send(id, {init: {selfId: id, ...this.game.packMap(mapName)}});
         } else {
             // TODO: make sure this is safe and that the player will always recieve a map
             const idsInMap = Object.keys(this.game.maps[mapName].players).filter(playerId => playerId !== id);
             const idToRequest = idsInMap[Math.floor(Math.random()*idsInMap.length)];
-            this.send(idToRequest, {requestMap: true, idfor: id});
+            this.send(idToRequest, {requestMap: true, idfor: id, initTime: performance.now()});
         }
     }
     recievedMap(id, mapData, initTime){
@@ -86,7 +86,7 @@ module.exports = class Server {
         
         this.game.addPlayerToMap(id, mapData.name);
 
-        this.send(id, {init: {selfId: id, ...mapData, initTime, players: this.game.maps[mapData.name].players}});
+        this.send(id, {init: {selfId: id, ...mapData, extraSimulateTime: performance.now()-initTime, players: this.game.maps[mapData.name].players}});
     }
     send(id, msg){
         this.clients[id].send(msgpack.encode(msg));
