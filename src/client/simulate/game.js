@@ -13,7 +13,7 @@ export default class Game {
         this.lastTime = performance.now();
         this.accum = 0;
 
-        this.lastRequestedMapTime = performance.now();
+        this.lastRequestedMapTime = 0//performance.now();
     }
     start() {
         this.renderer.start();
@@ -29,9 +29,11 @@ export default class Game {
         // we came in late, dont rely on other player's ping
         // this.accum += data.extraSimulateTime;
         // console.log('simulating for extra time: ' + data.extraSimulateTime);
-        console.log('last requested map time: ' + this.lastRequestedMapTime);
-        this.accum += (performance.now() - this.lastRequestedMapTime - data.requestTime)/2;
-        console.log('simulating for extra time: ' + (performance.now() - this.lastRequestedMapTime - data.requestTime)/2);
+        if(data.requestTime !== undefined){
+            // console.log({now: performance.now(), lastTime: this.lastRequestedMapTime});
+            this.accum += (performance.now() - this.lastRequestedMapTime - data.requestTime)/2;
+            console.log('simulating for extra time: ' + (performance.now() - this.lastRequestedMapTime - data.requestTime)/2);
+        }
     }
     run(){
         this.accum += performance.now() - this.lastTime;

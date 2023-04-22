@@ -29,62 +29,6 @@ export default class Map {
         console.log({data});
 
         for(let i = 0; i < this.obstacles.length; i++){
-            // if(this.obstacles[i].sat.points === undefined){
-            //     // no points - its a circle
-            //     const lastData = {offset: {x: this.obstacles[i].sat.offset.x, y: this.obstacles[i].sat.offset.y}};
-            //     this.obstacles[i].sat = new SAT.Circle(new SAT.Vector(this.obstacles[i].sat.pos.x, this.obstacles[i].sat.pos.y), this.obstacles[i].sat.r);
-            //     this.obstacles[i].sat.setOffset(lastData.offset);
-                
-            //     // const sat = new SAT.Circle();
-            //     // for(let key in this.obstacles[i].sat){
-            //     //     const prop = this.obstacles[i].sat[key];
-            //     //     // converting to SAT.vector if necessary
-            //     //     if(Array.isArray(prop)){
-            //     //         for(let p = 0; p < prop.length; p++){
-            //     //             if(prop[p].x !== undefined && prop[p].y !== undefined){
-            //     //                 sat[key] = new SAT.Vector(prop[p].x, prop[p].y);
-            //     //             } else {
-            //     //                 sat[key] = prop[p];
-            //     //             }
-            //     //         }
-            //     //     } else {
-            //     //         if(prop.x !== undefined && prop.y !== undefined){
-            //     //             sat[key] = new SAT.Vector(prop.x, prop.y);
-            //     //         } else {
-            //     //             sat[key] = prop;
-            //     //         }
-            //     //     }
-            //     // }
-            //     // this.obstacles[i].sat = sat;
-            // } else {
-            //     // there are points - its a polygon
-            //     const lastData = {angle: this.obstacles[i].sat.angle, offset: {x: this.obstacles[i].sat.offset.x, y: this.obstacles[i].sat.offset.y}};
-            //     this.obstacles[i].sat = new SAT.Polygon(new SAT.Vector(), ...this.obstacles[i].sat.points.map(p => new SAT.Vector(p.x, p.y)));
-            //     this.obstacles[i].sat.setOffset(lastData.offset);
-            //     this.obstacles[i].sat.setAngle(lastData.angle);
-
-            //     // const sat = new SAT.Polygon();
-            //     // for(let key in this.obstacles[i].sat){
-            //     //     const prop = this.obstacles[i].sat[key];
-            //     //     // converting to SAT.vector if necessary
-            //     //     if(Array.isArray(prop)){
-            //     //         for(let p = 0; p < prop.length; p++){
-            //     //             if(prop[p].x !== undefined && prop[p].y !== undefined){
-            //     //                 sat[key] = new SAT.Vector(prop[p].x, prop[p].y);
-            //     //             } else {
-            //     //                 sat[key] = prop[p];
-            //     //             }
-            //     //         }
-            //     //     } else {
-            //     //         if(prop.x !== undefined && prop.y !== undefined){
-            //     //             sat[key] = new SAT.Vector(prop.x, prop.y);
-            //     //         } else {
-            //     //             sat[key] = prop;
-            //     //         }
-            //     //     }
-            //     // }
-            //     // this.obstacles[i].sat = sat;
-            // }
             this.obstacles[i].sat = generateSAT(this.obstacles[i]);
         }
 
@@ -97,6 +41,8 @@ export default class Map {
         this.client.reset();
 
         this.tick = 0;
+
+        this.lastState = window.structuredClone(this.createRenderState());
     }
     updatePack(playerData){
         for(let id in playerData){
@@ -108,6 +54,9 @@ export default class Map {
         // obstacles will be simulated server side, rest is client side.
     }
     simulate(){
+        // create a deep copy of the last state for rendering
+        this.lastState = window.structuredClone(this.createRenderState());
+
         // refer to miro for ordering
         // simulate everything
         // Full simulation structure with player prediction and server sided objects:
@@ -142,5 +91,11 @@ export default class Map {
             players: this.players,
             tick: this.tick
         };
+    }
+    createRenderState(){
+        return {
+            obstacles: this.obstacles,
+            time: performance.now()
+        }
     }
 }

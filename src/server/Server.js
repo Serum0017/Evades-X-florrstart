@@ -46,7 +46,7 @@ module.exports = class Server {
             const clientId = newId();
             this.clients[clientId] = ws;
         
-            this.initPlayer(clientId);
+            this.movePlayerToMap(clientId);
             
             ws.on("message",(data)=>{
                 this.messageHandler.processMsg(msgpack.decode(new Uint8Array(data)), clientId);
@@ -56,14 +56,12 @@ module.exports = class Server {
             })
         })
     }
-    initPlayer(id){
-        this.requestInitFor(id, this.game.defaultState.mapName);
-    }
     removePlayer(id) {
         this.game.removePlayerFromMap(id);
         delete this.clients[id];
     }
     requestInitFor(id, mapName){
+        // TODO: Game breaking bug: if tab is inactive then when map is requested it desyncs -> solution: prevent sending if document.hidden = true and also send document.hidden whenever it happens to the server so that server can exclude in the first place
         if(Object.keys(this.game.maps[mapName].players).length === 0){
             if(this.game.players[id] !== undefined){
                 this.game.removePlayerFromMap(id);
@@ -71,10 +69,10 @@ module.exports = class Server {
 
             this.game.addPlayerToMap(id, mapName);
 
-            this.send(id, {init: {selfId: id, requestTime: 0, ...this.game.packMap(mapName)}});
+            this.send(id, {init: {selfId: id, ...this.game.packMap(mapName)}});
         } else {
             // TODO: make sure this is safe and that the player will always recieve a map
-            const idsInMap = Object.keys(this.game.maps[mapName].players).filter(playerId => playerId !== id);
+            const idsInMap = Object.keys(this.game.maps[mapName].players);
             const idToRequest = idsInMap[Math.floor(Math.random()*idsInMap.length)];
             this.send(idToRequest, {requestMap: true, idfor: id, initTime: performance.now()});
         }
@@ -101,7 +99,7 @@ module.exports = class Server {
             fn(this.game.maps[mapName]);
         }
     }
-    movePlayerToMap(id, mapName){
+    movePlayerToMap(id, mapName=this.game.defaultState.mapName){
         this.requestInitFor(id, mapName);
     }
 }
