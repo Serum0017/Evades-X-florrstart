@@ -24,13 +24,16 @@ const ref = {
   attackButton: document.querySelector('.attackButton'),
 };
 
-const difficultyFileNames = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Undefined'];
+const difficultyFileNames = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Grass','Undefined'];
 const difficultyImages = {};
 for(let i = 0; i < difficultyFileNames.length; i++){
-  const key = difficultyFileNames[i].toLowerCase();
+  const key = difficultyFileNames[i];
   difficultyImages[key] = new Image();
   difficultyImages[key].src = `./gfx/difficultyimages/${difficultyFileNames[i]}.png`;
 }
+
+// fallback for performance.now on older browsers
+window.performance = window.performance || {}; performance.now = (function() {return performance.now || performance.mozNow || performance.msNow || performance.oNow || performance.webkitNow || function() { return new Date().getTime();};})();
 
 // for player hp so you don't die at 20%
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {

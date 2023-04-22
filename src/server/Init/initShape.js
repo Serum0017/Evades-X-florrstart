@@ -27,11 +27,11 @@ const initShapeMap = {
     }
 };
 
-module.exports = function initShape(params) {
+module.exports = function initShape(params, advanced) {
     let init = {};
     if(params.shape === undefined || !initShapeMap[params.shape] === undefined){
         console.error("Obstacle shape undefined! " + JSON.stringify(params)); return;
     }
-    initShapeMap[params.shape](init, params);
+    initShapeMap[params.shape](init, params, advanced);
     return init;
 }

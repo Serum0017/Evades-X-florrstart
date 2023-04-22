@@ -24,8 +24,9 @@ const renderEffectMap = {
         if(o.map === 'Winroom'){
             ctx.fillStyle = `hsl(${Date.now()/12},50%,50%)`;
         } else {
-            ctx.toClip = true;// TODO: add difficulty param to changemap obstacles or get it from serv
+            ctx.toClip = true;
             ctx.toFill = false;
+            console.log('xd');
         }
     },
     changeColor: (o, ctx, advanced) => {
@@ -46,19 +47,18 @@ const renderEffectMap = {
         // const mix = ui.mixColor('#000000', ui.ctx.fillStyle, 0.1);
         // ui.fcolor(`rgb(${mix[0]},${mix[1]},${mix[2]})`);
         ctx.fillStyle = 'black';// TODO: find the actual colors of bounce, tp, and breakable from semioldevade
-        ctx.globalAlpha = o.strength / o.maxStrength;
+        ctx.globalAlpha = o.render.strength / o.maxStrength;
     },
 }
 
 const renderEffectAfterShapeMap = {
     changeMap: (o, ctx, advanced) => {
+        if(o.map === 'Winroom')return;
         // Note: if ctx.toClip is specified then a renderEffectAfterShape is required to restore ctx.
-        ctx.drawImage(Utils.difficultyImages.peaceful, o.top.x, o.top.y, o.bottom.x-o.top.x, o.bottom.y-o.top.y);
+        ctx.drawImage(Utils.difficultyImages[o.difficulty], o.top.x, o.top.y, o.bottom.x-o.top.x, o.bottom.y-o.top.y);
         ctx.restore();
     },
 }
-
-// TODO: renderEffectAfterShape function that renders the effect after shape is finished for things not in fsin 
 
 function renderEffect(o, ctx, advanced) {
     // no try catch or anything because its SO MUCH SLOWER

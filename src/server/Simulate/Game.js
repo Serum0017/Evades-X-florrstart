@@ -24,7 +24,7 @@ module.exports = class Game {
         }
     }
     loadMap(mapName){
-        this.maps[mapName] = this.maps[mapName].load(this.mapData[mapName]);
+        this.maps[mapName] = this.maps[mapName].load(this.mapData[mapName], this);
     }
     unloadMap(mapName){
         this.maps[mapName] = this.maps[mapName].unload();

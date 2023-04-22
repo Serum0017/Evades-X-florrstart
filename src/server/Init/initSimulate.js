@@ -54,12 +54,12 @@ function assignIfUndefined(v1, v2){
     if(v1 === undefined){ v1 = v2; }
 }
 
-module.exports = function initSimulate(params) {
+module.exports = function initSimulate(params, advanced) {
     let init = {};// TODO: rethink if we should actually be assigning things twice or if we can just directly assign to obstacle once
     if(params.simulate === undefined || initSimulateMap[params.simulate] === undefined) {
         console.error("Obstacle simulate undefined! " + JSON.stringify(params)); return;
     }
-    initSimulateMap[params.simulate](init, params);
+    initSimulateMap[params.simulate](init, params, advanced);
     init.type = params.simulate;
     return init;
 }

@@ -10,7 +10,7 @@ export default class Map {
         this.players = {};
         this.obstacles = {};
 
-        this.settings = {dimensions: {x: 1000, y: 1000}, spawn: {x: 50, y: 50}};
+        this.settings = {dimensions: {x: 1000, y: 1000}, spawn: {x: 50, y: 50}, difficulty: 'Peaceful'};
         this.name = "Planet of Unnamed";
 
         this.selfId = null;
@@ -26,7 +26,7 @@ export default class Map {
         }
 
         this.obstacles = data.obstacles;
-        console.log({data});
+        // console.log({data});
 
         for(let i = 0; i < this.obstacles.length; i++){
             this.obstacles[i].sat = generateSAT(this.obstacles[i]);

@@ -49,12 +49,12 @@ function initEnemyPosition(e){
     transformManager.runTransformMap(e, {x: e.top.x - last.x, y: e.top.y - last.y});
 }
 
-function initEnemy(params) {
+function initEnemy(params, advanced) {
     let init = {};
     if(params.enemyType === undefined || initEnemyMap[params.enemyType] === undefined) {
         console.error("Obstacle enemyType undefined! " + JSON.stringify(params)); return;
     }
-    initEnemyMap[params.enemyType](init, params);
+    initEnemyMap[params.enemyType](init, params, advanced);
     return init;
 }
 

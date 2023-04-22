@@ -7,8 +7,16 @@ const initEffectMap = {
         obs.friction = Math.min(1, toNumber(init.friction, 0.2));
     },
     // TODO: make sure all of these are safe for any input (same for other files)
-    changeMap: (obs, init) => {
+    changeMap: (obs, init, advanced) => {
         obs.map = init.map ?? 'Winroom';
+        const mapData = advanced.game.mapData[init.map ?? 'Winroom'];
+        for(let i = 0; i < mapData.init.length; i++){
+            if(mapData.init[i].type === 'settings'){
+                obs.difficulty = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Grass','Undefined'].includes(mapData.init[i].difficulty) ? mapData.init[i].difficulty : 'Peaceful';
+                return;
+            }
+        }
+        obs.difficulty = 'Peaceful'
     },
     changeColor: (obs, init) => {
         obs.colorsToChange = {background: init.backgroundColor, tile: init.tileColor, safe: init.safeColor};
@@ -38,13 +46,13 @@ function toNumber(num, defaultNumber=0){
     return Number.isFinite(num) ? num : defaultNumber;
 }
 
-module.exports = function initEffect(params) {
+module.exports = function initEffect(params, advanced) {
     let init = {};
     if(params.effect === undefined){
         console.error("Obstacle effects undefined! " + JSON.stringify(params)); return;
     }
     if(initEffectMap[params.effect] !== undefined){
-        initEffectMap[params.effect](init, params);
+        initEffectMap[params.effect](init, params, advanced);
     }
     return init;
 }

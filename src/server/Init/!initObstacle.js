@@ -5,7 +5,7 @@ const initSimulate = require('./initSimulate.js');
 const EnemyFactory = require('./initEnemy.js');
 
 // combination of other modules that are required to intialize obstacles
-module.exports = function intializeObstacle(init) {
+module.exports = function intializeObstacle(init, advanced) {
     // TODO: check miro for order, idk if this is right
     const type = init.type.split('-');
     const obstacle = {
@@ -16,9 +16,9 @@ module.exports = function intializeObstacle(init) {
 
     assign(obstacle, init);
 
-    assign(obstacle, initShape(obstacle));
-    assign(obstacle, initSimulate(obstacle));
-    assign(obstacle, initEffect(obstacle));
+    assign(obstacle, initShape(obstacle, advanced));
+    assign(obstacle, initSimulate(obstacle, advanced));
+    assign(obstacle, initEffect(obstacle, advanced));
 
     assign(obstacle, satFactory.generateDimensions(obstacle));
 
@@ -26,7 +26,7 @@ module.exports = function intializeObstacle(init) {
     assign(obstacle, {sat: satFactory.generateSAT(obstacle)});
 
     if(obstacle.simulate === 'enemy'){
-        assign(obstacle, EnemyFactory.initEnemyPosition(obstacle));
+        assign(obstacle, EnemyFactory.initEnemyPosition(obstacle, advanced));
     }
 
     definePosition(obstacle);

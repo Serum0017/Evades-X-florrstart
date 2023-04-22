@@ -3,24 +3,26 @@ import Utils from '../util.js';
 const renderShapeMap = {
     circle: (o, ctx, advanced) => {
         ctx.beginPath();
-        ctx.arc(o.x, o.y, o.r, 0, Math.PI*2);
+        ctx.arc(o.render.x, o.render.y, o.r, 0, Math.PI*2);
         fsin(o, ctx, advanced);
         ctx.closePath();
     },
     square: (o, ctx, advanced) => {
         ctx.beginPath();
-        ctx.rect(o.x-o.w/2,o.y-o.h/2,o.w,o.h);
+        ctx.rect(o.render.x-o.w/2,o.render.y-o.h/2,o.w,o.h);
         fsin(o, ctx, advanced);
         ctx.closePath();
     },
     poly: (o, ctx, advanced) => {
         ctx.beginPath();
+        ctx.translate(o.render.x - o.x, o.render.y - o.y);
         ctx.moveTo(o.points[0][0], o.points[0][1]);
         for(let i = 1; i < o.points.length; i++){
             ctx.lineTo(o.points[i][0], o.points[i][1]);
         }
         ctx.lineTo(o.points[0][0], o.points[0][1]);
         fsin(o, ctx, advanced);
+        ctx.translate(o.x - o.render.x, o.y - o.render.y);
         ctx.closePath();
     }
 }

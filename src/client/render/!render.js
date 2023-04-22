@@ -3,6 +3,7 @@ import Utils from '../util.js';
 import EffectManager from './renderEffect.js'
 import renderShape from './renderShape.js';
 import renderSimulate from './renderSimulate.js';
+import interpolateObstacle from './interpolateObstacle.js';
 
 let canvas = Utils.ref.canvas;
 let ctx = canvas.getContext('2d');
@@ -47,13 +48,15 @@ export default class Renderer {
         const { map } = this.client.game;
         const me = this.client.me();
     
+        me.updateInterpolate(map);
+
         // filling bg
         ctx.fillStyle = this.colors.background;
         ctx.fillRect(0,0,canvas.width,canvas.height);
 
-        this.renderTiles({x: (-me.x + canvas.width / 2) % 50, y: (-me.y + canvas.height / 2) % 50});
+        this.renderTiles({x: (-me.renderX + canvas.width / 2) % 50, y: (-me.renderY + canvas.height / 2) % 50});
         
-        this.camera.setTranslate({x: -me.x + canvas.width / 2, y: -me.y + canvas.height / 2});
+        this.camera.setTranslate({x: -me.renderX + canvas.width / 2, y: -me.renderY + canvas.height / 2});
     
         this.renderBounds(map);
         this.renderPlayers(map.players);
@@ -64,19 +67,20 @@ export default class Renderer {
         // ratio = time since last tick / total time per tick
         // at 0 its last tick
         // at 1 its next tick
-        const ratio = (performance.now() - map.lastState.time) / (1000/60);
-        // todo: only interpolate objects that simulate or have a runIdleEffects function
-        if(window.toInterpolated !== false){
-            this.renderObstacles(ratio > 1 ? map.obstacles : map.obstacles.map((o, i) => {return this.interpolateObstacle(o, map.lastState.obstacles[i], ratio)}), map.players);
-        } else {
-            this.renderObstacles(map.obstacles, map.players);
+
+        const ratio = (performance.now() - map.lastState.time) * (60/1000);
+        for(let i = 0; i < map.obstacles.length; i++){
+            map.obstacles[i].render = interpolateObstacle(map.lastState.obstacles[i], map.obstacles[i], ratio, { map });
         }
+        
+        this.renderObstacles(map.obstacles, map.players);
 
         this.camera.resetTranslate();
 
         if (me.dead === true){
             this.renderRespawnPrompt();
         }
+
         if(this.stopped === true){
             this.renderDisconnectedText();
         } else {
@@ -146,29 +150,30 @@ export default class Renderer {
         ctx.fillText('DISCONNECTED', canvas.width - 170, canvas.height - 40);
         // idea: make it bounce around like the dvd logo?
     }
-    interpolateObstacle(past, future, time/*0 to 1*/, isArray=false){
-        // TODO: make this modify past and update the time parameter passed in to be a ratio from last time rendered to this time rendered
-        const interpolatedObstacle = isArray ? [] : {};
-        for(let key in past){
-            if(key === 'sat')continue;
-            if(typeof past[key] === "number") {
-                // primitive type
-                interpolatedObstacle[key] = past[key] * (1 - time) + future[key] * time;
-                // console.log({key, interp: interpolatedObstacle[key], past: past[key], future: future[key]})
-            } else if(Array.isArray(past[key]) === true){
-                interpolatedObstacle[key] = [];
-                for(let i = 0; i < past[key].length; i++){
-                    interpolatedObstacle[key][i] = this.interpolateObstacle(past[key][i], future[key][i], time, true);
-                }
-            } else if(typeof past[key] === "object"){
-                interpolatedObstacle[key] = this.interpolateObstacle(past[key], future[key], time);
-            } else {
-                // primitive type but not a number
-                interpolatedObstacle[key] = future[key];
-            }
-        }
-        return interpolatedObstacle;
-    }
+    // SCRAPPED
+    // interpolateObstacle(past, future, time/*0 to 1*/, isArray=false){
+    //     // TODO: make this modify past and update the time parameter passed in to be a ratio from last time rendered to this time rendered
+    //     const interpolatedObstacle = isArray ? [] : {};
+    //     for(let key in past){
+    //         if(key === 'sat')continue;
+    //         if(typeof past[key] === "number") {
+    //             // primitive type
+    //             interpolatedObstacle[key] = past[key] * (1 - time) + future[key] * time;
+    //             // console.log({key, interp: interpolatedObstacle[key], past: past[key], future: future[key]})
+    //         } else if(Array.isArray(past[key]) === true){
+    //             interpolatedObstacle[key] = [];
+    //             for(let i = 0; i < past[key].length; i++){
+    //                 interpolatedObstacle[key][i] = this.interpolateObstacle(past[key][i], future[key][i], time, true);
+    //             }
+    //         } else if(typeof past[key] === "object"){
+    //             interpolatedObstacle[key] = this.interpolateObstacle(past[key], future[key], time);
+    //         } else {
+    //             // primitive type but not a number
+    //             interpolatedObstacle[key] = future[key];
+    //         }
+    //     }
+    //     return interpolatedObstacle;
+    // }
 }
 
 const fullscreen = {

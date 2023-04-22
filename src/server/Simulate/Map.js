@@ -4,16 +4,16 @@ module.exports = class Map {
     constructor(){
         this.players = {};
         this.obstacles = [];
-        this.settings = {dimensions: {x: 1000, y: 1000}, spawn: {x: 25, y: 25}};
+        this.settings = {dimensions: {x: 1000, y: 1000}, spawn: {x: 25, y: 25}, difficulty: 'Peaceful'};
         this.name = 'Planet Of Unnamed';
     }
-    load(data){
+    load(data, game){
         const {init, name} = data;
         for(let i = 0; i < init.length; i++){
             if(init[i].type === 'settings'){
-                this.loadSettings(init[i]);// FIX LATER
+                this.loadSettings(init[i]);
             } else {
-                this.obstacles.push(initObstacle(init[i]));
+                this.obstacles.push(initObstacle(init[i], {map: this, game}));
             }
         }
         this.name = name;
@@ -29,6 +29,7 @@ module.exports = class Map {
         this.settings.dimensions.y = toNumber(data?.dimensions?.y, 1000);
         this.settings.spawn.x = toNumber(data?.spawn?.x, 25);
         this.settings.spawn.y = toNumber(data?.spawn?.y, 25);
+        this.settings.difficulty = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Grass','Undefined'].includes(data?.difficulty) ? data.difficulty : 'Peaceful';
     }
     unload(){
         return new Map();
