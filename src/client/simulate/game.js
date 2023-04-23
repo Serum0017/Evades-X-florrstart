@@ -17,11 +17,16 @@ export default class Game {
     }
     start() {
         this.gameLoop = requestAnimationFrame(this.run.bind(this));
-        this.renderer.start();
+    }
+    stop() {
+        cancelAnimationFrame(this.gameLoop);
+        this.renderer.renderDisconnectedText();
+        this.renderer.stop();
     }
     reset() {
         this.renderer.reset();
         cancelAnimationFrame(this.gameLoop);
+        clearInterval(this.gameLoop);
     }
     initState(data){
         // initializes map client side
@@ -42,6 +47,8 @@ export default class Game {
             }
         }
 
+        this.renderer.render();
+
         this.gameLoop = requestAnimationFrame(this.run.bind(this));
     }
     simulate(){
@@ -51,7 +58,7 @@ export default class Game {
         this.sendState();
     }
     sendState(){
-        this.client.send({update: this.map.self.pack()});
+        this.client.send({update: this.map.self.pack(), mapTick: this.map.tick});
     }
     addPlayer(id, init){
         this.map.addPlayer(id, init);

@@ -42,6 +42,9 @@ module.exports = class Game {
         this.server.broadcastInMap(mapName, {join: this.players[id].initPack()});
     }
     removePlayerFromMap(id){
+        if(this.players[id] === undefined){
+            return;
+        }
         this.server.broadcastInMap(this.players[id].map, {leave: id});
 
         const mapName = this.players[id].map;
@@ -63,7 +66,6 @@ module.exports = class Game {
         // TODO: updatepack (also rerun this function for every leftovers tick)
         for(let mapId in this.maps){
             this.server.broadcastInMap(mapId, this.updatePackMap(mapId));
-            this.maps[mapId].tick++;
         }
 
         // simulate anti cheat and stuff

@@ -36,6 +36,8 @@ module.exports = class Player{
 
         this.spawn = init.map.settings.spawn;
         this.dead = false;
+
+        this.lastTick = 0;
     }
     initPack(){
         return this;
@@ -44,11 +46,13 @@ module.exports = class Player{
         // TODO: implement differencePack optimization
         return this;
     }
-    updateState(data) {
+    updateState(data, tick) {
         // console.log(data);
         // TODO: make sure this is safe and wont crash the server (also difference pack)
         for(let key in data){
             this[key] = data[key];
         }
+
+        this.lastTick = tick;
     }
 }

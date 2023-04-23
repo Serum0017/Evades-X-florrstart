@@ -15,17 +15,18 @@ export default class Player{
 
         this.dev = false;
 
-        this.lastSimulateState = this.createSimulateState();
-
         for(let key in init){
             this[key] = init[key];
         }
 
         this.renderX = this.x;
         this.renderY = this.y;
+
+        this.lastSimulateState = this.createSimulateState();
     }
     simulate(map){
         this.lastSimulateState = this.createSimulateState();
+
         // basic simulation that doesnt require anything else; same thing used in prediction
         simulatePlayer(this, map);
     }
@@ -37,7 +38,6 @@ export default class Player{
         this.dead = false;
     }
     render(ctx, canvas, camera) {
-        
         ctx.fillStyle = 'black';
         if(this.dead === true){
             ctx.fillStyle = 'red';
@@ -47,6 +47,8 @@ export default class Player{
         ctx.arc(this.renderX, this.renderY, this.r, 0, Math.PI*2);
         ctx.fill();
         ctx.closePath();
+
+        this.updateInterpolate();
     }
     updateInterpolate(){
         if(this.dead === true)return;

@@ -14,8 +14,6 @@ export default class Renderer {
 
         this.camera = new Camera();
 
-        this.stopped = false;
-
         this.defaultColors = {
             tile: '#0d0d0d',// the stroke and outside of arena
             background: '#383838',// the fillcolor
@@ -40,25 +38,15 @@ export default class Renderer {
             this.colors[key] = this.defaultColors;
         }
     }
-    start(){
-        // this.game = this.client.game;
-        this.renderLoop = requestAnimationFrame(this.render.bind(this));
-    }
-    stop(){
-        this.stopped = true;
-    }
+    stop(){}
     reset(){
         for(let key in this.defaultColors){
             this.colors[key] = this.defaultColors[key];
         }
-        cancelAnimationFrame(this.renderLoop)
     }
     render(){
         const { map } = this.client.game;
         const me = this.client.me();
-    
-        me.updateInterpolate(map);
-        console.log(me.renderX);
 
         // filling bg
         ctx.fillStyle = this.colors.background;
@@ -72,12 +60,6 @@ export default class Renderer {
         this.renderPlayers(map.players);
 
         // render obstacles with interpolation
-        // const timeUntilNextTick = 1000/60 - this.client.game.accum;
-
-        // ratio = time since last tick / total time per tick
-        // at 0 its last tick
-        // at 1 its next tick
-
         const ratio = (performance.now() - map.lastState.time) * (60/1000);
         for(let i = 0; i < map.obstacles.length; i++){
             map.obstacles[i].render = interpolateObstacle(map.lastState.obstacles[i], map.obstacles[i], ratio, { map });
@@ -88,12 +70,6 @@ export default class Renderer {
         this.camera.resetTranslate();
 
         this.renderOverlay(me);
-
-        if(this.stopped === true){
-            this.renderDisconnectedText();
-        } else {
-            this.renderAnimationFrame = requestAnimationFrame(this.render.bind(this));
-        }
     }
     renderOverlay(me){
         if (me.dead === true){

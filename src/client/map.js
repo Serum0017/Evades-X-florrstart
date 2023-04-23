@@ -5,7 +5,6 @@ import generateSAT from './simulate/obstacles/satFactory.js';
 export default class Map {
     constructor(client){
         this.client = client;
-        this.game = this.client.game;
 
         this.players = {};
         this.obstacles = {};
@@ -40,14 +39,22 @@ export default class Map {
         
         this.client.reset();
 
-        this.tick = 0;
+        this.tick = data.tick;
 
-        this.lastState = window.structuredClone(this.createRenderState());
+        this.lastState = this.createRenderState();
+
+        this.playerSimulateAccum = 0;
     }
     updatePack(playerData){
         for(let id in playerData){
             if(id !== this.selfId.toString()){
                 this.players[id].updatePack(playerData[id]);
+
+                // simulate extra ticks
+                for(let i = 0; i < Math.min(100,this.tick - playerData[id].lastTick); i++){
+                    this.players[id].simulate(this);
+                }
+                this.players[id].updateInterpolate();
             }
         }
 
@@ -55,7 +62,7 @@ export default class Map {
     }
     simulate(){
         // create a deep copy of the last state for rendering
-        this.lastState = window.structuredClone(this.createRenderState());
+        this.lastState = this.createRenderState();
 
         // refer to miro for ordering
         // simulate everything
@@ -93,9 +100,9 @@ export default class Map {
         };
     }
     createRenderState(){
-        return {
+        return window.structuredClone({
             obstacles: this.obstacles,
             time: performance.now()
-        }
+        });
     }
 }
