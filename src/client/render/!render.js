@@ -19,7 +19,20 @@ export default class Renderer {
         this.defaultColors = {
             tile: '#0d0d0d',// the stroke and outside of arena
             background: '#383838',// the fillcolor
-            safe: '#8c8c8c'// the safe
+            safe: '#8c8c8c',// the safe
+        }
+
+        this.vinette = {
+            outer: {
+                color: '#000000',
+                size: 1,
+                alpha: 0.5
+            },
+            inner: {
+                color: '#000000',
+                size: 0.5,
+                alpha: 0
+            },
         }
 
         this.colors = {};
@@ -29,12 +42,7 @@ export default class Renderer {
     }
     start(){
         // this.game = this.client.game;
-        requestAnimationFrame(this.render.bind(this));
-        
-        // this.camera.resize();
-        // window.addEventListener('resize', () => {
-        //     this.camera.resize();
-        // })
+        this.renderLoop = requestAnimationFrame(this.render.bind(this));
     }
     stop(){
         this.stopped = true;
@@ -43,20 +51,22 @@ export default class Renderer {
         for(let key in this.defaultColors){
             this.colors[key] = this.defaultColors[key];
         }
+        cancelAnimationFrame(this.renderLoop)
     }
     render(){
         const { map } = this.client.game;
         const me = this.client.me();
     
         me.updateInterpolate(map);
+        console.log(me.renderX);
 
         // filling bg
         ctx.fillStyle = this.colors.background;
-        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillRect(0,0,canvas.w,canvas.h);
 
-        this.renderTiles({x: (-me.renderX + canvas.width / 2) % 50, y: (-me.renderY + canvas.height / 2) % 50});
+        this.renderTiles({x: (-me.renderX + canvas.w / 2) % 50, y: (-me.renderY + canvas.h / 2) % 50});
         
-        this.camera.setTranslate({x: -me.renderX + canvas.width / 2, y: -me.renderY + canvas.height / 2});
+        this.camera.setTranslate({x: -me.renderX + canvas.w / 2, y: -me.renderY + canvas.h / 2});
     
         this.renderBounds(map);
         this.renderPlayers(map.players);
@@ -77,22 +87,27 @@ export default class Renderer {
 
         this.camera.resetTranslate();
 
-        if (me.dead === true){
-            this.renderRespawnPrompt();
-        }
+        this.renderOverlay(me);
 
         if(this.stopped === true){
             this.renderDisconnectedText();
         } else {
-            requestAnimationFrame(this.render.bind(this));
+            this.renderAnimationFrame = requestAnimationFrame(this.render.bind(this));
         }
+    }
+    renderOverlay(me){
+        if (me.dead === true){
+            this.renderRespawnPrompt();
+        }
+
+        this.renderVinette();
     }
     renderRespawnPrompt(){
         ctx.fillStyle = 'white';
         ctx.font = '30px Inter';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('R to respawn', canvas.width / 2, canvas.height - 85);
+        ctx.fillText('R to respawn', canvas.w / 2, canvas.h - 85);
     }
     renderPlayers(players){
         for(let id in players){
@@ -119,18 +134,18 @@ export default class Renderer {
         ctx.strokeStyle = this.colors.tile;
         ctx.lineWidth = 2;
     
-        for (let x = 0; x < canvas.width+ctx.lineWidth+50; x += 50) {
+        for (let x = 0; x < canvas.w+ctx.lineWidth+50; x += 50) {
             ctx.beginPath();
             ctx.moveTo(x+tileOffset.x, 0);
-            ctx.lineTo(x+tileOffset.x, canvas.height);
+            ctx.lineTo(x+tileOffset.x, canvas.h);
             ctx.stroke();
             ctx.closePath();
         }
     
-        for (let y = 0; y < canvas.height+ctx.lineWidth+50; y += 50) {
+        for (let y = 0; y < canvas.h+ctx.lineWidth+50; y += 50) {
             ctx.beginPath();
             ctx.moveTo(0, y+tileOffset.y);
-            ctx.lineTo(canvas.width, y+tileOffset.y);
+            ctx.lineTo(canvas.w, y+tileOffset.y);
             ctx.stroke();
             ctx.closePath();
         }
@@ -138,7 +153,7 @@ export default class Renderer {
     renderBounds(map){
         // out of bounds borders
         ctx.strokeStyle = this.colors.tile;
-        ctx.lineWidth = 10000//Math.max(canvas.width, canvas.height);
+        ctx.lineWidth = 10000//Math.max(canvas.w, canvas.h);
         ctx.strokeRect(-ctx.lineWidth/2, -ctx.lineWidth/2, map.settings.dimensions.x + ctx.lineWidth, map.settings.dimensions.y + ctx.lineWidth);
         ctx.lineWidth = 3;
     }
@@ -147,7 +162,7 @@ export default class Renderer {
         ctx.font = '40px Inter';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('DISCONNECTED', canvas.width - 170, canvas.height - 40);
+        ctx.fillText('DISCONNECTED', canvas.w - 170, canvas.h - 40);
         // idea: make it bounce around like the dvd logo?
     }
     // SCRAPPED
@@ -174,11 +189,39 @@ export default class Renderer {
     //     }
     //     return interpolatedObstacle;
     // }
-}
+    hex2rgba(hex){
+        return {
+            r: parseInt(hex.slice(1,3), 16),
+            g: parseInt(hex.slice(3,5), 16),
+            b: parseInt(hex.slice(5,7), 16)
+        }
+    }
+    renderVinette(){
+        const outer = this.vinette.outer;
+        const inner = this.vinette.inner;
 
-const fullscreen = {
-    ratio: 9 / 16,
-    zoom: 1000,
+        if(outer.color[0] === '#'){
+            outer.color = this.hex2rgba(outer.color);
+        }
+        if(inner.color[0] === '#'){
+            inner.color = this.hex2rgba(inner.color);
+        }
+
+        const gradient = ctx.createRadialGradient(
+            canvas.w / 2,
+            canvas.h / 2,
+            outer.size * (canvas.w*Math.sqrt(this.camera.fullscreen.ratio)+canvas.h-100)/2,
+            canvas.w / 2,
+            canvas.h / 2,
+            inner.size * (canvas.w*Math.sqrt(this.camera.fullscreen.ratio)+canvas.h-100)/2
+        );
+        
+        gradient.addColorStop(0,`rgba(${outer.color.r},${outer.color.g},${outer.color.b},${outer.alpha})`);
+        gradient.addColorStop(1,`rgba(${inner.color.r},${inner.color.g},${inner.color.b},${inner.alpha})`);
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0,0,canvas.w,canvas.h);
+    }
 }
 
 class Camera {
@@ -187,6 +230,16 @@ class Camera {
         this.y = 0;
         this.scale = 1;
         this.angle = 0;// in radians
+
+        this.fullscreen = {
+			ratio: 9 / 16,
+			zoom: 1000,
+		}
+
+        this.resize();
+        window.addEventListener('resize', () => {
+            this.resize();
+        })
     }
     translate({x,y}){
         ctx.translate(x,y);
@@ -202,50 +255,52 @@ class Camera {
         this.setTranslate({x: 0, y: 0});
     }
     rotate(a){
-        ctx.translate({x: canvas.width/2, y: canvas.height/2})
+        ctx.translate(canvas.w / 2, canvas.h / 2);
         ctx.rotate(a);
         this.angle += a;
-        ctx.translate({x: -canvas.width/2, y: -canvas.height/2})
+        ctx.translate(-canvas.w / 2, - canvas.h / 2);
     }
     setRotate(a){
-        ctx.translate({x: canvas.width/2, y: canvas.height/2})
+        ctx.translate(canvas.w/2, canvas.h/2)
         ctx.rotate(a - this.angle);
         this.angle = a;
-        ctx.translate({x: -canvas.width/2, y: -canvas.height/2})
+        ctx.translate(-canvas.w/2, -canvas.h/2)
     }
     resetRotate(){
         this.setRotate(0);
     }
     // // TODO: i forgot the ctx scale method lol, do once i get off plane
     // scale(a){
-    //     ctx.translate({x: canvas.width/2, y: canvas.height/2})
+    //     ctx.translate({x: canvas.w/2, y: canvas.h/2})
     //     ctx.scale(a);
     //     this.angle = a;
-    //     ctx.translate({x: -canvas.width/2, y: -canvas.height/2})
+    //     ctx.translate({x: -canvas.w/2, y: -canvas.h/2})
     // }
     // setScale(a){
-    //     ctx.translate({x: canvas.width/2, y: canvas.height/2})
+    //     ctx.translate({x: canvas.w/2, y: canvas.h/2})
     //     ctx.rotate(a - this.angle);
     //     this.angle = a;
-    //     ctx.translate({x: -canvas.width/2, y: -canvas.height/2})
+    //     ctx.translate({x: -canvasz.width/2, y: -canvas.h/2})
     // }
     // resetScale(){
     //     this.setRotate(0);
     // }
-
-    // resize() {
-    //     // TODO: change this to use scale to not lose resolution, once scale is done
-    //     // const dpi = window.devicePixelRatio;
-    //     // canvas.style.width = Math.ceil(window.innerWidth) + 'px';
-    //     // canvas.style.height = Math.ceil(window.innerHeight) + 'px';
-    //     // canvas.width = Math.ceil(window.innerWidth + 2) * dpi;
-    //     // canvas.height = Math.ceil(window.innerHeight + 2) * dpi;
-    //     // canvas.zoom = Math.max(canvas.height, canvas.width * fullscreen.ratio) / fullscreen.zoom;
-    //     let scale = Math.max(window.innerWidth / canvas.width, window.innerHeight / canvas.height);
-    //     canvas.style.transform = "scale(" + scale + ")"; 
-    //     canvas.style.left = 1 / 2 * (window.innerWidth - canvas.width) + "px";
-    //     canvas.style.top = 1 / 2 * (window.innerHeight - canvas.height) + "px";
-    // }
+    resize(){
+        const dpi = window.devicePixelRatio;
+        canvas.style.width = Math.ceil(window.innerWidth) + 'px';
+        canvas.style.height = Math.ceil(window.innerHeight) + 'px';
+        canvas.width = Math.ceil(window.innerWidth) * dpi;
+        canvas.height = Math.ceil(window.innerHeight) * dpi;
+        canvas.zoom = Math.max(canvas.height, canvas.width * this.fullscreen.ratio) / this.fullscreen.zoom;
+        // w and h are calced with zoom
+        canvas.w = canvas.width / canvas.zoom;
+        canvas.h = canvas.height / canvas.zoom;
+        // ctx.translate(canvas.width/2, canvas.height/2);
+        ctx.scale(canvas.zoom, canvas.zoom);
+        // ctx.translate(-canvas.width/2, -canvas.height/2);
+        this.angle = 0;
+        this.scale = 1;
+    }
 }
 
 function interpolate(start, end, time) {

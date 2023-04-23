@@ -16,23 +16,19 @@ export default class Game {
         this.lastRequestedMapTime = 0//performance.now();
     }
     start() {
+        this.gameLoop = requestAnimationFrame(this.run.bind(this));
         this.renderer.start();
-        requestAnimationFrame(this.run.bind(this));
     }
     reset() {
         this.renderer.reset();
+        cancelAnimationFrame(this.gameLoop);
     }
     initState(data){
         // initializes map client side
         this.map.init(data);
 
-        // we came in late, dont rely on other player's ping
-        // this.accum += data.extraSimulateTime;
-        // console.log('simulating for extra time: ' + data.extraSimulateTime);
         if(data.requestTime !== undefined){
-            // console.log({now: performance.now(), lastTime: this.lastRequestedMapTime});
             this.accum += (performance.now() - this.lastRequestedMapTime - data.requestTime)/2;
-            console.log('simulating for extra time: ' + (performance.now() - this.lastRequestedMapTime - data.requestTime)/2);
         }
     }
     run(){
@@ -46,7 +42,7 @@ export default class Game {
             }
         }
 
-        requestAnimationFrame(this.run.bind(this));
+        this.gameLoop = requestAnimationFrame(this.run.bind(this));
     }
     simulate(){
         // simulate 1 tick

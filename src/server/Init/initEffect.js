@@ -8,15 +8,25 @@ const initEffectMap = {
     },
     // TODO: make sure all of these are safe for any input (same for other files)
     changeMap: (obs, init, advanced) => {
-        obs.map = init.map ?? 'Winroom';
+        obs.map = toString(init.map, 'Winroom');
+        obs.acronym = '';
+        for(let i = 0; i < obs.map.length-1; i++) {
+            if(obs.map[i] === ' '){
+                obs.acronym += obs.map[i+1];
+            } else if(i === 0){
+                obs.acronym += obs.map[0];
+            }
+        }
+        if(obs.acronym === 'H'){obs.acronym = 'Hub';}
         const mapData = advanced.game.mapData[init.map ?? 'Winroom'];
         for(let i = 0; i < mapData.init.length; i++){
             if(mapData.init[i].type === 'settings'){
                 obs.difficulty = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Grass','Undefined'].includes(mapData.init[i].difficulty) ? mapData.init[i].difficulty : 'Peaceful';
+                obs.difficultyNumber = Math.max(0,Math.min(1,toNumber(mapData.init[i].difficultyNumber)));
                 return;
             }
         }
-        obs.difficulty = 'Peaceful'
+        obs.difficulty = 'Peaceful';
     },
     changeColor: (obs, init) => {
         obs.colorsToChange = {background: init.backgroundColor, tile: init.tileColor, safe: init.safeColor};
@@ -44,6 +54,10 @@ function toBoolean(key, defaultValue=false){
 
 function toNumber(num, defaultNumber=0){
     return Number.isFinite(num) ? num : defaultNumber;
+}
+
+function toString(str, defaultString="Hello World!"){
+    return typeof str === 'string' ? str : defaultString;
 }
 
 module.exports = function initEffect(params, advanced) {

@@ -24,9 +24,15 @@ const renderEffectMap = {
         if(o.map === 'Winroom'){
             ctx.fillStyle = `hsl(${Date.now()/12},50%,50%)`;
         } else {
+            // rendering acronym
+            ctx.font = `${o.difference.x / 3.5}px Inter`;
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(o.acronym, o.x, o.top.y - o.difference.y / 4);
+
             ctx.toClip = true;
             ctx.toFill = false;
-            console.log('xd');
         }
     },
     changeColor: (o, ctx, advanced) => {
@@ -54,8 +60,17 @@ const renderEffectMap = {
 const renderEffectAfterShapeMap = {
     changeMap: (o, ctx, advanced) => {
         if(o.map === 'Winroom')return;
+
         // Note: if ctx.toClip is specified then a renderEffectAfterShape is required to restore ctx.
         ctx.drawImage(Utils.difficultyImages[o.difficulty], o.top.x, o.top.y, o.bottom.x-o.top.x, o.bottom.y-o.top.y);
+
+        // rendering difficulty number
+        if (o.difficultyNumber !== undefined) {
+            ctx.fillStyle = 'black';
+            const markingY = o.top.y + (o.difference.y - 5) * (1 - o.difficultyNumber);
+            ctx.fillRect(o.top.x, markingY, o.difference.x / 5, 5);
+        }
+        
         ctx.restore();
     },
 }

@@ -13,8 +13,8 @@ module.exports = class Game {
             this.maps[key] = new Map();
         }
         this.defaultState = {
-            xv: 0,
-            yv: 0,
+            xv: 0, x: 0,
+            yv: 0, y: 0,
             r: 24.5,
             angle: 0,
             magnitude: 0,

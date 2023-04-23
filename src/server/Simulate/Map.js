@@ -30,6 +30,7 @@ module.exports = class Map {
         this.settings.spawn.x = toNumber(data?.spawn?.x, 25);
         this.settings.spawn.y = toNumber(data?.spawn?.y, 25);
         this.settings.difficulty = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Grass','Undefined'].includes(data?.difficulty) ? data.difficulty : 'Peaceful';
+        this.settings.difficultyNumber = data.difficultyNumber === undefined ? undefined : toNumber(data?.difficultyNumber);
     }
     unload(){
         return new Map();

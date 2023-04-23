@@ -48,31 +48,11 @@ export default class Player{
         ctx.fill();
         ctx.closePath();
     }
-    updateInterpolate(map){
-        // const time = (performance.now() - this.lastSimulateState.time) * (60/1000);
-        // const interpolate = (start, end, time) => {
-        //     return start * (1-time) + end * time;
-        // }
-        // this.renderX = interpolate(this.renderX, this.x, 0.2**time);
-        // this.renderY = interpolate(this.renderY, this.y, 0.2**time);
+    updateInterpolate(){
         if(this.dead === true)return;
         const time = (performance.now() - this.lastSimulateState.time) * (60/1000);
         this.renderX = this.lastSimulateState.x * (1-time) + this.x * time;
         this.renderY = this.lastSimulateState.y * (1-time) + this.y * time;
-        // this.renderX = this.x + Math.min(this.xv, this.x - this.lastSimulateState.x) * (performance.now() - this.lastSimulateState.time) * (60/1000);
-        // this.renderY = this.y + Math.min(this.yv, this.y - this.lastSimulateState.y) * (performance.now() - this.lastSimulateState.time) * (60/1000);
-        // if (this.renderX - this.r < 0) {
-        //     this.renderX = this.r;
-        // }
-        // if (this.renderX + this.r > map.settings.dimensions.x) {
-        //     this.renderX = map.settings.dimensions.x - this.r;
-        // }
-        // if (this.renderY - this.r < 0) {
-        //     this.renderY = this.r;
-        // }
-        // if (this.renderY + this.r > map.settings.dimensions.y) {
-        //     this.renderY = map.settings.dimensions.y - this.r;
-        // }
     }
     createSimulateState(){
         return {
