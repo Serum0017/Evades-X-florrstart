@@ -16,11 +16,11 @@ module.exports = function intializeObstacle(init, advanced) {
 
     assign(obstacle, init);
 
+    assign(obstacle, satFactory.generateDimensions(obstacle));
+
     assign(obstacle, initShape(obstacle, advanced));
     assign(obstacle, initSimulate(obstacle, advanced));
     assign(obstacle, initEffect(obstacle, advanced));
-
-    assign(obstacle, satFactory.generateDimensions(obstacle));
 
     // TODO: Make SATs an array (so that polygons dont have to be convex + other cool stuff)
     assign(obstacle, {sat: satFactory.generateSAT(obstacle)});
@@ -43,5 +43,6 @@ function assign(prev, next){
 function definePosition(o){
     o.x = (o.top.x + o.bottom.x)/2;
     o.y = (o.top.y + o.bottom.y)/2;
+    o.rotation = Number.isFinite(o.rotation) ? o.rotation : 0;
     o.difference = {x: o.bottom.x - o.top.x, y: o.bottom.y - o.top.y};
 }

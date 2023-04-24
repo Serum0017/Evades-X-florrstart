@@ -29,3 +29,21 @@ function runTransformMap(obstacle, delta){
 }
 
 module.exports = {transformBody, runTransformMap};
+
+// this.rotate = ({top, bottom}, /*pivot*/{x,y}, rotation) => {
+//     const c = {x, y};
+
+//     // top
+//     let trig = {cos: Math.cos(rotation), sin: Math.sin(rotation)};
+//     top = {
+//         x: (trig.cos * (top.x - c.x)) + (trig.sin * (top.y - c.y)) + c.x,
+//         y: (trig.cos * (top.y - c.y)) - (trig.sin * (top.x - c.x)) + c.y
+//     }
+
+//     // bottom
+//     trig = {cos: Math.cos(rotation), sin: Math.sin(rotation)};
+//     bottom = {
+//         x: (trig.cos * (bottom.x - c.x)) + (trig.sin * (bottom.y - c.y)) + c.x,
+//         y: (trig.cos * (bottom.y - c.y)) - (trig.sin * (bottom.x - c.x)) + c.y
+//     };
+// }

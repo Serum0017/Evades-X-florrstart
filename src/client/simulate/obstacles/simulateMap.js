@@ -62,16 +62,20 @@ const SimulateMap = {
         }
     },
 
+    rotate: (player, obstacle, other) => {
+        obstacle.rotation += obstacle.rotateSpeed;
+    },
+
     enemy: (player, obstacle, other) => {
         SimulateEnemy(player, obstacle, other);
     }
 };
 
 export default function Simulate(player, o, other){
-    const last = {x: o.x, y: o.y};
+    const last = {x: o.x, y: o.y, rotation: o.rotation, pivot: o.pivot/*TODO*/};
     SimulateMap[o.simulate](player, o, other);
     effectMap.runIdleEffects(player, o, other);
-    if(last.x !== o.x || last.y !== o.y){
-        transformManager.transformBody(o, /*positional delta: */{ x: o.x-last.x, y: o.y-last.y });
+    if(last.x !== o.x || last.y !== o.y || last.rotation !== o.rotation){
+        transformManager.transformBody(o, /*positional delta: */{ x: o.x-last.x, y: o.y-last.y, rotation: o.rotation-last.rotation });
     }
 }

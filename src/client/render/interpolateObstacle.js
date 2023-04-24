@@ -26,44 +26,38 @@ function expLerp(start, end, amount){
     return start + difference*amount;
 }
 
-function interpolateDirection(d1, d2, angleIncrement) {
-    let dir;
-    let dif = d1-d2;
-    let angleDif = Math.atan2(Math.sin(dif), Math.cos(dif));
-    if (Math.abs(angleDif) >= angleIncrement*clamp(0,10000,Math.abs(angleDif)**0.6*0.55)) {
-        if (angleDif < 0) {
-            dir = 1;
-        } else {
-            dir = -1;
-        }
-    } else {
-        // we're close enough to snap
-        return d1 ? interpolateLinearDirection(d1, d2, 0.1) : d2;
-    }
-    return d1 + dir*angleIncrement*clamp(0,10000,Math.abs(angleDif)**0.6*0.55);
+function shortAngleDist(a0,a1) {
+    var max = Math.PI*2;
+    var da = (a1 - a0) % max;
+    return 2*da % max - da;
 }
 
-function interpolateFixedDirection(d1, d2, angleIncrement) {
-    let dir;
-    let dif = d1-d2;
-    let angleDif = Math.atan2(Math.sin(dif), Math.cos(dif));
-    if (Math.abs(angleDif) >= angleIncrement) {
-        if (angleDif < 0) {
-            dir = 1;
-        } else {
-            dir = -1;
-        }
-    } else {
-        return d1 ? interpolateLinearDirection(d1, d2, 0.1) : d2;
-    }
-    return d1 + dir*angleIncrement;
+function interpolateDirection(d1, d2, time) {
+    return d1 + shortAngleDist(d1, d2) * time;
 }
+
+// function interpolateDirection(d1, d2, time) {
+//     let dir;
+//     let dif = d1 - d2;
+//     let angleDif = Math.atan2(Math.sin(dif), Math.cos(dif));
+//     if (Math.abs(angleDif) >= dif) {
+//         if (angleDif < 0) {
+//             dir = 1;
+//         } else {
+//             dir = -1;
+//         }
+//     } else {
+//         dir = angleDif / time;
+//     }
+//     return d1 + dif * dir;
+// };
 
 export default function interpolateObstacle(last, next, time/*0-1*/, advanced){
     // every obstacle interpolates position
     const interpolate = {
         x: last.x * (1 - time) + next.x * time,
-        y: last.y * (1 - time) + next.y * time
+        y: last.y * (1 - time) + next.y * time,
+        rotation: interpolateDirection(last.rotation, next.rotation, time)
     };
 
     // interpolate extra things if needed

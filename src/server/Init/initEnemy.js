@@ -46,6 +46,8 @@ function initEnemyPosition(e){
     }
 
     // making sure that things like poly are offset correctly
+    e.pivot = {x: e.pivot.x ?? (e.top.x+e.bottom.x)/2, y: e.pivot.y ?? (e.top.y+e.bottom.y)/2};
+    e.distToPivot = Math.sqrt(((e.top.x+e.bottom.x)/2-e.pivot.x)**2+((e.top.y+e.bottom.y)/2-e.pivot.y)**2);
     transformManager.runTransformMap(e, {x: e.top.x - last.x, y: e.top.y - last.y});
 }
 

@@ -11,12 +11,18 @@ function defineCircle(obs, init) {
 const initShapeMap = {
     square: (obs, init) => {
         defineSquare(obs, init);
+        obs.pivot = init.pivot ?? {x: init.x, y: init.y};
+        obs.distToPivot = Math.sqrt((init.x-obs.pivot.x)**2+(init.y-obs.pivot.y)**2);
     },
     circle: (obs, init) => {
         defineCircle(obs, init);
+        obs.pivot = init.pivot ?? {x: init.x, y: init.y};
+        obs.distToPivot = Math.sqrt((init.x-obs.pivot.x)**2+(init.y-obs.pivot.y)**2);
     },
     poly: (obs, init) => {
         obs.points = init.points;
+        obs.pivot = init.pivot ?? {x: init.x, y: init.y};
+        obs.distToPivot = Math.sqrt((init.x-obs.pivot.x)**2+(init.y-obs.pivot.y)**2);
     },
     circleHollowSlice: (obs, init) => {
         defineCircle(obs, init);
@@ -24,6 +30,8 @@ const initShapeMap = {
         obs.startAngle = init.startAngle;
         obs.endAngle = init.endAngle;
         obs.rotateSpeed = init.rotateSpeed;
+        obs.pivot = init.pivot ?? {x: init.x, y: init.y};
+        obs.distToPivot = Math.sqrt((init.x-obs.pivot.x)**2+(init.y-obs.pivot.y)**2);
     }
 };
 

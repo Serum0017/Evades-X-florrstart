@@ -1,6 +1,7 @@
 import Player from './player.js';
 import ObstacleManager from './simulate/obstacles/!simulateObstacles.js';
 import generateSAT from './simulate/obstacles/satFactory.js';
+import transformManager from './simulate/obstacles/transformBody.js';
 
 export default class Map {
     constructor(client){
@@ -29,6 +30,7 @@ export default class Map {
 
         for(let i = 0; i < this.obstacles.length; i++){
             this.obstacles[i].sat = generateSAT(this.obstacles[i]);
+            transformManager.setPivot(this.obstacles[i]);
         }
 
         this.settings = data.settings;

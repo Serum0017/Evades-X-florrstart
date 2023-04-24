@@ -1,5 +1,4 @@
 // SATFactory.generateSAT.square(x,y,w,h);
-// TODO: remove sat file and replace once internet is back
 const SAT = require('sat');//require('sat');
 
 class SATFactory {
