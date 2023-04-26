@@ -1,5 +1,7 @@
 const hashDistance = 50;// memory vs efficiency tradeoff
 
+// TODO: fix this relying on top/ bottom
+
 export default class SpatialHash {
     constructor(){
         // positions: { x: {y: [entities at this hash] } }

@@ -38,5 +38,5 @@ export default function simulatePlayer(p, map) {
 	
     p.top = {x: p.x - p.r, y: p.y - p.r};
     p.bottom = {x: p.x + p.r, y: p.y + p.r};
-	p.sat = new SAT.Circle(new SAT.Vector(p.x, p.y), p.r);// temp; will have generation later
+	p.body = new SAT.Circle(new SAT.Vector(p.x, p.y), p.r);// temp; will have generation later
 }

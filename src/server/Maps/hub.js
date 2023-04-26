@@ -10,7 +10,7 @@ module.exports = {
         {type: 'circle-normal-changeMap', x: 400, y: 400, r: 25, w: 50, h: 50, map: 'Planet of Simple Challenges' },
         {type: 'poly-move-changeMap', x: 0, y: 0, points: [[300, 0], [400, 0], [350, 75]], path: [[300,0],[400,0]], currentPoint: 0, speed: 1, maxStrength: 20, regenTime: 100, healSpeed: .1, map: 'Winroom' },
         
-        {type: 'square-normal-lava', x: 400, y: 150, w: 50, h: 50, bounciness: 1, friction: 0.98 },
+        {type: 'square-normal-lava', x: 0, y: 0, w: 50, h: 50, bounciness: 1, friction: 0.98 },
         {type: 'square-normal-normal', x: 400, y: 200, w: 50, h: 50, bounciness: 1, friction: 0.98 },
         {type: 'circle-normal-bounce', x: 75, y: 425, r: 50, bounciness: 10, friction: 0.9 },
         {type: 'circle-normal-resetFriction', x: 250, y: 250, r: 50},

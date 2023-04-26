@@ -1,4 +1,4 @@
-import transformManager from './transformBody.js';
+import transformBody from './transformBody.js';
 import effectMap from './effectMap.js';
 import SimulateEnemy from './simulateEnemy.js';
 
@@ -72,10 +72,16 @@ const SimulateMap = {
 };
 
 export default function Simulate(player, o, other){
-    const last = {x: o.x, y: o.y, rotation: o.rotation, pivot: o.pivot/*TODO*/};
+    // const last = {x: o.x, y: o.y, rotation: o.rotation, pivot: o.pivot/*TODO*/};
+    const bound = o.body.getBoundingBox();
+    o.x = bound.pos.x + bound.w/2;
+    o.y = bound.pos.y + bound.h/2;
+    o.difference = {x: bound.w, y: bound.y};
+    o.rotation = o.body.angle;
+    const last = {x: o.x, y: o.y, rotation: o.rotation};
+
     SimulateMap[o.simulate](player, o, other);
     effectMap.runIdleEffects(player, o, other);
-    if(last.x !== o.x || last.y !== o.y || last.rotation !== o.rotation){
-        transformManager.transformBody(o, /*positional delta: */{ x: o.x-last.x, y: o.y-last.y, rotation: o.rotation-last.rotation });
-    }
+    
+    transformBody(o, { x: o.x-last.x, y: o.y-last.y, rotation: o.rotation-last.rotation });
 }

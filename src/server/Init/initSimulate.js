@@ -1,4 +1,4 @@
-const enemyFactory = require('./initEnemy.js');
+const initEnemy = require('./initEnemy.js');
 
 const initSimulateMap = {
     normal: () => {},
@@ -27,17 +27,13 @@ const initSimulateMap = {
         obs.yv = Math.sin(angle) * obs.speed;
     },
     rotate: (obs, init) => {
-        const middle = {x: (init.top.x + init.bottom.x)/2, y: (init.top.y + init.bottom.y)/2};
         obs.rotation = init.rotation;
-        obs.pivot = init.pivot ?? {x: middle.x, y: middle.y};
         // init.x and y are the midpoint
 		obs.rotateSpeed = init.rotateSpeed ?? 0;
         obs.rotateSpeed *= Math.PI/180;
-        obs.pivot.dist = Math.sqrt((obs.pivot.x - middle.x)**2 + (obs.pivot.y - middle.y)**2);
     },
     enemy: (obs, init) => {
         //{type: 'circle-enemy-normal', bound: {x: 0, y: 0, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/}
-        assign(obs, enemyFactory.initEnemy(init));
         obs.type = 'enemy';
         obs.enemyType = init.enemyType;
         obs.bound = {
@@ -46,10 +42,7 @@ const initSimulateMap = {
             w: init.bound.w,
             h: init.bound.h
         };
-
-        // if this is undefined it will be assigned later
-        obs.x = init.x;
-        obs.y = init.y;
+        assign(obs, initEnemy(init));
     }
 };
 

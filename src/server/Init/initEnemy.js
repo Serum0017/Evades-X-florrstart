@@ -20,44 +20,26 @@ const initEnemyMap = {
     },
 };
 
-const transformManager = require('./transformBody.js');
-
-function initEnemyPosition(e){
-    const last = {x: e.top.x, y: e.top.y};
-    // halfwidth? since we always div by 2?
-    e.width = e.bottom.x - e.top.x;
-    if(!isNaN(e.x)){
-        e.top.x = e.x-e.width/2;
-        e.bottom.x = e.x+e.width/2;
+function initPosition(e, init){
+    if(!isNaN(init.x)){
+        e.x = init.x;
     } else {
-        const top = e.bound.x + Math.random()*(e.bound.w-e.width);
-        e.top.x = top;
-        e.bottom.x = top + e.width;
+        e.x = init.difference.x/2 + Math.random() * (init.bound.w - init.difference.x);
     }
-
-    e.height = e.bottom.x - e.top.x;
-    if(!isNaN(e.y)){
-        e.top.y = e.y-e.height/2;
-        e.bottom.y = e.y+e.height/2;
+    
+    if(!isNaN(init.y)){
+        e.y = init.y;
     } else {
-        const top = e.bound.y + Math.random()*(e.bound.h-e.height);
-        e.top.y = top;
-        e.bottom.y = top + e.height;
+        e.y = init.difference.y/2 + Math.random() * (init.bound.h - init.difference.y);
     }
-
-    // making sure that things like poly are offset correctly
-    e.pivot = {x: e.pivot.x ?? (e.top.x+e.bottom.x)/2, y: e.pivot.y ?? (e.top.y+e.bottom.y)/2};
-    e.distToPivot = Math.sqrt(((e.top.x+e.bottom.x)/2-e.pivot.x)**2+((e.top.y+e.bottom.y)/2-e.pivot.y)**2);
-    transformManager.runTransformMap(e, {x: e.top.x - last.x, y: e.top.y - last.y});
 }
 
-function initEnemy(params, advanced) {
+module.exports = function initEnemy(params, advanced) {
     let init = {};
     if(params.enemyType === undefined || initEnemyMap[params.enemyType] === undefined) {
         console.error("Obstacle enemyType undefined! " + JSON.stringify(params)); return;
     }
+    initPosition(init, params);
     initEnemyMap[params.enemyType](init, params, advanced);
     return init;
 }
-
-module.exports = {initEnemy, initEnemyPosition};

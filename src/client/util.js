@@ -39,6 +39,43 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
   this.arcTo(x,   y,   x+w, y,   r);
 };
 
+SAT.Circle.prototype.rotate = (angle) => {
+  let nextAngle = Math.atan2(this.offset.y, this.offset.x) + angle;
+  let magnitude = Math.sqrt(this.offset.y**2, this.offset.x**2);
+  this.setOffset(new SAT.Vector(Math.cos(nextAngle) * magnitude, Math.sin(nextAngle) * magnitude));
+}
+
+SAT.Polygon.prototype['getBoundingBox'] = function () {
+  var points = this['calcPoints'];
+  var len = points.length;
+  var xMin = points[0]['x'];
+  var yMin = points[0]['y'];
+  var xMax = points[0]['x'];
+  var yMax = points[0]['y'];
+  for (var i = 1; i < len; i++) {
+    var point = points[i];
+    if (point['x'] < xMin) {
+      xMin = point['x'];
+    }
+    else if (point['x'] > xMax) {
+      xMax = point['x'];
+    }
+    if (point['y'] < yMin) {
+      yMin = point['y'];
+    }
+    else if (point['y'] > yMax) {
+      yMax = point['y'];
+    }
+  }
+  return new SAT.Box(this['pos'].clone().add(new SAT.Vector(xMin, yMin)), xMax - xMin, yMax - yMin);
+};
+
+SAT.Circle.prototype['getBoundingBox'] = function () {
+  var r = this['r'];
+  var corner = this['pos'].clone().add(this['offset']).sub(new SAT.Vector(r, r));
+  return new SAT.Box(corner, r * 2, r * 2);
+};
+
 // CanvasRenderingContext2D.prototype.fill = function(a) {
 //     return function(a,b) {
 //         if(this.globalAlpha !== 1){

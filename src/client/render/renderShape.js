@@ -15,8 +15,8 @@ const renderShapeMap = {
         rotateAngle(ctx, -o.render.rotation, o.pivot);
         ctx.closePath();
 
-        ctx.fillStyle = 'red';
-        ctx.strokeRect(o.sat.calcPoints[0].x, o.sat.calcPoints[0].y, o.w, o.h);
+        ctx.strokeStyle = 'red';
+        ctx.strokeRect(o.body.calcPoints[0].x, o.body.calcPoints[0].y, o.w, o.h);
     },
     poly: (o, ctx, advanced) => {
         ctx.beginPath();
@@ -32,38 +32,28 @@ const renderShapeMap = {
         ctx.translate(o.x - o.render.x, o.y - o.render.y);
         ctx.closePath();
 
-        // // drawing sat
-        // ctx.beginPath();
-        // const pts = o.sat.calcPoints;
-        // ctx.moveTo(pts[0].x, pts[0].y);
-        // for(let i = 1; i < pts.length; i++){
-        //     ctx.lineTo(pts[i].x, pts[i].y);
-        // }
-        // ctx.lineTo(pts[0].x, pts[0].y);
-        // ctx.strokeStyle = 'red';
-        // ctx.stroke();
-        // ctx.closePath();
+        // drawing body
+        ctx.beginPath();
+        const pts = o.body.calcPoints;
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for(let i = 1; i < pts.length; i++){
+            ctx.lineTo(pts[i].x, pts[i].y);
+        }
+        ctx.lineTo(pts[0].x, pts[0].y);
+        ctx.strokeStyle = 'red';
+        ctx.stroke();
+        ctx.closePath();
 
-        // ctx.strokeStyle = 'blue';
-        // ctx.strokeRect(o.top.x, o.top.y, o.difference.x,o.difference.y);
+        ctx.strokeStyle = 'blue';
+        ctx.strokeRect(o.top.x, o.top.y, o.difference.x,o.difference.y);
 
-        // ctx.fillStyle = 'green';
-        // ctx.globalAlpha = 0.2;
-        // ctx.beginPath();
-        // ctx.arc(o.pivot.x, o.pivot.y, 10, 0, Math.PI*2);
-        // ctx.fill();
-        // ctx.closePath();
-        // ctx.globalAlpha = 1;
-
-        // if(o.origin){
-        //     ctx.fillStyle = 'purple';
-        //     ctx.globalAlpha = 0.3;
-        //     ctx.beginPath();
-        //     ctx.arc(o.origin.x, o.origin.y, 10, 0, Math.PI*2);
-        //     ctx.fill();
-        //     ctx.closePath();
-        //     ctx.globalAlpha = 1;
-        // }
+        ctx.fillStyle = 'green';
+        ctx.globalAlpha = 0.2;
+        ctx.beginPath();
+        ctx.arc(o.pivot.x, o.pivot.y, 10, 0, Math.PI*2);
+        ctx.fill();
+        ctx.closePath();
+        ctx.globalAlpha = 1;
     }
 }
 

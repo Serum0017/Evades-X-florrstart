@@ -1,69 +1,78 @@
 // SATFactory.generateSAT.square(x,y,w,h);
 const SAT = require('sat');//require('sat');
 
-class SATFactory {
-    constructor() {
-        // IMPORTANT: make sure to copy any changes made to this.generateSAT to the client sided satFactory.js
-        this.generateSAT = {
-            square: ({ x,y,w,h }) => {
-                return new SAT.Box(new SAT.Vector(x-w/2, y-h/2), w, h).toPolygon();
-            },
-            circle: ({ x,y,r }) => {
-                return new SAT.Circle(new SAT.Vector(x, y), r);
-            },
-            poly: ({ points }) => {
-                return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0], p[1]))]);
+const SATMap = {
+    square: ({ x,y,w,h }) => {
+        return new SAT.Box(new SAT.Vector(x-w/2, y-h/2), w, h).toPolygon();
+    },
+    circle: ({ x,y,r }) => {
+        return new SAT.Circle(new SAT.Vector(x, y), r);
+    },
+    poly: ({ points }) => {
+        return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0], p[1]))]);
+    }
+};
+
+function generateBody(obstacle) {
+    const init = {};
+    init.body = SATMap[obstacle.shape](obstacle);
+    obstacle.pivot = {x: obstacle.pivot?.x ?? obstacle.x, y: obstacle.pivot?.y ?? obstacle.y};
+    initPivot(init.body, obstacle.pivot);
+    return init;
+}
+
+function initPivot(body, pivot){
+    if(body.translate !== undefined){
+        body.translate(-pivot.x,-pivot.x);
+        body.setOffset(new SAT.Vector(pivot.x, pivot.y));
+    } else {
+        body.pos.x -= pivot.x;
+        body.pos.y -= pivot.y;
+        body.setOffset(new SAT.Vector(pivot.x, pivot.y));
+        body.rotate = (angle) => {
+            let nextAngle = Math.atan2(this.offset.y, this.offset.x) + angle;
+            let magnitude = Math.sqrt(this.offset.y**2, this.offset.x**2);
+            this.setOffset(new SAT.Vector(Math.cos(nextAngle) * magnitude, Math.sin(nextAngle) * magnitude));
+        }
+        body.angle = 0;// not defined on circles so might as well do it here
+    }
+}
+
+const DimensionsMap = {
+    square: ({w, h}) => {
+        return {difference: {x: w, y: h}};
+    },
+    circle: ({ r }) => {
+        return {difference: {x: r*2, y: r*2}};
+    },
+    poly: ({ points }) => {
+        var top, right, bottom, left;
+        top = right = bottom = left = null;
+        for(let [x, y] of points){
+            if(x < left || left === null){
+                left = x;
             }
-        };
-        this.generateDimensions = {
-            square: ({ x=0,y=0,w=0,h=0 }) => {
-                return {
-                    top: {x: x-w/2, y: y-h/2},
-                    bottom: {x: x+w/2, y: y+h/2},
-                };
-            },
-            circle: ({ x=0,y=0,r=0 }) => {
-                return {
-                    top: {x: x-r, y: y-r},
-                    bottom: {x: x+r, y: y+r},
-                };
-            },
-            poly: ({ points }) => {
-                var top, right, bottom, left;
-                top = right = bottom = left = null;
-                for(let [x, y] of points){
-                    x = x ?? 0;
-                    y = y ?? 0;
-                    if(x < left || left === null){
-                        left = x;
-                    }
-                    if(x > right || right === null){
-                        right = x;
-                    }
-                    if(y > bottom || bottom === null){
-                        bottom = y;
-                    }
-                    if(y < top || top === null){
-                        top = y;
-                    }
-                }
-                return {
-                    top: {x: left, y: top},
-                    bottom: {x: right, y: bottom},
-                };
+            if(x > right || right === null){
+                right = x;
             }
+            if(y > bottom || bottom === null){
+                bottom = y;
+            }
+            if(y < top || top === null){
+                top = y;
+            }
+        }
+
+        return {
+            difference: {x: left - right, y: bottom - top},
+            x: (left + right)/2,
+            y: (bottom + top)/2
         };
     }
 }
 
-const factory = new SATFactory();
-
-function generateSAT(params) {
-    return factory.generateSAT[params.shape](params);
+function generateDimensions(obstacle){
+    return DimensionsMap[obstacle.shape](obstacle);
 }
 
-function generateDimensions(params){
-    return factory.generateDimensions[params.shape](params);
-}
-
-module.exports = { generateSAT, generateDimensions };
+module.exports = {generateBody, generateDimensions};

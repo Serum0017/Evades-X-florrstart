@@ -18,7 +18,7 @@ class Collision {
             //     /*distY*/Math.abs(circle.y - square.top.y/2 - square.bottom.y/2) < square.h / 2 + circle.r
             // ) {
                 const res = new SAT.Response();
-                if (SAT.testPolygonCircle(square.sat, circle.sat, res)) {
+                if (SAT.testPolygonCircle(square.body, circle.body, res)) {
                     return res;
                 }
             // }
@@ -28,7 +28,7 @@ class Collision {
         this.addCollisionMap('circle', 'circle', (circle1, circle2) => {
             if((circle1.x-circle2.x)**2+(circle1.y-circle2.y)**2 < (circle1.r+circle2.r)**2){
                 const res = new SAT.Response();
-                SAT.testCircleCircle(circle2.sat, circle1.sat, res);
+                SAT.testCircleCircle(circle2.body, circle1.body, res);
                 return res;
             }
             return false;
@@ -41,7 +41,7 @@ class Collision {
                 return false;
             }
             const res = new SAT.Response();
-            SAT.testPolygonPolygon(square1.sat, square2.sat, res);
+            SAT.testPolygonPolygon(square1.body, square2.body, res);
             return res;
         });
 
@@ -50,7 +50,7 @@ class Collision {
                 return false;
             }
             const res = new SAT.Response();
-            if (SAT.testPolygonPolygon(poly.sat, square.sat, res)) {
+            if (SAT.testPolygonPolygon(poly.body, square.body, res)) {
                 return res;
             }
             return false;
@@ -62,7 +62,7 @@ class Collision {
             }
             
             const res = new SAT.Response();
-            if (SAT.testPolygonCircle(poly.sat, circle.sat, res)) {
+            if (SAT.testPolygonCircle(poly.body, circle.body, res)) {
                 return res;
             }
             return false;
@@ -73,7 +73,7 @@ class Collision {
                 return false;
             }
             const res = new SAT.Response();
-            if (SAT.testPolygonPolygon(poly1.sat, poly2.sat, res)) {
+            if (SAT.testPolygonPolygon(poly1.body, poly2.body, res)) {
                 return res;
             }
             return false;
