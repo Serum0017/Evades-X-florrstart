@@ -17,26 +17,30 @@ function generateBody(obstacle) {
     const init = {};
     init.body = SATMap[obstacle.shape](obstacle);
     obstacle.pivot = {x: obstacle.pivot?.x ?? obstacle.x, y: obstacle.pivot?.y ?? obstacle.y};
-    initPivot(init.body, obstacle.pivot);
+    // initPivot(init.body, obstacle.pivot);
+    if(init.body.translate === undefined){
+        init.body.angle = 0;
+    }
     return init;
 }
 
-function initPivot(body, pivot){
-    if(body.translate !== undefined){
-        body.translate(-pivot.x,-pivot.x);
-        body.setOffset(new SAT.Vector(pivot.x, pivot.y));
-    } else {
-        body.pos.x -= pivot.x;
-        body.pos.y -= pivot.y;
-        body.setOffset(new SAT.Vector(pivot.x, pivot.y));
-        body.rotate = (angle) => {
-            let nextAngle = Math.atan2(this.offset.y, this.offset.x) + angle;
-            let magnitude = Math.sqrt(this.offset.y**2, this.offset.x**2);
-            this.setOffset(new SAT.Vector(Math.cos(nextAngle) * magnitude, Math.sin(nextAngle) * magnitude));
-        }
-        body.angle = 0;// not defined on circles so might as well do it here
-    }
-}
+// SCRAPPED - we should only do this on client side
+// function initPivot(body, pivot){
+//     if(body.translate !== undefined){
+//         body.translate(-pivot.x,-pivot.x);
+//         body.setOffset(new SAT.Vector(pivot.x, pivot.y));
+//     } else {
+//         // body.pos.x -= pivot.x;
+//         // body.pos.y -= pivot.y;
+//         body.setOffset(new SAT.Vector(pivot.x, pivot.y));
+//         body.rotate = (angle) => {
+//             let nextAngle = Math.atan2(this.offset.y, this.offset.x) + angle;
+//             let magnitude = Math.sqrt(this.offset.y**2, this.offset.x**2);
+//             this.setOffset(new SAT.Vector(Math.cos(nextAngle) * magnitude, Math.sin(nextAngle) * magnitude));
+//         }
+//         body.angle = 0;// not defined on circles so might as well do it here
+//     }
+// }
 
 const DimensionsMap = {
     square: ({w, h}) => {

@@ -19,7 +19,7 @@ function generateSAT(obstacle){
     sat.offset = new SAT.Vector(obstacle.body.offset.x, obstacle.body.offset.y);
 
     if(sat.translate !== undefined){
-        sat.translate(-obstacle.pivot.x,-obstacle.pivot.x);
+        sat.translate(-obstacle.pivot.x,-obstacle.pivot.y);
         sat.setOffset(new SAT.Vector(obstacle.pivot.x, obstacle.pivot.y));
     } else {
         sat.pos.x -= obstacle.pivot.x;

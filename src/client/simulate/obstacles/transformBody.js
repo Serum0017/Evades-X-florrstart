@@ -3,7 +3,7 @@ function transformBody(obstacle, delta){
         obstacle.body.setOffset(new SAT.Vector(obstacle.body.offset.x+delta.x, obstacle.body.offset.y+delta.y));
     }
     if(delta.rotation !== 0){
-        o.body.rotate(delta.rotation);
+        obstacle.body.rotate(delta.rotation);
     }
 }
 

@@ -63,7 +63,7 @@ export default class Renderer {
         const ratio = (performance.now() - map.lastState.time) * (60/1000);
         for(let i = 0; i < map.obstacles.length; i++){
             // TODO: get this working with sats
-            map.obstacles[i].render = map.obstacles[i]//interpolateObstacle(map.lastState.obstacles[i], map.obstacles[i], ratio, { map });
+            map.obstacles[i].render = interpolateObstacle(map.lastState.obstacles[i], map.obstacles[i], ratio, { map });
         }
         
         this.renderObstacles(map.obstacles, map.players);

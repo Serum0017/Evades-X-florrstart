@@ -29,7 +29,7 @@ const renderEffectMap = {
             ctx.fillStyle = 'white';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(o.acronym, o.x, o.top.y - o.difference.y / 4);
+            ctx.fillText(o.acronym, o.x, o.y - o.difference.y * 3 / 4);
 
             ctx.toClip = true;
             ctx.toFill = false;
@@ -62,13 +62,13 @@ const renderEffectAfterShapeMap = {
         if(o.map === 'Winroom')return;
 
         // Note: if ctx.toClip is specified then a renderEffectAfterShape is required to restore ctx.
-        ctx.drawImage(Utils.difficultyImages[o.difficulty], o.top.x, o.top.y, o.bottom.x-o.top.x, o.bottom.y-o.top.y);
+        ctx.drawImage(Utils.difficultyImages[o.difficulty], o.x - o.difference.x/2, o.y - o.difference.x/2, o.difference.x, o.difference.y);
 
         // rendering difficulty number
         if (o.difficultyNumber !== undefined) {
             ctx.fillStyle = 'black';
-            const markingY = o.top.y + (o.difference.y - 5) * (1 - o.difficultyNumber);
-            ctx.fillRect(o.top.x, markingY, o.difference.x / 5, 5);
+            const markingY = o.y - o.difference.y/2 + (o.difference.y - 5) * (1 - o.difficultyNumber);
+            ctx.fillRect(o.x - o.difference.x/2, markingY, o.difference.x / 5, 5);
         }
         
         ctx.restore();

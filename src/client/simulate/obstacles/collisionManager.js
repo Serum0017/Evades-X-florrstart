@@ -95,8 +95,8 @@ class Collision {
 }
 
 function intersectingBoundingBox(obj1, obj2){
-    if(obj1.top.x > obj2.bottom.x || obj1.bottom.x < obj2.top.x) return false;
-    if(obj1.top.y > obj2.bottom.y || obj1.top.y > obj2.bottom.y) return false;
+    // if(obj1.x - obj1.difference.x/2 > obj2.x + obj2.difference.x/2 || obj1.x + obj1.difference.x/2 < obj2.x - obj2.difference.x/2) return false;
+    // if(obj1.y - obj1.difference.y/2 > obj2.y + obj2.difference.y/2 || obj1.y + obj1.difference.y/2 > obj2.y - obj2.difference.y/2) return false;
     return true;
 }
 

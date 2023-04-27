@@ -10,50 +10,24 @@ const renderShapeMap = {
     square: (o, ctx, advanced) => {
         ctx.beginPath();
         rotateAngle(ctx, o.render.rotation, o.pivot);
-        ctx.rect(o.render.x-o.w/2,o.render.y-o.h/2,o.w,o.h);
+        ctx.rect(o.render.x-o.difference.x/2,o.render.y-o.difference.y/2,o.w,o.h);
         fsin(o, ctx, advanced);
         rotateAngle(ctx, -o.render.rotation, o.pivot);
         ctx.closePath();
 
-        ctx.strokeStyle = 'red';
-        ctx.strokeRect(o.body.calcPoints[0].x, o.body.calcPoints[0].y, o.w, o.h);
+        // ctx.strokeStyle = 'red';
+        // ctx.strokeRect(o.body.calcPoints[0].x, o.body.calcPoints[0].y, o.w, o.h);
     },
     poly: (o, ctx, advanced) => {
-        ctx.beginPath();
-        ctx.translate(o.render.x - o.x, o.render.y - o.y);
-        rotateAngle(ctx, o.render.rotation, o.pivot);
-        ctx.moveTo(o.points[0][0], o.points[0][1]);
-        for(let i = 1; i < o.points.length; i++){
-            ctx.lineTo(o.points[i][0], o.points[i][1]);
-        }
-        ctx.lineTo(o.points[0][0], o.points[0][1]);
-        fsin(o, ctx, advanced);
-        rotateAngle(ctx, -o.render.rotation, o.pivot);
-        ctx.translate(o.x - o.render.x, o.y - o.render.y);
-        ctx.closePath();
-
         // drawing body
         ctx.beginPath();
-        const pts = o.body.calcPoints;
-        ctx.moveTo(pts[0].x, pts[0].y);
-        for(let i = 1; i < pts.length; i++){
-            ctx.lineTo(pts[i].x, pts[i].y);
+        ctx.moveTo(o.body.calcPoints[0].x, o.body.calcPoints[0].y);
+        for(let i = 1; i < o.body.calcPoints.length; i++){
+            ctx.lineTo(o.body.calcPoints[i].x, o.body.calcPoints[i].y);
         }
-        ctx.lineTo(pts[0].x, pts[0].y);
-        ctx.strokeStyle = 'red';
-        ctx.stroke();
+        ctx.lineTo(o.body.calcPoints[0].x, o.body.calcPoints[0].y);
+        fsin(o, ctx, advanced);
         ctx.closePath();
-
-        ctx.strokeStyle = 'blue';
-        ctx.strokeRect(o.top.x, o.top.y, o.difference.x,o.difference.y);
-
-        ctx.fillStyle = 'green';
-        ctx.globalAlpha = 0.2;
-        ctx.beginPath();
-        ctx.arc(o.pivot.x, o.pivot.y, 10, 0, Math.PI*2);
-        ctx.fill();
-        ctx.closePath();
-        ctx.globalAlpha = 1;
     }
 }
 
