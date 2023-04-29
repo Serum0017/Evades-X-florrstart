@@ -22,10 +22,11 @@ function generateSAT(obstacle){
         sat.translate(-obstacle.pivot.x,-obstacle.pivot.y);
         sat.setOffset(new SAT.Vector(obstacle.pivot.x, obstacle.pivot.y));
     } else {
-        sat.pos.x -= obstacle.pivot.x;
-        sat.pos.y -= obstacle.pivot.y;
+        // sat.pos.x -= obstacle.pivot.x;
+        // sat.pos.y -= obstacle.pivot.y;
         sat.setOffset(new SAT.Vector(obstacle.pivot.x, obstacle.pivot.y));
     }
+    sat.rotate(obstacle.body.angle);
 
     return sat;
 }

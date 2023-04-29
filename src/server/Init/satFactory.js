@@ -19,7 +19,10 @@ function generateBody(obstacle) {
     obstacle.pivot = {x: obstacle.pivot?.x ?? obstacle.x, y: obstacle.pivot?.y ?? obstacle.y};
     // initPivot(init.body, obstacle.pivot);
     if(init.body.translate === undefined){
+        // special init circle stuff
         init.body.angle = 0;
+        init.body.pos.x -= obstacle.pivot.x;
+        init.body.pos.y -= obstacle.pivot.y;
     }
     return init;
 }
