@@ -39,10 +39,14 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
   this.arcTo(x,   y,   x+w, y,   r);
 };
 
-SAT.Circle.prototype.rotate = (angle) => {
-  let nextAngle = Math.atan2(this.offset.y, this.offset.x) + angle;
-  let magnitude = Math.sqrt(this.offset.y**2, this.offset.x**2);
-  this.setOffset(new SAT.Vector(Math.cos(nextAngle) * magnitude, Math.sin(nextAngle) * magnitude));
+SAT.Circle.prototype['translate'] = function (x, y) {
+  this.pos.x += x;
+  this.pos.y += y;
+}
+
+SAT.Circle.prototype['rotate'] = function (angle) {
+  this.angle += angle;
+  this.pos.rotate(angle);
 }
 
 SAT.Polygon.prototype['getBoundingBox'] = function () {

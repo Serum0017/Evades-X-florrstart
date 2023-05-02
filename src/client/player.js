@@ -25,10 +25,10 @@ export default class Player{
         this.lastSimulateState = this.createSimulateState();
     }
     simulate(map){
-        this.lastSimulateState = this.createSimulateState();
-
         // basic simulation that doesnt require anything else; same thing used in prediction
         simulatePlayer(this, map);
+
+        this.lastSimulateState = this.createSimulateState();
     }
     respawn(){
         // TODO

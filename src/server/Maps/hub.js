@@ -14,7 +14,7 @@ module.exports = {
         {type: 'square-normal-lava', x: 300, y: 300, w: 20, h: 20, bounciness: 1, friction: 0.98 },
         {type: 'circle-normal-bounce', x: 75, y: 425, r: 50, bounciness: 10, friction: 0.9 },
         {type: 'circle-normal-resetFriction', x: 250, y: 250, r: 50},
-        {type: 'circle-normal-tp', x: 250, y: 150, r: 50, tp: {x: 450, y: 50}},
+        {type: 'circle-rotate-tp', rotation: 0, rotateSpeed: 1, pivot: {x: 200, y: 200}, x: 150, y: 150, r: 50, tp: {x: 450, y: 50}},
         //{type: 'poly-move-normal', x: 400, y: 400, w: 100, h: 100, points: [[100, 100], [150, 100], [150, 150]], path: [[400, 400], [350, 400], [350, 450]], currentPoint: 0, speed: 0.5},
         // {type: 'poly-normal-breakable', points: [[50, 50], [150, 50], [100, 125], [50, 100]], maxStrength: 100 },
         {type: 'poly-rotate-bounce', x: 0, y: 0, rotation: 0, rotateSpeed: -1, pivot: {x: 150, y: 150}, points: [[0, 0], [100, 0], [50, 75]], path: [[0, 0], [200, 200], [100, 200]], bounciness: 10, friction: 0.9, currentPoint: 0, speed: 3, maxStrength: 20, regenTime: 100, healSpeed: .1},

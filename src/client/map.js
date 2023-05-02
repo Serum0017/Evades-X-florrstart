@@ -33,8 +33,6 @@ export default class Map {
             this.obstacles[i].body = satFactory.generateSAT(this.obstacles[i]);
         }
 
-        console.log(this.obstacles);
-
         this.settings = data.settings;
         this.name = data.name;
 
@@ -46,8 +44,6 @@ export default class Map {
         this.tick = data.tick;
 
         this.lastState = this.createRenderState();
-
-        this.playerSimulateAccum = 0;
     }
     updatePack(playerData){
         for(let id in playerData){
@@ -65,9 +61,6 @@ export default class Map {
         // obstacles will be simulated server side, rest is client side.
     }
     simulate(){
-        // create a deep copy of the last state for rendering
-        this.lastState = this.createRenderState();
-
         // refer to miro for ordering
         // simulate everything
         // Full simulation structure with player prediction and server sided objects:
@@ -81,6 +74,9 @@ export default class Map {
         ObstacleManager.runObstacleCollisions(this.self, this.players, this.obstacles, this.tick, this.client);
 
         this.tick++;
+
+        // create a deep copy of the last state for rendering
+        this.lastState = this.createRenderState();
 
         // - simulate player
         // - update the player's sat

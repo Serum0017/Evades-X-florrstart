@@ -6,6 +6,14 @@ const renderShapeMap = {
         ctx.arc(o.render.x, o.render.y, o.r, 0, Math.PI*2);
         fsin(o, ctx, advanced);
         ctx.closePath();
+
+        if(o.simulate === 'rotate'){
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(o.pivot.x, o.pivot.y, 10, 0, Math.PI*2);
+            ctx.fill();
+            ctx.closePath();
+        }
     },
     square: (o, ctx, advanced) => {
         ctx.beginPath();

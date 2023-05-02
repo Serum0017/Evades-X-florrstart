@@ -13,17 +13,28 @@ const SATMap = {
     }
 };
 
+SAT.Circle.prototype['translate'] = function (x, y) {
+    this.pos.x += x;
+    this.pos.y += y;
+}
+
+SAT.Circle.prototype['rotate'] = function (angle) {
+    this.angle += angle;
+    this.pos.rotate(angle);
+}
+
 function generateBody(obstacle) {
     const init = {};
     init.body = SATMap[obstacle.shape](obstacle);
     obstacle.pivot = {x: obstacle.pivot?.x ?? obstacle.x, y: obstacle.pivot?.y ?? obstacle.y};
     // initPivot(init.body, obstacle.pivot);
-    if(init.body.translate === undefined){
-        // special init circle stuff
-        init.body.angle = 0;
-        init.body.pos.x -= obstacle.pivot.x;
-        init.body.pos.y -= obstacle.pivot.y;
-    }
+    init.body.angle = obstacle.rotation ?? 0;// TODO: replace with math.atan2 calc
+
+    init.body.translate(-obstacle.pivot.x,-obstacle.pivot.y);
+    init.body.setOffset(new SAT.Vector(obstacle.pivot.x, obstacle.pivot.y));
+
+    init.body.rotate(init.body.angle);
+
     return init;
 }
 

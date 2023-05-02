@@ -27,7 +27,6 @@ const initSimulateMap = {
         obs.yv = Math.sin(angle) * obs.speed;
     },
     rotate: (obs, init) => {
-        obs.rotation = init.rotation;
         // init.x and y are the midpoint
 		obs.rotateSpeed = init.rotateSpeed ?? 0;
         obs.rotateSpeed *= Math.PI/180;
