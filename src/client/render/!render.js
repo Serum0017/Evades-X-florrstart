@@ -286,8 +286,7 @@ function interpolate(start, end, time) {
 
 // if amount is 1/8, then we get 1/8 closer to the target every frame
 function expLerp(start, end, amount){
-    const difference = end-start;
-    return start + difference*amount;
+    return start + (end-start)*amount;
 }
 
 function interpolateDirection(d1, d2, angleIncrement) {

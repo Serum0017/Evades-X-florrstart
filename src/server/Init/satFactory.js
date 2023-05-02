@@ -8,8 +8,8 @@ const SATMap = {
     circle: ({ x,y,r }) => {
         return new SAT.Circle(new SAT.Vector(x, y), r);
     },
-    poly: ({ points }) => {
-        return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0], p[1]))]);
+    poly: ({ points,x,y }) => {
+        return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
     }
 };
 
@@ -27,12 +27,12 @@ function generateBody(obstacle) {
     const init = {};
     init.body = SATMap[obstacle.shape](obstacle);
     obstacle.pivot = {x: obstacle.pivot?.x ?? obstacle.x, y: obstacle.pivot?.y ?? obstacle.y};
-    // initPivot(init.body, obstacle.pivot);
-    init.body.angle = obstacle.rotation ?? 0;// TODO: replace with math.atan2 calc
 
+    // init.body.translate(-obstacle.pivot.x,-obstacle.pivot.y);
     init.body.translate(-obstacle.pivot.x,-obstacle.pivot.y);
     init.body.setOffset(new SAT.Vector(obstacle.pivot.x, obstacle.pivot.y));
 
+    init.body.angle = /*obstacle.rotation ?? */0;// TODO: replace with math.atan2 calc
     init.body.rotate(init.body.angle);
 
     return init;
@@ -82,9 +82,9 @@ const DimensionsMap = {
         }
 
         return {
-            difference: {x: left - right, y: bottom - top},
-            x: (left + right)/2,
-            y: (bottom + top)/2
+            difference: {x: right - left, y: bottom - top},
+            // x: (left + right)/2,
+            // y: (bottom + top)/2
         };
     }
 }

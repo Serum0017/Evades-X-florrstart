@@ -6,25 +6,14 @@ const renderShapeMap = {
         ctx.arc(o.render.x, o.render.y, o.r, 0, Math.PI*2);
         fsin(o, ctx, advanced);
         ctx.closePath();
-
-        if(o.simulate === 'rotate'){
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(o.pivot.x, o.pivot.y, 10, 0, Math.PI*2);
-            ctx.fill();
-            ctx.closePath();
-        }
     },
     square: (o, ctx, advanced) => {
         ctx.beginPath();
-        rotateAngle(ctx, o.render.rotation, o.pivot);
+        // rotateAngle(ctx, o.body.angle, {x: o.render.x-o.difference.x/2,y: o.render.y-o.difference.y/2});
         ctx.rect(o.render.x-o.difference.x/2,o.render.y-o.difference.y/2,o.w,o.h);
         fsin(o, ctx, advanced);
-        rotateAngle(ctx, -o.render.rotation, o.pivot);
+        // rotateAngle(ctx, -o.body.angle, {x: o.render.x-o.difference.x/2,y: o.render.y-o.difference.y/2});
         ctx.closePath();
-
-        // ctx.strokeStyle = 'red';
-        // ctx.strokeRect(o.body.calcPoints[0].x, o.body.calcPoints[0].y, o.w, o.h);
     },
     poly: (o, ctx, advanced) => {
         // drawing body
@@ -52,11 +41,12 @@ function fsin(o, ctx, advanced){
 }
 
 function rotateAngle(ctx, angle, {x, y}){
-    if(angle !== 0){
-        ctx.translate(x, y);
-        ctx.rotate(angle);
-        ctx.translate(-x,-y);
+    if(angle === 0){
+        return;
     }
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.translate(-x,-y);
 }
 
 export default function renderShape(o, ctx, advanced) {

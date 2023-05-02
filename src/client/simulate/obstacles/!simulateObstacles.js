@@ -7,6 +7,7 @@ const hash = new SpatialHash();
 
 // literally just simulate obstacles, nothing else
 function simulateObstacles(player, players, obstacles, tick, client){
+    // return;
     // simulating obstacles
     for(let i = 0; i < obstacles.length; i++){
         // simulate the obstacle

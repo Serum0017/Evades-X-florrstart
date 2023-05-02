@@ -4,6 +4,7 @@ function transformBody(obstacle, delta){
     }
     if(delta.rotation !== 0){
         obstacle.body.rotate(delta.rotation);
+        obstacle.body.angle += delta.rotation;
     }
 }
 

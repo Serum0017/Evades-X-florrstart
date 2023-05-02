@@ -6,8 +6,8 @@ const generateSATMap = {
     circle: ({ x,y,r }) => {
         return new SAT.Circle(new SAT.Vector(x, y), r);
     },
-    poly: ({ points }) => {
-        return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0], p[1]))]);
+    poly: ({ points,x,y }) => {
+        return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
     }
 };
 
@@ -17,8 +17,9 @@ function generateSAT(obstacle){
     sat.angle = obstacle.body.angle;
     sat.pos = new SAT.Vector(obstacle.body.pos.x, obstacle.body.pos.y);
     sat.offset = new SAT.Vector(obstacle.body.offset.x, obstacle.body.offset.y);
-
-    if(sat._recalc !== undefined)sat._recalc();
+    if(obstacle.body.points !== undefined){
+        sat.points = obstacle.body.points.map(p => new SAT.Vector(p.x, p.y));
+    }
 
     return sat;
 }

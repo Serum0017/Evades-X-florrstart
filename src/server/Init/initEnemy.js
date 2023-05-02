@@ -21,16 +21,17 @@ const initEnemyMap = {
 };
 
 function initPosition(e, init){
+    // TODO: fix poly not translating to bound in some global system
     if(!isNaN(init.x)){
         e.x = init.x;
     } else {
-        e.x = init.difference.x/2 + Math.random() * (init.bound.w - init.difference.x);
+        e.x = init.bound.x + init.difference.x/2 + Math.random() * (init.bound.w - init.difference.x);
     }
     
     if(!isNaN(init.y)){
         e.y = init.y;
     } else {
-        e.y = init.difference.y/2 + Math.random() * (init.bound.h - init.difference.y);
+        e.y = init.bound.y + init.difference.y/2 + Math.random() * (init.bound.h - init.difference.y);
     }
 }
 
