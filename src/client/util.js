@@ -45,8 +45,12 @@ SAT.Circle.prototype['translate'] = function (x, y) {
 }
 
 SAT.Circle.prototype['rotate'] = function (angle) {
-  this.angle += angle;
   this.pos.rotate(angle);
+}
+
+SAT.Circle.prototype['setAngle'] = function (angle) {
+  this.pos.rotate(angle-this.angle);
+  this.angle = angle;
 }
 
 SAT.Polygon.prototype['getBoundingBox'] = function () {

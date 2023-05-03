@@ -17,7 +17,7 @@ const initEffectMap = {
                 obs.acronym += obs.map[0];
             }
         }
-        if(obs.acronym === 'H'){obs.acronym = 'Hub';}
+        if(obs.map === 'Hub'){obs.acronym = 'Hub';}
         const mapData = advanced.game.mapData[init.map ?? 'Winroom'];
         for(let i = 0; i < mapData.init.length; i++){
             if(mapData.init[i].type === 'settings'){

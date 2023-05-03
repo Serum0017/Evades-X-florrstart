@@ -1,4 +1,4 @@
-// SATFactory.generateSAT.square(x,y,w,h);
+// SATFactory.generateSAT.circle(x,y,r);
 const SAT = require('sat');//require('sat');
 
 const SATMap = {
@@ -23,17 +23,29 @@ SAT.Circle.prototype['rotate'] = function (angle) {
     this.pos.rotate(angle);
 }
 
+SAT.Circle.prototype['setAngle'] = function (angle) {
+    this.pos.rotate(angle-this.angle);
+    this.angle = angle;
+}
+
 function generateBody(obstacle) {
     const init = {};
     init.body = SATMap[obstacle.shape](obstacle);
-    obstacle.pivot = {x: obstacle.pivot?.x ?? obstacle.x, y: obstacle.pivot?.y ?? obstacle.y};
 
-    // init.body.translate(-obstacle.pivot.x,-obstacle.pivot.y);
+    obstacle.pivot = {x: obstacle.pivot?.x ?? obstacle.x, y: obstacle.pivot?.y ?? obstacle.y};
+    obstacle.rotation = obstacle.rotation ?? 0;
+    init.body.angle = obstacle.rotation ?? 0;
+
     init.body.translate(-obstacle.pivot.x,-obstacle.pivot.y);
     init.body.setOffset(new SAT.Vector(obstacle.pivot.x, obstacle.pivot.y));
 
-    init.body.angle = /*obstacle.rotation ?? */0;// TODO: replace with math.atan2 calc
-    init.body.rotate(init.body.angle);
+    init.body.setAngle(/*obstacle.rotation ?? */0);// TODO: replace with math.atan2 calc
+    init.body.rotate(obstacle.rotation);
+
+    if(obstacle.shape === 'square'){
+        init.shape = 'poly';
+        // console.log(init.body);
+    }
 
     return init;
 }

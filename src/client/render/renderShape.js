@@ -7,23 +7,15 @@ const renderShapeMap = {
         fsin(o, ctx, advanced);
         ctx.closePath();
     },
-    square: (o, ctx, advanced) => {
-        ctx.beginPath();
-        // rotateAngle(ctx, o.body.angle, {x: o.render.x-o.difference.x/2,y: o.render.y-o.difference.y/2});
-        ctx.rect(o.render.x-o.difference.x/2,o.render.y-o.difference.y/2,o.w,o.h);
-        fsin(o, ctx, advanced);
-        // rotateAngle(ctx, -o.body.angle, {x: o.render.x-o.difference.x/2,y: o.render.y-o.difference.y/2});
-        ctx.closePath();
-    },
     poly: (o, ctx, advanced) => {
         // drawing body
         ctx.beginPath();
         ctx.translate(o.render.x - o.x, o.render.y - o.y);
-        ctx.moveTo(o.body.calcPoints[0].x, o.body.calcPoints[0].y);
+        ctx.moveTo(o.body.calcPoints[0].x + o.body.pos.x, o.body.calcPoints[0].y + o.body.pos.y);
         for(let i = 1; i < o.body.calcPoints.length; i++){
-            ctx.lineTo(o.body.calcPoints[i].x, o.body.calcPoints[i].y);
+            ctx.lineTo(o.body.calcPoints[i].x + o.body.pos.x, o.body.calcPoints[i].y + o.body.pos.y);
         }
-        ctx.lineTo(o.body.calcPoints[0].x, o.body.calcPoints[0].y);
+        ctx.lineTo(o.body.calcPoints[0].x + o.body.pos.x, o.body.calcPoints[0].y + o.body.pos.y);
         fsin(o, ctx, advanced);
         ctx.translate(o.x - o.render.x, o.y - o.render.y)
         ctx.closePath();

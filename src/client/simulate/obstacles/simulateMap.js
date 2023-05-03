@@ -77,7 +77,6 @@ export default function Simulate(player, o, other){
     o.x = bound.pos.x + bound.w/2;
     o.y = bound.pos.y + bound.h/2;
     o.difference = {x: bound.w, y: bound.h};
-    o.rotation = o.body.angle;
     const last = {x: o.x, y: o.y, rotation: o.rotation};
 
     SimulateMap[o.simulate](player, o, other);

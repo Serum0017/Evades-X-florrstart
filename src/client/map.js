@@ -27,11 +27,13 @@ export default class Map {
         this.obstacles = data.obstacles;
         // console.log({data});
 
-        console.log(data.obstacles);
+        // console.log(data.obstacles);
 
         for(let i = 0; i < this.obstacles.length; i++){
-            this.obstacles[i].body = satFactory.generateSAT(this.obstacles[i]);
+            this.obstacles[i].body = satFactory.generateSAT(this.obstacles[i].body, this.obstacles[i]);
         }
+
+        console.log(this.obstacles);
 
         this.settings = data.settings;
         this.name = data.name;
