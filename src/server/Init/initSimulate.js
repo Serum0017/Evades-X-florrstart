@@ -4,7 +4,6 @@ const initSimulateMap = {
     normal: () => {},
     move: (obs, init) => {
         // init: {currentPoint, path, speed, alongWith }
-        // TODO: make fractional path supported! we want fine control
 		obs.currentPoint = init.currentPoint;
 		obs.path = init.path;
 		obs.speed = init.speed;
@@ -25,6 +24,11 @@ const initSimulateMap = {
         let angle = Math.atan2(obs.pointTo.y - obs.pointOn.y, obs.pointTo.x - obs.pointOn.x);
         obs.xv = Math.cos(angle) * obs.speed;
         obs.yv = Math.sin(angle) * obs.speed;
+
+        // TODO: fix fractional points (this doesnt work)
+        // obs.movingInitOffset = init.movingInitOffset ?? 0;
+        obs.x = obs.pointOn.x// * (1-obs.movingInitOffset) + obs.pointTo.x * obs.movingInitOffset;
+        obs.y = obs.pointOn.y// * (1-obs.movingInitOffset) + obs.pointTo.y * obs.movingInitOffset;
     },
     rotate: (obs, init) => {
         // init.x and y are the midpoint

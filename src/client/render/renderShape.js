@@ -17,7 +17,7 @@ const renderShapeMap = {
         }
         ctx.lineTo(o.body.calcPoints[0].x + o.body.pos.x, o.body.calcPoints[0].y + o.body.pos.y);
         fsin(o, ctx, advanced);
-        ctx.translate(o.x - o.render.x, o.y - o.render.y)
+        ctx.translate(o.x - o.render.x, o.y - o.render.y);
         ctx.closePath();
     }
 }

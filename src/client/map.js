@@ -45,7 +45,7 @@ export default class Map {
 
         this.tick = data.tick;
 
-        this.lastState = this.createRenderState();
+        this.lastState = this.createRenderState(performance.now());
     }
     updatePack(playerData){
         for(let id in playerData){
@@ -77,8 +77,14 @@ export default class Map {
 
         this.tick++;
 
+        const time = performance.now();
+
         // create a deep copy of the last state for rendering
-        this.lastState = this.createRenderState();
+        this.lastState = this.createRenderState(time);
+
+        for(let id in this.players){
+            this.players[id].createSimulateState(time);
+        }
 
         // - simulate player
         // - update the player's sat
@@ -101,10 +107,10 @@ export default class Map {
             tick: this.tick
         };
     }
-    createRenderState(){
+    createRenderState(time){
         return window.structuredClone({
             obstacles: this.obstacles,
-            time: performance.now()
+            time
         });
     }
 }

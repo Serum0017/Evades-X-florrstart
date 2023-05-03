@@ -22,13 +22,11 @@ export default class Player{
         this.renderX = this.x;
         this.renderY = this.y;
 
-        this.lastSimulateState = this.createSimulateState();
+        this.createSimulateState(performance.now());
     }
     simulate(map){
         // basic simulation that doesnt require anything else; same thing used in prediction
         simulatePlayer(this, map);
-
-        this.lastSimulateState = this.createSimulateState();
     }
     respawn(){
         // TODO
@@ -56,12 +54,13 @@ export default class Player{
         this.renderX = this.lastSimulateState.x * (1-time) + this.x * time;
         this.renderY = this.lastSimulateState.y * (1-time) + this.y * time;
     }
-    createSimulateState(){
-        return {
+    createSimulateState(time){
+        this.lastSimulateState = {
             x: this.x,
             y: this.y,
-            time: performance.now()
+            time
         }
+        this.updateInterpolate();
     }
     updatePack(data){
         // TODO: implement differencePack data optimization

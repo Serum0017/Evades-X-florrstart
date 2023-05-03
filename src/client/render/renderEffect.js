@@ -47,12 +47,19 @@ const renderEffectMap = {
     tp: (o, ctx, advanced) => {
         ctx.fillStyle = 'green';
     },
-    breakable: (o, ctx, advanced) => {
+    breakable: (o, ctx, { colors }) => {
         // ui.ctx.fillStyle = ui.colors.tile;// setting fillstyle converts it to hex
         
         // const mix = ui.mixColor('#000000', ui.ctx.fillStyle, 0.1);
         // ui.fcolor(`rgb(${mix[0]},${mix[1]},${mix[2]})`);
-        ctx.fillStyle = 'black';// TODO: find the actual colors of bounce, tp, and breakable from semioldevade
+
+        // TODO: decide if there's a better way to do this in init or something -> special init module for cases like this where it only applies client side
+        if(colors.tile !== o.lastTileColor){
+            o.lastTileColor = colors.tile;
+            ctx.fillStyle = colors.tile;// to make it into hex
+            o.darkenedTileColor = mixHex('#000000', ctx.fillStyle, 0.5);
+        }
+        ctx.fillStyle = o.darkenedTileColor;
         ctx.globalAlpha = o.render.strength / o.maxStrength;
     },
 }
@@ -73,6 +80,21 @@ const renderEffectAfterShapeMap = {
         
         ctx.restore();
     },
+}
+
+function mixHex(color1, color2, t){
+    const rgb1 = {
+        r: parseInt(color1.slice(1,3), 16),
+        g: parseInt(color1.slice(3,5), 16),
+        b: parseInt(color1.slice(5,7), 16)
+    }
+    const rgb2 = {
+        r: parseInt(color2.slice(1,3), 16),
+        g: parseInt(color2.slice(3,5), 16),
+        b: parseInt(color2.slice(5,7), 16)
+    }
+    
+    return `rgb(${rgb1.r*(1-t)+rgb2.r*t},${rgb1.g*(1-t)+rgb2.g*t},${rgb1.b*(1-t)+rgb2.b*t})`;
 }
 
 function renderEffect(o, ctx, advanced) {
