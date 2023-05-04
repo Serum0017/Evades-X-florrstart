@@ -33,6 +33,22 @@ const Effects = {
             y: obstacle.bounciness*sat.overlapN.y
         }, player, obstacle.friction);
     },
+    coin: (sat, player, obstacle, {obstacles}) => {
+        if(obstacle.collected === true){
+            return;
+        }
+        obstacle.collected = true;
+        for(let i = 0; i < obstacles.length; i++){
+            if(obstacles[i].effect === 'coindoor' && obstacles[i].color === obstacle.color){
+                obstacles[i].coins -= obstacle.coinAmount;
+            }
+        }
+    },
+    coindoor: (sat, player, obstacle) => {
+        if(obstacle.coins > 0){
+            bound(sat, player);
+        }
+    },
     changeMap: (sat, player, obstacle, {client}) => {
         bound(sat, player);
         if(obstacle.hasTriggeredWin !== true){

@@ -20,6 +20,18 @@ const renderEffectMap = {
     bounce: (o, ctx, advanced) => {
         ctx.fillStyle = 'blue';
     },
+    coin: (o, ctx, advanced) => {
+        ctx.fillStyle = o.color;
+        if(o.collected === true){
+            ctx.globalAlpha = 0.2;
+        } else {
+            ctx.globalAlpha = 0.8;
+        }
+    },
+    coindoor: (o, ctx, { colors }) => {
+        ctx.fillStyle = colors.tile;
+        ctx.globalAlpha = o.coins <= 0 ? 0.5 : 1;
+    },
     changeMap: (o, ctx, advanced) => {
         if(o.map === 'Winroom'){
             ctx.fillStyle = `hsl(${Date.now()/12},50%,50%)`;
@@ -79,6 +91,38 @@ const renderEffectAfterShapeMap = {
         }
         
         ctx.restore();
+    },
+    coin: (o, ctx, { colors }) => {
+        if(o.coinAmount === 1){
+            return;
+        }
+        ctx.fillStyle = colors.tile;//'#313131';
+        ctx.font = `${Math.min(20, o.difference.x/4, o.difference.y/4)}px Inter`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(
+            Math.max(0, o.coinAmount),
+            o.x,
+            o.y
+        );
+    },
+    coindoor: (o, ctx, { colors }) => {
+        // render square in the middle saying amount of coins left
+        ctx.fillStyle = o.color;
+        ctx.beginPath();
+        ctx.roundRect(o.x-o.difference.x/4, o.y-o.difference.y/4, o.difference.x/2, o.difference.y/2, Math.min(o.difference.x,o.difference.y)/20);
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.fillStyle = colors.tile;//'#313131'//'#484a00';
+        ctx.font = `${Math.min(20, o.difference.x/4, o.difference.y/4)}px Inter`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(
+            Math.max(0, o.coins),
+            o.x,
+            o.y
+        );
     },
 }
 

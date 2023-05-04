@@ -6,6 +6,16 @@ const initEffectMap = {
         obs.bounciness = toNumber(init.bounciness, 10);
         obs.friction = Math.min(1, toNumber(init.friction, 0.2));
     },
+    coin: (obs, init) => {
+        obs.collected = false;
+        obs.color = init.color ?? '#d6d611';
+        obs.coinAmount = toNumber(init.coinAmount, 1);
+    },
+    coindoor: (obs, init) => {
+        obs.maxCoins = init.coins;
+        obs.coins = init.coins;
+        obs.color = init.color ?? '#d6d611';
+    },
     // TODO: make sure all of these are safe for any input (same for other files)
     changeMap: (obs, init, advanced) => {
         obs.map = toString(init.map, 'Winroom');
