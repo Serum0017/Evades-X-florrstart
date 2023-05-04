@@ -41,6 +41,14 @@ function rotateAngle(ctx, angle, {x, y}){
     ctx.translate(-x,-y);
 }
 
+function testPoint({x,y}, ctx){
+    ctx.beginPath();
+    ctx.fillStyle = 'red';
+    ctx.arc(x,y,10,0,Math.PI*2);
+    ctx.fill();
+    ctx.closePath();
+}
+
 export default function renderShape(o, ctx, advanced) {
     // no try catch or anything because its SO MUCH SLOWER
     // gl finding the error if you didn't define the render
