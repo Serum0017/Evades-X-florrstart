@@ -125,3 +125,32 @@ Portal (has an id, blue/orange boolean. When entering a portal, you will be tele
 
 --- Renders: ---
 Block (transparency and color),
+
+-- Stuff for Demo: ---
+Obstacles:
+simulate
+- ✅ normal, ✅ moving, ✅ rotating, ✅ normalEnemy, spawner (turret), wavyEnemy, timeTrap
+shape:
+- ✅ square, ✅ circle, ✅ poly
+effect: speedIncrease, ✅ normal, ✅ bouncy, frictionChanger, changeRadius, ✅ lava, conveyor, coin, coindoor, ✅ breakable, ✅ tp, platformer (will have a lot more settings than semioldevade platformer), restrictAxis (but can also slow down movement on the x axis by 50% and speed up y by 20% for example) and other necessities for managing game like vinetteIncrease/ musicChanger/ etc
+
+Core Mechanics:
+- account system + usernames
+- mouse movement
+- minPack
+
+Maps:
+PoPB (peaceful) - planet of peaceful beginnings: This is the place where the player spawns for the first time upon loading the website (even before creating an account). We want the tutorial to make a lasting impression, so it wont be in the traditional style of the old tutorial. THERE WILL BE NO TEXT (except maybe WASD to move). Players will essentially be in a linear hallway with obstacles scattered around in specific ways aiming to teach the player. Things will be quite fast to grab the player's attention as fast as possible. There will be 10 zones with 1-2 obstacles introduced in each in clever ways that makes the player figure out what the obstacles do rather than being told that by text. 
+PoCA (moderate) - planet of conveyor abute: a fun planet that uses the conveyor mechanic a lot. This basically just filler so that we can get the game out quicker and players can have something to speedrun along with posc. The planet will be reworked a bit to be possible on mouse and certain parts (like driving) that arent supported will also be changed. Colors and polish/ theming will also be revamped to make it look less artificial.
+PoDD (ago) - planet to crush the player's hopes and to set a scale of difficulty. It should start out high ago and slowly decrease to low ago until the end so that players have high expectations of what it'll take to beat the map, but then come back later and beat it more easily, giving the player a bigger sense of progression. 
+im not done yet btw
+ran out of characters
+Serum — 04/22/2023 2:54 PM
+PoTA (moderate) - planet of tiresome adventure: This is an explorative map with an emphasis on movement/ dodging in irregular spaces. It should feel more like an adventure rather than a super difficult skill test. It can reuse some ideas from povv if needed. There should also be parts where its pick-your-own-path (only some of the time, unlike povv) and maybe even a secret minigame hidden somewhere (mope?) semioldevade uni 3 minigames color scheme for the first zones.
+PoWW (difficult) - planet of wild wasteland: The map is basically a journey to go around a giant cube. It has fast enemies and a silver industrial vibe
+Themes:
+PoPB: green + posc-like
+PoCA: blue/ purple + ocean-like
+PoDD: dark + red -> stereotypical endgame map
+PoTA: dark green + jungle-like
+PoWW: silver + industrial vibes

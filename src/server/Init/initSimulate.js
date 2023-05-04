@@ -11,16 +11,14 @@ const initSimulateMap = {
 		// obs.top.y = obs.path[init.currentPoint][1];
         // will fix later? idk
 
-        let pointOn = obs.path[obs.currentPoint];
-        obs.pointOn = {x: pointOn[0], y: pointOn[1]};
+        obs.pointOn = obs.path[obs.currentPoint];
         
         let nextPointIndex = obs.currentPoint + 1;
         if (nextPointIndex >= obs.path.length) {
             nextPointIndex = 0;
         }
         
-        let nextPoint = obs.path[nextPointIndex];
-        obs.pointTo = { x: nextPoint[0], y: nextPoint[1] };
+        obs.pointTo = obs.path[nextPointIndex];
         let angle = Math.atan2(obs.pointTo.y - obs.pointOn.y, obs.pointTo.x - obs.pointOn.x);
         obs.xv = Math.cos(angle) * obs.speed;
         obs.yv = Math.sin(angle) * obs.speed;
@@ -29,6 +27,8 @@ const initSimulateMap = {
         // obs.movingInitOffset = init.movingInitOffset ?? 0;
         obs.x = obs.pointOn.x// * (1-obs.movingInitOffset) + obs.pointTo.x * obs.movingInitOffset;
         obs.y = obs.pointOn.y// * (1-obs.movingInitOffset) + obs.pointTo.y * obs.movingInitOffset;
+
+        obs.timeRemain = Math.sqrt((obs.pointOn.x - obs.pointTo.x)**2 + (obs.pointOn.y - obs.pointTo.y)**2) / obs.speed;
     },
     rotate: (obs, init) => {
         // init.x and y are the midpoint
@@ -37,7 +37,6 @@ const initSimulateMap = {
     },
     enemy: (obs, init) => {
         //{type: 'circle-enemy-normal', bound: {x: 0, y: 0, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/}
-        obs.type = 'enemy';
         obs.enemyType = init.enemyType;
         obs.bound = {
             x: init.bound.x,
@@ -61,10 +60,14 @@ function assignIfUndefined(v1, v2){
 
 module.exports = function initSimulate(params, advanced) {
     let init = {};// TODO: rethink if we should actually be assigning things twice or if we can just directly assign to obstacle once
-    if(params.simulate === undefined || initSimulateMap[params.simulate] === undefined) {
-        console.error("Obstacle simulate undefined! " + JSON.stringify(params)); return;
+    if(Array.isArray(params.simulate) === false) {
+        console.error("Obstacle simulate is not an array! " + JSON.stringify(params)); return;
     }
-    initSimulateMap[params.simulate](init, params, advanced);
-    init.type = params.simulate;
+
+    for(let i = 0; i < params.simulate.length; i++){
+        if(initSimulateMap[params.simulate[i]] === undefined){console.error("Obstacle simulate map undefined! " + JSON.stringify(params)); return;}
+        initSimulateMap[params.simulate[i]](init, params, advanced);
+    }
+
     return init;
 }

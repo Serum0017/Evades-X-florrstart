@@ -64,8 +64,10 @@ export default function interpolateObstacle(last, next, time/*0-1*/, advanced){
         interpolateMap.shape[last.shape](interpolate, last, next, time, advanced);
     }
 
-    if(interpolateMap.simulate[last.simulate] !== undefined){
-        interpolateMap.simulate[last.simulate](interpolate, last, next, time, advanced);
+    for(let i = 0; i < last.simulate.length; i++){
+        if(interpolateMap.simulate[last.simulate[i]] !== undefined){
+            interpolateMap.simulate[last.simulate[i]](interpolate, last, next, time, advanced);
+        }
     }
 
     if(interpolateMap.effect[last.effect] !== undefined){

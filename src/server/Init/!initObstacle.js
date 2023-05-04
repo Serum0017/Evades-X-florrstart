@@ -9,7 +9,7 @@ module.exports = function intializeObstacle(init, advanced) {
     const type = init.type.split('-');
     const obstacle = {
         shape: type[0],
-        simulate: type[1],
+        simulate: type[1].split(','),
         effect: type[2],
         difference: {},
     };
