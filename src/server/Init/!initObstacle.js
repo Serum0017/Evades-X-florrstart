@@ -25,6 +25,8 @@ module.exports = function intializeObstacle(init, advanced) {
 
     assign(obstacle, satFactory.generateBody(obstacle));
 
+    assign(obstacle, initGlobal(obstacle));
+
     return obstacle;
 }
 
@@ -32,4 +34,12 @@ function assign(prev, next){
     for(let key in next){
         prev[key] = next[key];
     }
+}
+
+function initGlobal(init){
+    const obs = {};
+    if(init.isGround === false){
+        obs.isGround = false;
+    }
+    return obs;
 }

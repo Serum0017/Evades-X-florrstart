@@ -16,7 +16,7 @@ export default class SpatialHash {
             entity.hashId = i;
             this.hashId++;
             const topSpatial = {
-                x: entity.top.x - (entity.top.x % hashDistance) - hashDistance,
+                x: entity.top.x - (entity.top.x % hashDistance) - hashDistance,// TODO: REMOVE DEPENDANCIES ON TOP/ BOTTOM AND REPLACE WITH X/Y AND DIFFERENCE
                 y: entity.top.y - (entity.top.y % hashDistance) - hashDistance
             }
             const bottomSpatial = {

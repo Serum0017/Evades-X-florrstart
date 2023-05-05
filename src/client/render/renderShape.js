@@ -49,6 +49,14 @@ function testPoint({x,y}, ctx){
     ctx.closePath();
 }
 
+function testRect({x,y,w,h}, ctx){
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'red';
+    ctx.strokeRect(x,y,w,h);
+    ctx.closePath();
+}
+
 export default function renderShape(o, ctx, advanced) {
     // no try catch or anything because its SO MUCH SLOWER
     // gl finding the error if you didn't define the render

@@ -31,11 +31,11 @@ module.exports = class Player{
         this.xv = init.xv;
         this.yv = init.yv;
 
-        this.top = {x: this.x - this.r, y: this.y - this.r};
-        this.bottom = {x: this.x + this.r, y: this.y + this.r};
-
         this.spawn = init.map.settings.spawn;
         this.dead = false;
+
+        this.touching = {ground: [], platformer: []};
+        this.restrictAxis = {x: false, y: false};
 
         this.lastTick = 0;
     }

@@ -4,7 +4,7 @@ const initSimulateMap = {
     normal: () => {},
     move: (obs, init) => {
         // init: {currentPoint, path, speed, alongWith }
-		obs.currentPoint = init.currentPoint;
+		obs.currentPoint = Math.floor(init.currentPoint);
 		obs.path = init.path;
 		obs.speed = init.speed;
 		// obs.top.x = obs.path[init.currentPoint][0];
@@ -23,12 +23,17 @@ const initSimulateMap = {
         obs.xv = Math.cos(angle) * obs.speed;
         obs.yv = Math.sin(angle) * obs.speed;
 
-        // TODO: fix fractional points (this doesnt work)
-        // obs.movingInitOffset = init.movingInitOffset ?? 0;
-        obs.x = obs.pointOn.x// * (1-obs.movingInitOffset) + obs.pointTo.x * obs.movingInitOffset;
-        obs.y = obs.pointOn.y// * (1-obs.movingInitOffset) + obs.pointTo.y * obs.movingInitOffset;
-
         obs.timeRemain = Math.sqrt((obs.pointOn.x - obs.pointTo.x)**2 + (obs.pointOn.y - obs.pointTo.y)**2) / obs.speed;
+
+        const fractionalPointOffset = init.currentPoint % 1;
+        if(fractionalPointOffset !== 0){
+            obs.timeRemain *= 1 - fractionalPointOffset;// 0.8 of the way there means timeRemain should be divided by 5
+            obs.x = obs.pointOn.x * (1 - fractionalPointOffset) + fractionalPointOffset * obs.pointTo.x;
+            obs.y = obs.pointOn.y * (1 - fractionalPointOffset) + fractionalPointOffset * obs.pointTo.y;
+        } else {
+            obs.x = obs.pointOn.x;
+            obs.y = obs.pointOn.y;
+        }
     },
     rotate: (obs, init) => {
         // init.x and y are the midpoint

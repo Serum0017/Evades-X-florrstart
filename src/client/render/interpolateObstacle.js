@@ -8,12 +8,19 @@ const interpolateMap = {
     effect: {
         breakable: (interpolate, last, next, time) => {
             interpolateKey('strength', interpolate, last, next, time);
-        }
+        },
+        platformer: (interpolate, last, next, time) => {
+            interpolateAngleKey('platformerAngle', interpolate, last, next, time);
+        },
     }
 }
 
 function interpolateKey(key, interpolate, last, next, time){
     interpolate[key] = linearInterpolate(last[key], next[key], time);
+}
+
+function interpolateAngleKey(key, interpolate, last, next, time){
+    interpolate[key] = interpolateDirection(last[key], next[key], time);
 }
 
 function linearInterpolate(start, end, time) {

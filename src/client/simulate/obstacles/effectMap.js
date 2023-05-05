@@ -1,6 +1,9 @@
-function bound(sat, player){
+function bound(sat, player, obstacle){
     player.x += sat.overlapV.x;
     player.y += sat.overlapV.y;
+    if(obstacle.isGround !== false){
+        player.touching.ground.push(obstacle);
+    }
 }
 
 function bounce(/*amount: */{x, y}, player, friction){
@@ -14,20 +17,20 @@ function bounce(/*amount: */{x, y}, player, friction){
 
 // defining different collision reactions
 const Effects = {
-    normal: (sat, player) => {
-        bound(sat, player);
+    normal: (sat, player, obstacle) => {
+        bound(sat, player, obstacle);
     },
     lava: (sat, player, obstacle) => {
         if(sat.overlap < 0.01){
             return;
         }
         if(obstacle.solid === true){
-            bound(sat, player);
+            bound(sat, player, obstacle);
         }
         player.dead = true;
     },
     bounce: (sat, player, obstacle) => {
-        bound(sat, player);
+        bound(sat, player, obstacle);
         bounce({
             x: obstacle.bounciness*sat.overlapN.x,
             y: obstacle.bounciness*sat.overlapN.y
@@ -46,11 +49,11 @@ const Effects = {
     },
     coindoor: (sat, player, obstacle) => {
         if(obstacle.coins > 0){
-            bound(sat, player);
+            bound(sat, player, obstacle);
         }
     },
     changeMap: (sat, player, obstacle, {client}) => {
-        bound(sat, player);
+        bound(sat, player, obstacle);
         if(obstacle.hasTriggeredWin !== true){
             obstacle.hasTriggeredWin = true;
             client.send({changeMap: obstacle.map});
@@ -62,7 +65,7 @@ const Effects = {
     },
     breakable: (sat, player, obstacle, {tick}) => {
         if(obstacle.strength > 0){
-            bound(sat, player);
+            bound(sat, player, obstacle);
             obstacle.strength--;
             if(obstacle.strength < 0){
                 obstacle.strength = 0;
@@ -80,16 +83,15 @@ const Effects = {
         player.x = obstacle.tp.x;
         player.y = obstacle.tp.y;
     },
-    button: (sat, player, obstacle, { obstacles }) => {
-        if(obstacle.active === false){
-            return;
-        }
-        for(let i = 0; i < obstacles.length; i++){
-            if(obstracles[i].buttonId === obstacle.buttonId){
-                obstacles[i].state = !obstacles[i].state;
-                obstacle.active = false;
-            }
-        }
+    platformer: (sat, player, obstacle) => {
+        player.touching.platformer.push(obstacle);
+        obstacle.jumpCooldown--;
+
+        // add platformer force
+        bounce({
+            x: Math.cos(obstacle.platformerAngle) * obstacle.platformerForce,
+            y: Math.sin(obstacle.platformerAngle) * obstacle.platformerForce
+        }, player, obstacle.platformerFriction);
     }
 };
 
@@ -102,6 +104,14 @@ const IdleEffects = {
                 obstacle.lastBrokeTime = tick;
                 obstacle.strength = obstacle.maxStrength;
             }
+        }
+    },
+    platformer: (player, obstacle, advanced) => {
+        obstacle.platformerAngle += obstacle.platformerAngleRotateSpeed;
+        if(obstacle.platformerAngle > Math.PI*2) {
+            obstacle.platformerAngle -= Math.PI*2;
+        } else if(obstacle.platformerAngle < 0){
+            obstacle.platformerAngle += Math.PI*2;
         }
     }
 }

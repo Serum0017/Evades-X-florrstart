@@ -74,6 +74,10 @@ const renderEffectMap = {
         ctx.fillStyle = o.darkenedTileColor;
         ctx.globalAlpha = o.render.strength / o.maxStrength;
     },
+    platformer: (o, ctx, advanced) => {
+        ctx.toClip = true;
+        ctx.toFill = false;
+    }
 }
 
 const renderEffectAfterShapeMap = {
@@ -124,6 +128,20 @@ const renderEffectAfterShapeMap = {
             o.y
         );
     },
+    platformer: (o, ctx, advanced) => {
+        // TODO: optimize with pregeneration
+        for(let x = o.x - o.x%50 - o.difference.x/2 + 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
+            for(let y = o.y - o.y%50 - o.difference.y/2 + 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
+                ctx.translate(x,y);
+                ctx.rotate(o.render.platformerAngle+Math.PI/2);
+                ctx.drawImage(Utils.arrowImg, -25, -25, 50, 50);
+                ctx.rotate(-o.render.platformerAngle-Math.PI/2);
+                ctx.translate(-x,-y);
+            }
+        }
+
+        ctx.restore();
+    }
 }
 
 function mixHex(color1, color2, t){

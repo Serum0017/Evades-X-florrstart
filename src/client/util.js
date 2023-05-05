@@ -25,6 +25,9 @@ for(let i = 0; i < difficultyFileNames.length; i++){
   difficultyImages[key].src = `./gfx/difficultyimages/${difficultyFileNames[i]}.png`;
 }
 
+const arrowImg = new Image();
+arrowImg.src = './gfx/arrow.png';
+
 // fallback for performance.now on older browsers
 window.performance = window.performance || {}; performance.now = (function() {return performance.now || performance.mozNow || performance.msNow || performance.oNow || performance.webkitNow || function() { return new Date().getTime();};})();
 
@@ -111,5 +114,6 @@ export default {
   ref,
   connected,
   disconnected,
-  difficultyImages
+  difficultyImages,
+  arrowImg
 }

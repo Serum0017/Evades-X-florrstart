@@ -52,9 +52,21 @@ const initEffectMap = {
     tp: (obs, init) => {
         obs.tp = {x: init.tp.x??0, y: init.tp.y??0};
     },
-    button: (obs, init) => {
-        obs.active = init.active;
-        obs.buttonId = init.buttonId;
+    platformer: (obs, init) => {
+        obs.platformerForce = init.platformerForce ?? 1;
+        obs.platformerAngle = init.platformerAngle ?? 0;
+        obs.platformerAngle *= Math.PI/180;
+        obs.platformerAngleRotateSpeed = init.platformerAngleRotateSpeed ?? 0;
+        obs.platformerAngleRotateSpeed *= Math.PI/180;
+        obs.platformerFriction = init.platformerFriction ?? 0.4;
+
+        obs.maxJumps = init.maxJumps ?? 1;// TODO: IMPLEMENT JUMPS
+        obs.maxJumpCooldown = init.maxJumpCooldown ?? 30;// in ticks
+        obs.jumpCooldown = obs.initJumpCooldown ?? obs.maxJumpCooldown;
+        obs.jumpForce = init.jumpForce ?? 20;
+        obs.jumpFriction = init.jumpFriction ?? 0.4;
+
+        obs.jumpInput = toString(init.jumpInput, 'undecided');
     }
 };
 
