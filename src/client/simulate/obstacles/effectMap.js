@@ -92,6 +92,12 @@ const Effects = {
             x: Math.cos(obstacle.platformerAngle) * obstacle.platformerForce,
             y: Math.sin(obstacle.platformerAngle) * obstacle.platformerForce
         }, player, obstacle.platformerFriction);
+
+        if(obstacle.jumpInput === 'up' || obstacle.jumpInput === 'down'){
+            player.restrictAxis.y = true;
+        } else if(obstacle.jumpInput === 'left' || obstacle.jumpInput === 'right'){
+            player.restrictAxis.x = true;
+        }
     }
 };
 
@@ -112,6 +118,20 @@ const IdleEffects = {
             obstacle.platformerAngle -= Math.PI*2;
         } else if(obstacle.platformerAngle < 0){
             obstacle.platformerAngle += Math.PI*2;
+        }
+
+        if(obstacle.initJumpInput === 'undecided'){
+            // determining input angle based in inv of plat angle
+            const relativeAngle = (obstacle.platformerAngle % (Math.PI*2)) * 180/Math.PI;
+            if(relativeAngle > -45 && relativeAngle <= 45){
+                obstacle.jumpAngle = 'left';
+            } else if (relativeAngle > 45 && relativeAngle <= 135){
+                obstacle.jumpAngle = 'up';
+            } else if (relativeAngle > 135 && relativeAngle <= 225){
+                obstacle.jumpAngle = 'right';
+            } else if (relativeAngle > 225 && relativeAngle <= 315){
+                obstacle.jumpAngle = 'down';
+            }
         }
     }
 }

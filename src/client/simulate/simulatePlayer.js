@@ -57,37 +57,8 @@ function simulatePlatformer(p, obstacle){
 	if(obstacle.jumpCooldown > 0){
 		return;
 	}
-
-	let jump = false;
-	// TODO: consider if we want it to restrict based on angle rater than input direction
-	if(obstacle.jumpInput === 'undecided'){
-		const relativeAngle = (obstacle.platformerAngle % (Math.PI*2)) * 180/Math.PI;
-		if(relativeAngle > -45 && relativeAngle <= 45){
-			if(p.input.left === true){
-				jump = true;
-			}
-			p.restrictAxis.x = true;
-		} else if (relativeAngle > 45 && relativeAngle <= 135){
-			if(p.input.up === true){
-				jump = true;
-			}
-			p.restrictAxis.y = true;
-		} else if (relativeAngle > 135 && relativeAngle <= 225){
-			if(p.input.right === true){
-				jump = true;
-			}
-			p.restrictAxis.x = true;
-		} else if (relativeAngle > 225 && relativeAngle <= 315){
-			if(p.input.down === true){
-				jump = true;
-			}
-			p.restrictAxis.y = true;
-		}
-	} else if(p.input[obstacle.jumpInput] === true){
-		jump = true;
-	}
-
-	if(jump === true){
+	
+	if(p.input[obstacle.jumpInput] === true){
 		obstacle.jumpCooldown = obstacle.maxJumpCooldown;
 		bounce({
 			x: -Math.cos(obstacle.platformerAngle) * obstacle.jumpForce,
