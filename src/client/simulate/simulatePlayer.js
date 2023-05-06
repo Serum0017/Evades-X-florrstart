@@ -4,8 +4,13 @@ export default function simulatePlayer(p, map) {
 		return;
 	}
 	
-	p.xv += (p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1) * !p.restrictAxis.x;
-	p.yv += (p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1) * !p.restrictAxis.y;
+	p.xv += (p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.x;
+	p.yv += (p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.y;
+	if(p.axisSpeedMult.angle !== 0){
+		p.lastXV = p.xv;
+		p.xv += p.yv * Math.cos(p.axisSpeedMult.angle);
+		p.yv += p.lastXV * Math.sin(p.axisSpeedMult.angle);
+	}
 	p.xv *= p.friction;
 	p.yv *= p.friction;
     
@@ -39,7 +44,7 @@ export default function simulatePlayer(p, map) {
 	p.difference = {x: p.r*2, y: p.r*2};
 	p.body = new SAT.Circle(new SAT.Vector(p.x, p.y), p.r);// temp; will have generation later
 	
-	p.restrictAxis = {x: false, y: false};
+	p.axisSpeedMult = {x: 1, y: 1, angle: 0};
 
 	// TODO: make sure other players arent sending/ simulating with this (maybe isolate to a diff function?)
 	if(p.touching.ground.length > 0){

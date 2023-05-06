@@ -68,6 +68,21 @@ const initEffectMap = {
 
         obs.initJumpInput = toString(init.jumpInput, 'undecided');
         obs.jumpInput = obs.initJumpInput === 'undecided' ? 'up' : obs.initJumpInput;
+    },
+    conveyor: (obs, init) => {
+        obs.conveyorForce = init.conveyorForce ?? 0.3;
+        obs.conveyorAngle = init.conveyorAngle ?? 0;
+        obs.conveyorAngle *= Math.PI/180;
+        obs.conveyorAngleRotateSpeed = init.conveyorAngleRotateSpeed ?? 0;
+        obs.conveyorAngleRotateSpeed *= Math.PI/180;
+        obs.conveyorFriction = init.conveyorFriction ?? 0.8;
+    },
+    restrictAxis: (obs, init) => {
+        obs.axisSlowdown = {x: init.xSlowdown ?? 0.5, y: init.ySlowdown ?? 0.5};
+        obs.restrictAxisAngle = init.restrictAxisAngle ?? 0;
+        obs.restrictAxisAngle *= Math.PI/180;
+        obs.restrictAxisAngleRotateSpeed = init.restrictAxisAngleRotateSpeed ?? 0;
+        obs.restrictAxisAngleRotateSpeed *= Math.PI/180;
     }
 };
 

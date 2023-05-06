@@ -97,12 +97,27 @@ export default class Renderer {
             ctx.toFill = true;
             ctx.toClip = false;
 
+            this.renderGlobal(o, ctx, {canvas, obstacles, players, colors: this.colors});
+
             EffectManager.renderEffect(o, ctx, {canvas, obstacles, players, colors: this.colors});
             renderShape(o, ctx, {canvas, obstacles, players, colors: this.colors});
             if(EffectManager.renderEffectAfterShapeMap[o.effect] !== undefined){
                 EffectManager.renderEffectAfterShape(o, ctx, {canvas, obstacles, players, colors: this.colors});
             }
 
+            ctx.globalAlpha = 1;
+        }
+    }
+    renderGlobal(o, ctx, advanced){
+        if(o.isGround === false){
+            ctx.lineWidth = 8;
+            ctx.strokeStyle = 'grey';
+            ctx.globalAlpha = 0.2;
+            ctx.toStroke = true;
+            ctx.toFill = false;
+            renderShape(o, ctx, advanced);
+            ctx.toStroke = false;
+            ctx.toFill = true;
             ctx.globalAlpha = 1;
         }
     }

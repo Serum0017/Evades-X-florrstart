@@ -12,6 +12,12 @@ const interpolateMap = {
         platformer: (interpolate, last, next, time) => {
             interpolateAngleKey('platformerAngle', interpolate, last, next, time);
         },
+        conveyor: (interpolate, last, next, time) => {
+            interpolateAngleKey('conveyorAngle', interpolate, last, next, time);
+        },
+        restrictAxis: (interpolate, last, next, time) => {
+            interpolateAngleKey('restrictAxisAngle', interpolate, last, next, time);
+        },
     }
 }
 

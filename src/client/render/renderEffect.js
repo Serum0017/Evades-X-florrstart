@@ -74,9 +74,22 @@ const renderEffectMap = {
         ctx.fillStyle = o.darkenedTileColor;
         ctx.globalAlpha = o.render.strength / o.maxStrength;
     },
-    platformer: (o, ctx, advanced) => {
+    platformer: (o, ctx, { colors }) => {
         ctx.toClip = true;
+        ctx.fillStyle = colors.tile;
+        ctx.globalAlpha = 0.3;
+    },
+    conveyor: (o, ctx, { colors }) => {
+        ctx.toClip = true;
+        ctx.fillStyle = colors.tile;
+        ctx.globalAlpha = 0.1;
+    },
+    restrictAxis: (o, ctx, { colors }) => {
+        ctx.toStroke = true;
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 1;
         ctx.toFill = false;
+        // ctx.toClip = true;
     }
 }
 
@@ -130,8 +143,9 @@ const renderEffectAfterShapeMap = {
     },
     platformer: (o, ctx, advanced) => {
         // TODO: optimize with pregeneration
-        for(let x = o.x - o.x%50 - o.difference.x/2 + 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
-            for(let y = o.y - o.y%50 - o.difference.y/2 + 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
+        ctx.globalAlpha = 1;
+        for(let x = o.x - o.difference.x/2 + 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
+            for(let y = o.y - o.difference.y/2 + 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
                 ctx.translate(x,y);
                 ctx.rotate(o.render.platformerAngle+Math.PI/2);
                 ctx.drawImage(Utils.arrowImg, -25, -25, 50, 50);
@@ -141,7 +155,46 @@ const renderEffectAfterShapeMap = {
         }
 
         ctx.restore();
-    }
+    },
+    conveyor: (o, ctx, advanced) => {
+        // TODO: optimize with pregeneration
+        ctx.globalAlpha = 1;
+        for(let x = o.x - o.difference.x/2 + 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
+            for(let y = o.y - o.difference.y/2 + 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
+                ctx.translate(x,y);
+                ctx.rotate(o.render.conveyorAngle+Math.PI/2);
+                ctx.drawImage(Utils.arrowImg, -25, -25, 50, 50);
+                ctx.rotate(-o.render.conveyorAngle-Math.PI/2);
+                ctx.translate(-x,-y);
+            }
+        }
+
+        ctx.restore();
+    },
+    restrictAxis: (o, ctx, advanced) => {
+        // TODO: optimize with pregeneration
+        ctx.globalAlpha = 1;
+
+        ctx.translate(o.x,o.y);
+        ctx.rotate(o.render.restrictAxisAngle+Math.PI/2);
+        // const boundingBox = {x: o.x - o.difference.x/2, y: o.y - o.difference.y/2, w: o.difference.x, h: o.difference.y};
+        // const innnerBoundingBox = {w: o.difference.x * Math.cos(o.render.restrictAxisAngle), h: o.difference.y * Math.sin(o.render.restrictAxisAngle)}
+        const expansion = Math.max(o.difference.x,o.difference.y)/Math.sqrt(o.difference.x**2+o.difference.y**2)
+        console.log({expansion});
+        for(let x = -o.difference.x*expansion; x <= o.difference.x*expansion; x += 50){
+            ctx.moveTo(x,-o.difference.y*expansion);
+            ctx.lineTo(x,o.difference.y*expansion);
+        }
+        for(let y = -o.difference.y*expansion; y <= o.difference.y*expansion; y += 50){
+            ctx.moveTo(-o.difference.x*expansion,y);
+            ctx.lineTo(o.difference.x*expansion,y);
+        }
+        ctx.stroke();
+        ctx.rotate(-o.render.restrictAxisAngle-Math.PI/2);
+        ctx.translate(-o.x,-o.y);
+
+        ctx.restore();
+    },
 }
 
 function mixHex(color1, color2, t){

@@ -28,7 +28,9 @@ module.exports = {
         // {type: 'circle-enemy-normal', bound: {x: 350, y: 350, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 3, r: 10},
 
         // {type: 'square-normal-changeColor', x: 300, y: 300, w: 50, h: 50, tileColor: '#7A6B83', backgroundColor: '#99BFBB', safeColor: '#7A6B83'},
-        {type: 'square-normal-platformer', x: 350, y: 200, w: 200, h: 400},
+        // {type: 'square-move-platformer', x: 350, y: 200, w: 200, h: 400, path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1 },
+        // {type: 'square-normal-conveyor', x: 350, y: 200, w: 200, h: 400, conveyorAngleRotateSpeed: 1 /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
+        {type: 'square-normal-restrictAxis', x: 350, y: 200, w: 200, h: 400, restrictAxisAngle: 45, restrictAxisAngleRotateSpeed: 0.2, /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
         {type: 'square-normal-normal', x: 400, y: 325, w: 100, h: 50},
         {type: 'circle-normal-normal', x: 300, y: 200, r: 25, isGround: false},
     ]

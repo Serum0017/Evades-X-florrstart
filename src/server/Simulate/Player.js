@@ -35,7 +35,7 @@ module.exports = class Player{
         this.dead = false;
 
         this.touching = {ground: [], platformer: []};
-        this.restrictAxis = {x: false, y: false};
+        this.axisSpeedMult = {x: 1, y: 1, angle: 0};
 
         this.lastTick = 0;
     }

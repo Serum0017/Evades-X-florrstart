@@ -83,22 +83,33 @@ const Effects = {
         player.x = obstacle.tp.x;
         player.y = obstacle.tp.y;
     },
+    conveyor: (sat, player, obstacle) => {
+        bounce({
+            x: Math.cos(obstacle.conveyorAngle) * obstacle.conveyorForce,
+            y: Math.sin(obstacle.conveyorAngle) * obstacle.conveyorForce
+        }, player, obstacle.conveyorFriction);
+    },
     platformer: (sat, player, obstacle) => {
         player.touching.platformer.push(obstacle);
         obstacle.jumpCooldown--;
 
-        // add platformer force
+        // add conveyor force
         bounce({
             x: Math.cos(obstacle.platformerAngle) * obstacle.platformerForce,
             y: Math.sin(obstacle.platformerAngle) * obstacle.platformerForce
         }, player, obstacle.platformerFriction);
 
         if(obstacle.jumpInput === 'up' || obstacle.jumpInput === 'down'){
-            player.restrictAxis.y = true;
+            player.axisSpeedMult.y = 0;
         } else if(obstacle.jumpInput === 'left' || obstacle.jumpInput === 'right'){
-            player.restrictAxis.x = true;
+            player.axisSpeedMult.x = 0;
         }
-    }
+    },
+    restrictAxis: (sat, player, obstacle) => {
+        player.axisSpeedMult.x *= Math.cos(obstacle.restrictAxisAngle) * obstacle.axisSlowdown.x;
+        player.axisSpeedMult.y *= Math.sin(obstacle.restrictAxisAngle) * obstacle.axisSlowdown.y;
+        player.axisSpeedMult.angle = obstacle.restrictAxisAngle;
+    },
 };
 
 // stuff that is mandatory for effects but shouldnt count as a simulation type
@@ -133,6 +144,12 @@ const IdleEffects = {
                 obstacle.jumpAngle = 'down';
             }
         }
+    },
+    conveyor: (player, obstacle, advanced) => {
+        obstacle.conveyorAngle += obstacle.conveyorAngleRotateSpeed;
+    },
+    restrictAxis: (player, obstacle, advanced) => {
+        obstacle.restrictAxisAngle += obstacle.restrictAxisAngleRotateSpeed;
     }
 }
 
