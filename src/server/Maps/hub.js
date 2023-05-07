@@ -32,9 +32,9 @@ module.exports = {
         // {type: 'square-normal-conveyor', x: 350, y: 200, w: 200, h: 400, conveyorAngleRotateSpeed: 1 /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
         // {type: 'square-normal-rotateMovement', x: 350, y: 200, w: 200, h: 200, rotateMovementAngle: 0, rotateMovementAngleRotateSpeed: 0.1, axisSpeedMult: 2 /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
         // {type: 'square-normal-restrictAxis', x: 350, y: 200, w: 200, h: 200, axisSpeedMults: {x: -0.01, y: 2} /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
-        {type: 'square-normal-snapGrid', x: 375, y: 220, w: 200, h: 200, snapDistance: {x: 50, y: 50}, snapAngle: 45, snapAngleRotateSpeed: 0, /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
+        {type: 'square-normal-snapGrid', x: 175-32, y: 375-12, w: 200, h: 150, snapDistance: {x: 50, y: 50}, snapAngle: 0, snapAngleRotateSpeed: 0, /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
 
-        {type: 'square-normal-normal', x: 400, y: 325, w: 100, h: 50},
+        {type: 'square-normal-changeRadius', radiusMult: 3, x: 400, y: 325, w: 100, h: 50},
         {type: 'circle-normal-normal', x: 300, y: 200, r: 25, isGround: false},
     ]
 }

@@ -66,7 +66,7 @@ export default class Renderer {
             map.obstacles[i].render = interpolateObstacle(map.lastState.obstacles[i], map.obstacles[i], ratio, { map });
         }
         
-        this.renderObstacles(map.obstacles, map.players);
+        this.renderObstacles(map.obstacles, map.players, map.self);
 
         this.camera.resetTranslate();
 
@@ -91,18 +91,18 @@ export default class Renderer {
             players[id].render(ctx, canvas, this.camera);
         }
     }
-    renderObstacles(obstacles, players){
+    renderObstacles(obstacles, players, player){
         for(let o of obstacles){
             ctx.toStroke = false;
             ctx.toFill = true;
             ctx.toClip = false;
 
-            this.renderGlobal(o, ctx, {canvas, obstacles, players, colors: this.colors});
+            this.renderGlobal(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
 
-            EffectManager.renderEffect(o, ctx, {canvas, obstacles, players, colors: this.colors});
-            renderShape(o, ctx, {canvas, obstacles, players, colors: this.colors});
+            EffectManager.renderEffect(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+            renderShape(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
             if(EffectManager.renderEffectAfterShapeMap[o.effect] !== undefined){
-                EffectManager.renderEffectAfterShape(o, ctx, {canvas, obstacles, players, colors: this.colors});
+                EffectManager.renderEffectAfterShape(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
             }
 
             ctx.globalAlpha = 1;

@@ -21,6 +21,7 @@ export default class Player{
 
         this.renderX = this.x;
         this.renderY = this.y;
+        this.renderR = this.r;
 
         this.createSimulateState(performance.now());
     }
@@ -42,13 +43,14 @@ export default class Player{
         }
         
         ctx.beginPath();
-        ctx.arc(this.renderX, this.renderY, this.r, 0, Math.PI*2);
+        ctx.arc(this.renderX, this.renderY, this.renderR, 0, Math.PI*2);
         ctx.fill();
         ctx.closePath();
 
         this.updateInterpolate();
     }
     updateInterpolate(){
+        this.renderR = this.renderR * 0.9 + this.r * 0.1;
         if(this.dead === true)return;
         const time = (performance.now() - this.lastSimulateState.time) * (60/1000);
         this.renderX = this.lastSimulateState.x * (1-time) + this.x * time;

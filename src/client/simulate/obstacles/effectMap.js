@@ -1,3 +1,5 @@
+import Collide from './collisionManager.js';
+
 function bound(sat, player, obstacle){
     player.x += sat.overlapV.x;
     player.y += sat.overlapV.y;
@@ -63,6 +65,24 @@ const Effects = {
     changeColor: (sat, player, obstacle, {client}) => {
         client.game.renderer.colors = obstacle.colorsToChange;
     },
+    changeSpeed: (sat, player, obstacle, {client}) => {
+        player.axisSpeedMult.x *= obstacle.speedMult;
+        player.axisSpeedMult.y *= obstacle.speedMult;
+    },
+    changeRadius: (sat, player, obstacle, {client}) => {
+        // TODO: revamp when multiple body types are added
+        if(obstacle.radiusMult < 1){
+            // since we dont want an infinite loop of getting smaller and then bigger, only trigger if we're colliding with the smaller player
+            if(Collide({...player, body: new SAT.Circle(new SAT.Vector(player.x, player.y), player.r*obstacle.radiusMult)}, obstacle) !== false){
+                player.r *= obstacle.radiusMult;
+            }
+        } else {
+            player.r *= obstacle.radiusMult;
+        }
+    },
+    changeFriction: (sat, player, obstacle, {client}) => {
+        player.friction *= obstacle.frictionMult;
+    },
     breakable: (sat, player, obstacle, {tick}) => {
         if(obstacle.strength > 0){
             bound(sat, player, obstacle);
@@ -122,8 +142,8 @@ const Effects = {
             obstacle.playerSnapAngle = Math.atan2(player.yv, player.xv);
             obstacle.interpolatePlayerData = {
                 time: Math.min(obstacle.maxSnapCooldown-1, 5),
-                nextX: player.x + Math.cos(obstacle.playerSnapAngle) * obstacle.snapDistance.x * 0.95,
-                nextY: player.y + Math.sin(obstacle.playerSnapAngle) * obstacle.snapDistance.y * 0.95
+                nextX: player.x + Math.cos(obstacle.playerSnapAngle) * obstacle.snapMagnitude * 0.95,
+                nextY: player.y + Math.sin(obstacle.playerSnapAngle) * obstacle.snapMagnitude * 0.95
             };
             // player.x += Math.cos(obstacle.playerSnapAngle) * obstacle.snapDistance.x;
             // player.y += Math.sin(obstacle.playerSnapAngle) * obstacle.snapDistance.y;
@@ -134,6 +154,9 @@ const Effects = {
             player.x = player.x * 0.8 + 0.2 * obstacle.interpolatePlayerData.nextX;
             player.y = player.y * 0.8 + 0.2 * obstacle.interpolatePlayerData.nextY;
         } else {
+            // this code looks scary (it isnt)
+            // in order to snap correctly, rotate both the player and the obstacle the negative snapAngle relative to the obstacle's center
+            // this means that the player will be relatively correct to the obstacle and the obstacle will be axis-aligned
             obstacle.playerRelativeTransform = {
                 angle: Math.atan2(player.y - obstacle.y, player.x - obstacle.x) - obstacle.snapAngle,
                 distance: Math.sqrt((player.y - obstacle.y)**2 + (player.x - obstacle.x)**2)
@@ -143,18 +166,30 @@ const Effects = {
             obstacle.playerRelativeTransform.y = Math.sin(obstacle.playerRelativeTransform.angle) * obstacle.playerRelativeTransform.distance;
 
             obstacle.prt = obstacle.playerRelativeTransform;
+
             // applying the transform just like the norotate snap that i coded earlier
+            // in other words, snap the relative player to the relative grid
             // player.x = player.x * 0.4 + 0.6 * (Math.round((player.x - obstacle.x % 50) / obstacle.snapDistance.x) * obstacle.snapDistance.x + obstacle.x % 50 + player.xv * (obstacle.snapToShowVelocity*2-1));
             // player.y = player.y * 0.4 + 0.6 * (Math.round((player.y - obstacle.y % 50) / obstacle.snapDistance.y) * obstacle.snapDistance.y + obstacle.y % 50 + player.yv * (obstacle.snapToShowVelocity*2-1));
-            obstacle.prt.x = /*obstacle.prt.x * 0.4 + 0.6 **/ (Math.round((obstacle.prt.x - obstacle.x % 50) / obstacle.snapDistance.x) * obstacle.snapDistance.x + obstacle.x % 50 /*+ player.xv * (obstacle.snapToShowVelocity*2-1)*/);
-            obstacle.prt.y = /*obstacle.prt.y * 0.4 + 0.6 **/ (Math.round((obstacle.prt.y - obstacle.y % 50) / obstacle.snapDistance.y) * obstacle.snapDistance.y + obstacle.y % 50 /*+ player.yv * (obstacle.snapToShowVelocity*2-1)*/);
+            obstacle.prt.x = obstacle.prt.x * 0.4 + 0.6 * (Math.round((obstacle.prt.x - obstacle.x % 50) / obstacle.snapDistance.x) * obstacle.snapDistance.x + obstacle.x % 50 + player.xv * (obstacle.snapToShowVelocity*2-1));
+            obstacle.prt.y = obstacle.prt.y * 0.4 + 0.6 * (Math.round((obstacle.prt.y - obstacle.y % 50) / obstacle.snapDistance.y) * obstacle.snapDistance.y + obstacle.y % 50 + player.yv * (obstacle.snapToShowVelocity*2-1));
 
             obstacle.prt.angle = Math.atan2(obstacle.prt.y, obstacle.prt.x) + obstacle.snapAngle;
-            obstacle.prt.distance = Math.sqrt(obstacle.prt.y**2 + obstacle.prt.x**2)
+            obstacle.prt.distance = Math.sqrt(obstacle.prt.y**2 + obstacle.prt.x**2);
 
             // rotating back
+            // translating the relative coordinates back to absolute ones
             player.x = Math.cos(obstacle.prt.angle) * obstacle.prt.distance + obstacle.x;
             player.y = Math.sin(obstacle.prt.angle) * obstacle.prt.distance + obstacle.y;
+
+            // checking if the original point was outside of the snapgrid as a result of rotation. If so, apply translations to make it right
+            if(player.x < obstacle.x - obstacle.difference.x/2 - player.speed || player.x > obstacle.x + obstacle.difference.x/2 + player.speed){
+                player.x += Math.sign(player.xv) * obstacle.snapDistance.x*0.6;
+            }
+
+            if(player.y < obstacle.y - obstacle.difference.y/2 - player.speed || player.y > obstacle.y + obstacle.difference.y/2 + player.speed){
+                player.y += Math.sign(player.yv) * obstacle.snapDistance.y*0.6;
+            }
         }
     }
 };

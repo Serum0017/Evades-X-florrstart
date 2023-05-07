@@ -41,6 +41,16 @@ const initEffectMap = {
     changeColor: (obs, init) => {
         obs.colorsToChange = {background: init.backgroundColor, tile: init.tileColor, safe: init.safeColor};
     },
+    changeSpeed: (obs, init) => {
+        obs.speedMult = init.speedMult;
+    },
+    changeRadius: (obs, init) => {
+        obs.radiusMult = init.radiusMult;
+    },
+    changeFriction: (obs, init) => {
+        // changes player movement friction, not those applied to it
+        obs.frictionMult = init.frictionMult;
+    },
     breakable: (obs, init) => {
         // all timings are in frames
         obs.strength = init.maxStrength;
@@ -97,9 +107,10 @@ const initEffectMap = {
         obs.snapAngleRotateSpeed = init.snapAngleRotateSpeed ?? 0;
         obs.snapAngleRotateSpeed *= Math.PI/180;
         obs.interpolatePlayerData = {};
-        obs.snapDistance.x = Math.max(35, obs.snapDistance.x);
-        obs.snapDistance.y = Math.max(35, obs.snapDistance.y);
+        // obs.snapDistance.x = Math.max(35, obs.snapDistance.x);
+        // obs.snapDistance.y = Math.max(35, obs.snapDistance.y);
         obs.snapToShowVelocity = Math.min(obs.snapDistance.x, obs.snapDistance.y) > 40;
+        obs.snapMagnitude = init.snapMagnitude ?? (obs.snapDistance.x + obs.snapDistance.y)/2;
     }
 };
 

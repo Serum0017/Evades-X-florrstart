@@ -50,6 +50,23 @@ const renderEffectMap = {
     changeColor: (o, ctx, advanced) => {
         ctx.toFill = false;
     },
+    changeSpeed: (o, ctx, advanced) => {
+        ctx.fillStyle = '#eba500';
+        ctx.globalAlpha = 0.25;
+    },
+    changeRadius: (o, ctx, advanced) => {
+        // ctx.toFill = false;
+        ctx.fillStyle = '#1c1852';
+        ctx.globalAlpha = 0.1;
+    },
+    changeFriction: (o, ctx, advanced) => {
+        if (o.frictionMult > 0.4){
+            ctx.fillStyle = '#0e30ad';
+        } else {
+            ctx.fillStyle = '#1c1852';
+        }
+        ctx.globalAlpha = 0.28;
+    },
     resetFriction: (o, ctx, advanced) => {
         ctx.fillStyle = 'orange';
         ctx.strokeStyle = 'black';
@@ -271,25 +288,63 @@ const renderEffectAfterShapeMap = {
 
         ctx.restore();
     },
-    snapGrid: (o, ctx, advanced) => {
+    snapGrid: (o, ctx, { player }) => {
         ctx.strokeStyle = mixHex('#0f0000', '#000000', Math.max(0,o.render.snapCooldown) / o.maxSnapCooldown);
         ctx.globalAlpha = 0.25;
         ctx.translate(o.x, o.y);
 
-        o.snapRotateMovementExpansion = Math.max(o.difference.x,o.difference.y)//(Math.max(o.difference.x,o.difference.y)**2/Math.sqrt(o.difference.x**2+o.difference.y**2));
+        o.snapRotateMovementExpansion = {
+            base: (Math.max(o.difference.x,o.difference.y)**2/Math.sqrt(o.difference.x**2+o.difference.y**2))
+        }
+        o.snapRotateMovementExpansion.x = Math.ceil(o.snapRotateMovementExpansion.base/o.snapDistance.x)*o.snapDistance.x
+        o.snapRotateMovementExpansion.y = Math.ceil(o.snapRotateMovementExpansion.base/o.snapDistance.y)*o.snapDistance.y
+
         ctx.rotate(o.render.snapAngle);
 
-        for(let x = -o.snapRotateMovementExpansion; x <= o.snapRotateMovementExpansion; x += o.snapDistance.x){
-            // ctx.strokeRect(-5 + x, -o.snapRotateMovementExpansion - 5, 10, 2 * o.snapRotateMovementExpansion + 10);
-            ctx.moveTo(x,-o.snapRotateMovementExpansion);
-            ctx.lineTo(x,o.snapRotateMovementExpansion);
+        ctx.translate(o.x%50,o.y%50);
+
+        let renderPath = new Path2D();
+        for(let x = -o.snapRotateMovementExpansion.x; x <= o.snapRotateMovementExpansion.x; x += o.snapDistance.x){
+            renderPath.rect(-5 + x, -o.snapRotateMovementExpansion.x - 5, 10, 2 * o.snapRotateMovementExpansion.x + 10);
+            // ctx.moveTo(x,-o.snapRotateMovementExpansion);
+            // ctx.lineTo(x,o.snapRotateMovementExpansion);
         }
-        for(let y = -o.snapRotateMovementExpansion; y <= o.snapRotateMovementExpansion; y += o.snapDistance.y){
-            // ctx.strokeRect(-o.snapRotateMovementExpansion - 5, -5 + y, 2 * o.snapRotateMovementExpansion + 10, 10);
-            ctx.moveTo(-o.snapRotateMovementExpansion,y);
-            ctx.lineTo(o.snapRotateMovementExpansion,y);
+        for(let y = -o.snapRotateMovementExpansion.y; y <= o.snapRotateMovementExpansion.y; y += o.snapDistance.y){
+            renderPath.rect(-o.snapRotateMovementExpansion.y - 5, -5 + y, 2 * o.snapRotateMovementExpansion.y + 10, 10);
+            // ctx.moveTo(-o.snapRotateMovementExpansion,y);
+            // ctx.lineTo(o.snapRotateMovementExpansion,y);
         }
+        ctx.stroke(renderPath);
+        ctx.closePath();
+
+        // ctx.translate(-o.x%50,-o.y%50);
+        // ctx.rotate(-o.render.snapAngle);
+        // ctx.translate(-o.x, -o.y);
+
+        // ctx.translate(o.x,o.y);
+        // ctx.rotate(o.render.snapAngle);
+        // ctx.translate(o.x%50,o.y%50);
+        
+        // drawing snapMagnitude indicator
+        if(player.x + o.snapMagnitude < o.x - o.difference.x/2 || player.x - o.snapMagnitude > o.x + o.difference.x/2 || player.y + o.snapMagnitude < o.y - o.difference.y/2 || player.y - o.snapMagnitude > o.y + o.difference.y/2){
+            ctx.restore();
+            return;
+        }
+        ctx.strokeStyle = 'grey';
+        ctx.fillStyle = 'black';
+        ctx.globalAlpha = 0.22;
+        ctx.beginPath();
+
+        ctx.clip(renderPath);
+
+        ctx.translate(-o.x%50,-o.y%50);
+        ctx.rotate(-o.render.snapAngle);
+        ctx.translate(-o.x,-o.y);
+
+        ctx.arc(player.x, player.y, o.snapMagnitude, 0, Math.PI*2);
         ctx.stroke();
+        ctx.fill();
+        ctx.closePath();
 
         ctx.restore();
     }
