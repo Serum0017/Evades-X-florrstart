@@ -84,12 +84,34 @@ const renderEffectMap = {
         ctx.fillStyle = colors.tile;
         ctx.globalAlpha = 0.1;
     },
-    restrictAxis: (o, ctx, { colors }) => {
-        ctx.toStroke = true;
-        ctx.strokeStyle = 'white';
+    rotateMovement: (o, ctx, { colors }) => {
+        ctx.strokeStyle = o.axisSpeedMult < 0 ? '#ff6969' : (o.axisSpeedMult > 1 ? '#c5c500' : 'white');
+        ctx.setLineDash([15, 25]);
+        ctx.lineDashOffset = -performance.now() / 20;
         ctx.lineWidth = 1;
         ctx.toFill = false;
-        // ctx.toClip = true;
+        ctx.toStroke = true;
+        ctx.toClip = true;
+    },
+    restrictAxis: (o, ctx, { colors }) => {
+        if(o.axisSpeedMults.x < 0 && o.axisSpeedMults.y < 0){
+            ctx.strokeStyle = 'red';
+        } else if(o.axisSpeedMults.x < 0 || o.axisSpeedMults.y < 0){
+            ctx.strokeStyle = '#ff6969';
+        } else if(o.axisSpeedMults.y > 1 || o.axisSpeedMults.y > 1){
+            ctx.strokeStyle = '#c5c500';
+        } else {
+            ctx.strokeStyle = 'white';
+        }
+        ctx.lineWidth = 1;
+        ctx.toFill = false;
+        ctx.toStroke = true;
+        ctx.toClip = true;
+    },
+    snapGrid: (o, ctx, { colors }) => {
+        ctx.fillStyle = '#00008a';
+        ctx.globalAlpha = 0.1;
+        ctx.toClip = true;
     }
 }
 
@@ -171,30 +193,106 @@ const renderEffectAfterShapeMap = {
 
         ctx.restore();
     },
-    restrictAxis: (o, ctx, advanced) => {
-        // TODO: optimize with pregeneration
+    rotateMovement: (o, ctx, advanced) => {
+        // render grid lines showing axis
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.translate(o.x,o.y);
+        ctx.rotate(o.render.rotateMovementAngle);
+        o.rotateMovementExpansion = Math.ceil((Math.max(o.difference.x,o.difference.y)**2/Math.sqrt(o.difference.x**2+o.difference.y**2))/50)*50;
+
+        ctx.globalAlpha = o.axisSpeedMult > 1 ? 1 : Math.max(0,1-Math.abs(o.axisSpeedMult));
+        
+        for(let x = -o.rotateMovementExpansion; x <= o.rotateMovementExpansion; x += 50){
+            ctx.moveTo(x,-o.rotateMovementExpansion);
+            ctx.lineTo(x,o.rotateMovementExpansion);
+        }
+
+        for(let y = -o.rotateMovementExpansion; y <= o.rotateMovementExpansion; y += 50){
+            ctx.moveTo(-o.rotateMovementExpansion,y);
+            ctx.lineTo(o.rotateMovementExpansion,y);
+        }
+
+        ctx.stroke();
+        ctx.closePath();
+        ctx.rotate(-o.render.rotateMovementAngle);
+        ctx.translate(-o.x,-o.y);
+
         ctx.globalAlpha = 1;
 
-        ctx.translate(o.x,o.y);
-        ctx.rotate(o.render.restrictAxisAngle+Math.PI/2);
-        // const boundingBox = {x: o.x - o.difference.x/2, y: o.y - o.difference.y/2, w: o.difference.x, h: o.difference.y};
-        // const innnerBoundingBox = {w: o.difference.x * Math.cos(o.render.restrictAxisAngle), h: o.difference.y * Math.sin(o.render.restrictAxisAngle)}
-        const expansion = Math.max(o.difference.x,o.difference.y)/Math.sqrt(o.difference.x**2+o.difference.y**2)
-        console.log({expansion});
-        for(let x = -o.difference.x*expansion; x <= o.difference.x*expansion; x += 50){
-            ctx.moveTo(x,-o.difference.y*expansion);
-            ctx.lineTo(x,o.difference.y*expansion);
+        // render circle showing angle
+        ctx.beginPath();
+        ctx.strokeStyle = 'white';
+        ctx.setLineDash([15, 25]);
+        
+        o.renderCircleSize = Math.min(o.difference.x, o.difference.y)/4;
+        if(o.rotateMovementAngle <= Math.PI/2){
+            ctx.translate(-o.renderCircleSize, -o.renderCircleSize)
+            o.renderCircleSize *= 2;
         }
-        for(let y = -o.difference.y*expansion; y <= o.difference.y*expansion; y += 50){
-            ctx.moveTo(-o.difference.x*expansion,y);
-            ctx.lineTo(o.difference.x*expansion,y);
+
+        ctx.moveTo(o.x, o.y);
+        ctx.lineTo(o.x + o.renderCircleSize, o.y);
+        ctx.arc(o.x, o.y, o.renderCircleSize, 0, o.rotateMovementAngle);
+        
+        ctx.lineTo(o.x, o.y);
+
+        ctx.stroke();
+
+        ctx.restore();
+        ctx.setLineDash([]);
+    },
+    restrictAxis: (o, ctx, advanced) => {
+        // TODO: check if angle is 0 and if so draw an optimized ver
+        
+        ctx.translate(o.x, o.y);
+
+        ctx.globalAlpha = o.axisSpeedMults.x > 1 ? 0.8 : (Math.max(0.3,(o.axisSpeedMults.x > 0)-o.axisSpeedMults.x));
+        ctx.strokeStyle = o.axisSpeedMults.x < 0 ? 'red' : (o.axisSpeedMults.x > 1 ? '#c5c500' : 'white');
+
+        ctx.beginPath();
+        for(let x = -o.difference.x/2; x <= o.difference.x/2; x += 50){
+            ctx.moveTo(x,-o.difference.y/2);
+            ctx.lineTo(x,o.difference.y/2);
         }
         ctx.stroke();
-        ctx.rotate(-o.render.restrictAxisAngle-Math.PI/2);
-        ctx.translate(-o.x,-o.y);
+        ctx.closePath();
+
+        ctx.globalAlpha = o.axisSpeedMults.y > 1 ? 0.8 : (Math.max(0.3,(o.axisSpeedMults.y > 0)-o.axisSpeedMults.y));
+        ctx.strokeStyle = o.axisSpeedMults.y < 0 ? 'red' : (o.axisSpeedMults.y > 1 ? '#c5c500' : 'white');
+
+        ctx.beginPath();
+        for(let y = -o.difference.y/2; y <= o.difference.y/2; y += 50){
+            ctx.moveTo(-o.difference.x/2,y);
+            ctx.lineTo(o.difference.x/2,y);
+        }
+        ctx.stroke();
+        ctx.closePath();
 
         ctx.restore();
     },
+    snapGrid: (o, ctx, advanced) => {
+        ctx.strokeStyle = mixHex('#0f0000', '#000000', Math.max(0,o.render.snapCooldown) / o.maxSnapCooldown);
+        ctx.globalAlpha = 0.25;
+        ctx.translate(o.x, o.y);
+
+        o.snapRotateMovementExpansion = Math.max(o.difference.x,o.difference.y)//(Math.max(o.difference.x,o.difference.y)**2/Math.sqrt(o.difference.x**2+o.difference.y**2));
+        ctx.rotate(o.render.snapAngle);
+
+        for(let x = -o.snapRotateMovementExpansion; x <= o.snapRotateMovementExpansion; x += o.snapDistance.x){
+            // ctx.strokeRect(-5 + x, -o.snapRotateMovementExpansion - 5, 10, 2 * o.snapRotateMovementExpansion + 10);
+            ctx.moveTo(x,-o.snapRotateMovementExpansion);
+            ctx.lineTo(x,o.snapRotateMovementExpansion);
+        }
+        for(let y = -o.snapRotateMovementExpansion; y <= o.snapRotateMovementExpansion; y += o.snapDistance.y){
+            // ctx.strokeRect(-o.snapRotateMovementExpansion - 5, -5 + y, 2 * o.snapRotateMovementExpansion + 10, 10);
+            ctx.moveTo(-o.snapRotateMovementExpansion,y);
+            ctx.lineTo(o.snapRotateMovementExpansion,y);
+        }
+        ctx.stroke();
+
+        ctx.restore();
+    }
 }
 
 function mixHex(color1, color2, t){
@@ -210,6 +308,22 @@ function mixHex(color1, color2, t){
     }
     
     return `rgb(${rgb1.r*(1-t)+rgb2.r*t},${rgb1.g*(1-t)+rgb2.g*t},${rgb1.b*(1-t)+rgb2.b*t})`;
+}
+
+function testPoint({x,y}, ctx){
+    ctx.beginPath();
+    ctx.fillStyle = 'red';
+    ctx.arc(x,y,10,0,Math.PI*2);
+    ctx.fill();
+    ctx.closePath();
+}
+
+function testRect({x,y,w,h}, ctx){
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'red';
+    ctx.strokeRect(x,y,w,h);
+    ctx.closePath();
 }
 
 function renderEffect(o, ctx, advanced) {

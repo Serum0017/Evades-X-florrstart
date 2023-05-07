@@ -77,12 +77,29 @@ const initEffectMap = {
         obs.conveyorAngleRotateSpeed *= Math.PI/180;
         obs.conveyorFriction = init.conveyorFriction ?? 0.8;
     },
+    rotateMovement: (obs, init) => {
+        obs.axisSpeedMult = init.axisSpeedMult ?? 1;
+        obs.rotateMovementAngle = init.rotateMovementAngle ?? 0;
+        obs.rotateMovementAngle *= Math.PI/180;
+        obs.rotateMovementAngleRotateSpeed = init.rotateMovementAngleRotateSpeed ?? 0;
+        obs.rotateMovementAngleRotateSpeed *= Math.PI/180;
+    },
     restrictAxis: (obs, init) => {
-        obs.axisSlowdown = {x: init.xSlowdown ?? 0.5, y: init.ySlowdown ?? 0.5};
-        obs.restrictAxisAngle = init.restrictAxisAngle ?? 0;
-        obs.restrictAxisAngle *= Math.PI/180;
-        obs.restrictAxisAngleRotateSpeed = init.restrictAxisAngleRotateSpeed ?? 0;
-        obs.restrictAxisAngleRotateSpeed *= Math.PI/180;
+        obs.axisSpeedMults = init.axisSpeedMults ?? {x: 0, y: 1};
+    },
+    snapGrid: (obs, init) => {
+        obs.toSnap = init.toSnap ?? {x: true, y: true};
+        obs.snapDistance = init.snapDistance ?? {x: 50, y: 50};
+        obs.maxSnapCooldown = init.snapCooldown ?? 40;
+        obs.snapCooldown = obs.maxSnapCooldown;
+        obs.snapAngle = init.snapAngle ?? 0;
+        obs.snapAngle *= Math.PI/180;
+        obs.snapAngleRotateSpeed = init.snapAngleRotateSpeed ?? 0;
+        obs.snapAngleRotateSpeed *= Math.PI/180;
+        obs.interpolatePlayerData = {};
+        obs.snapDistance.x = Math.max(35, obs.snapDistance.x);
+        obs.snapDistance.y = Math.max(35, obs.snapDistance.y);
+        obs.snapToShowVelocity = Math.min(obs.snapDistance.x, obs.snapDistance.y) > 40;
     }
 };
 

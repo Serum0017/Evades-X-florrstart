@@ -4,13 +4,19 @@ export default function simulatePlayer(p, map) {
 		return;
 	}
 	
-	p.xv += (p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.x;
-	p.yv += (p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.y;
+	
 	if(p.axisSpeedMult.angle !== 0){
-		p.lastXV = p.xv;
-		p.xv += p.yv * Math.cos(p.axisSpeedMult.angle);
-		p.yv += p.lastXV * Math.sin(p.axisSpeedMult.angle);
+		p.xv +=
+			Math.cos(p.axisSpeedMult.angle) * /*xv*/(p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.x +
+			- Math.sin(p.axisSpeedMult.angle) * /*yv*/(p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.y;
+		p.yv +=
+			Math.sin(p.axisSpeedMult.angle) * /*xv*/(p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.x +
+			Math.cos(p.axisSpeedMult.angle) * /*yv*/(p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.y;
+	} else {
+		p.xv += (p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.x;
+		p.yv += (p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.y;
 	}
+
 	p.xv *= p.friction;
 	p.yv *= p.friction;
     

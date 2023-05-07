@@ -100,7 +100,7 @@ Gun,
 Golf,
 Zoom,
 Deathmark (and DeathCure),
-RestrictAxis,
+rotateMovement,
 FallingArrow,
 HomingEnemy,
 Invert,
@@ -132,7 +132,7 @@ simulate
 - ✅ normal, ✅ moving, ✅ rotating, ✅ normalEnemy, spawner (turret), wavyEnemy
 shape:
 - ✅ square, ✅ circle, ✅ poly
-effect: snapgrid, speedchange, ✅ normal, ✅ bouncy, frictionchange, radiuschange, ✅ lava, ✅ conveyor, ✅ coin, timeTrap, ✅ coindoor, ✅ breakable, ✅ tp, frictionChanger, ✅ platformer (will have a lot more settings than semioldevade platformer), ✅ restrictAxis (but can also slow down movement on the x axis by 50% and speed up y by 20% for example/ be at any angle -> 20 deg angle means x movement will translate into some y movement as well) and other necessities for managing game like vinetteIncrease/ musicChanger/ etc
+effect: ✅ snapgrid, speedchange, ✅ normal, ✅ bouncy, frictionchange, radiuschange, ✅ lava, ✅ conveyor, ✅ coin, timeTrap, ✅ coindoor, ✅ breakable, ✅ tp, frictionChanger, ✅ platformer (will have a lot more settings than semioldevade platformer), ✅ rotateMovement, ✅ restrictAxis, other necessities for managing game like vinetteIncrease/ musicChanger/ etc
 
 Core Mechanics:
 - account system + usernames

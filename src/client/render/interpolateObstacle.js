@@ -15,8 +15,12 @@ const interpolateMap = {
         conveyor: (interpolate, last, next, time) => {
             interpolateAngleKey('conveyorAngle', interpolate, last, next, time);
         },
-        restrictAxis: (interpolate, last, next, time) => {
-            interpolateAngleKey('restrictAxisAngle', interpolate, last, next, time);
+        rotateMovement: (interpolate, last, next, time) => {
+            interpolateAngleKey('rotateMovementAngle', interpolate, last, next, time);
+        },
+        snapGrid: (interpolate, last, next, time) => {
+            interpolateAngleKey('snapCooldown', interpolate, last, next, time);
+            interpolateAngleKey('snapAngle', interpolate, last, next, time);
         },
     }
 }

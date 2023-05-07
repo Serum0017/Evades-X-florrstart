@@ -105,11 +105,58 @@ const Effects = {
             player.axisSpeedMult.x = 0;
         }
     },
-    restrictAxis: (sat, player, obstacle) => {
-        player.axisSpeedMult.x *= Math.cos(obstacle.restrictAxisAngle) * obstacle.axisSlowdown.x;
-        player.axisSpeedMult.y *= Math.sin(obstacle.restrictAxisAngle) * obstacle.axisSlowdown.y;
-        player.axisSpeedMult.angle = obstacle.restrictAxisAngle;
+    rotateMovement: (sat, player, obstacle) => {
+        player.axisSpeedMult.x *= obstacle.axisSpeedMult// * Math.cos(obstacle.rotateMovementAngle);
+        player.axisSpeedMult.y *= obstacle.axisSpeedMult// * Math.sin(obstacle.rotateMovementAngle);
+        player.axisSpeedMult.angle = obstacle.rotateMovementAngle;
     },
+    restrictAxis: (sat, player, obstacle) => {
+        player.axisSpeedMult.x *= obstacle.axisSpeedMults.x;
+        player.axisSpeedMult.y *= obstacle.axisSpeedMults.y;
+    },
+    snapGrid: (sat, player, obstacle) => {
+        obstacle.snapCooldown--;
+
+        if(obstacle.snapCooldown <= 0 && (Math.abs(player.xv) > 0.01 || Math.abs(player.yv) > 0.01)){
+            obstacle.snapCooldown = obstacle.maxSnapCooldown;
+            obstacle.playerSnapAngle = Math.atan2(player.yv, player.xv);
+            obstacle.interpolatePlayerData = {
+                time: Math.min(obstacle.maxSnapCooldown-1, 5),
+                nextX: player.x + Math.cos(obstacle.playerSnapAngle) * obstacle.snapDistance.x * 0.95,
+                nextY: player.y + Math.sin(obstacle.playerSnapAngle) * obstacle.snapDistance.y * 0.95
+            };
+            // player.x += Math.cos(obstacle.playerSnapAngle) * obstacle.snapDistance.x;
+            // player.y += Math.sin(obstacle.playerSnapAngle) * obstacle.snapDistance.y;
+        }
+
+        if(obstacle.interpolatePlayerData.time > 1){
+            obstacle.interpolatePlayerData.time--;
+            player.x = player.x * 0.8 + 0.2 * obstacle.interpolatePlayerData.nextX;
+            player.y = player.y * 0.8 + 0.2 * obstacle.interpolatePlayerData.nextY;
+        } else {
+            obstacle.playerRelativeTransform = {
+                angle: Math.atan2(player.y - obstacle.y, player.x - obstacle.x) - obstacle.snapAngle,
+                distance: Math.sqrt((player.y - obstacle.y)**2 + (player.x - obstacle.x)**2)
+            }
+
+            obstacle.playerRelativeTransform.x = Math.cos(obstacle.playerRelativeTransform.angle) * obstacle.playerRelativeTransform.distance;
+            obstacle.playerRelativeTransform.y = Math.sin(obstacle.playerRelativeTransform.angle) * obstacle.playerRelativeTransform.distance;
+
+            obstacle.prt = obstacle.playerRelativeTransform;
+            // applying the transform just like the norotate snap that i coded earlier
+            // player.x = player.x * 0.4 + 0.6 * (Math.round((player.x - obstacle.x % 50) / obstacle.snapDistance.x) * obstacle.snapDistance.x + obstacle.x % 50 + player.xv * (obstacle.snapToShowVelocity*2-1));
+            // player.y = player.y * 0.4 + 0.6 * (Math.round((player.y - obstacle.y % 50) / obstacle.snapDistance.y) * obstacle.snapDistance.y + obstacle.y % 50 + player.yv * (obstacle.snapToShowVelocity*2-1));
+            obstacle.prt.x = /*obstacle.prt.x * 0.4 + 0.6 **/ (Math.round((obstacle.prt.x - obstacle.x % 50) / obstacle.snapDistance.x) * obstacle.snapDistance.x + obstacle.x % 50 /*+ player.xv * (obstacle.snapToShowVelocity*2-1)*/);
+            obstacle.prt.y = /*obstacle.prt.y * 0.4 + 0.6 **/ (Math.round((obstacle.prt.y - obstacle.y % 50) / obstacle.snapDistance.y) * obstacle.snapDistance.y + obstacle.y % 50 /*+ player.yv * (obstacle.snapToShowVelocity*2-1)*/);
+
+            obstacle.prt.angle = Math.atan2(obstacle.prt.y, obstacle.prt.x) + obstacle.snapAngle;
+            obstacle.prt.distance = Math.sqrt(obstacle.prt.y**2 + obstacle.prt.x**2)
+
+            // rotating back
+            player.x = Math.cos(obstacle.prt.angle) * obstacle.prt.distance + obstacle.x;
+            player.y = Math.sin(obstacle.prt.angle) * obstacle.prt.distance + obstacle.y;
+        }
+    }
 };
 
 // stuff that is mandatory for effects but shouldnt count as a simulation type
@@ -148,9 +195,17 @@ const IdleEffects = {
     conveyor: (player, obstacle, advanced) => {
         obstacle.conveyorAngle += obstacle.conveyorAngleRotateSpeed;
     },
-    restrictAxis: (player, obstacle, advanced) => {
-        obstacle.restrictAxisAngle += obstacle.restrictAxisAngleRotateSpeed;
-    }
+    rotateMovement: (player, obstacle, advanced) => {
+        obstacle.rotateMovementAngle += obstacle.rotateMovementAngleRotateSpeed;
+        if(obstacle.rotateMovementAngle > Math.PI*2) {
+            obstacle.rotateMovementAngle -= Math.PI*2;
+        } else if(obstacle.rotateMovementAngle < 0){
+            obstacle.rotateMovementAngle += Math.PI*2;
+        }
+    },
+    snapGrid: (player, obstacle, advanced) => {
+        obstacle.snapAngle += obstacle.snapAngleRotateSpeed;
+    },
 }
 
 function runEffects(sat, player, obstacle, other){
