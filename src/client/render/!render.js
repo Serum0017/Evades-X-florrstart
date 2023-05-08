@@ -24,12 +24,14 @@ export default class Renderer {
             outer: {
                 color: '#000000',
                 size: 1,
-                alpha: 0.5
+                alpha: 0.5,
+                interpolate: {}
             },
             inner: {
                 color: '#000000',
                 size: 0.5,
-                alpha: 0
+                alpha: 0,
+                interpolate: {}
             },
         }
 
@@ -181,7 +183,7 @@ export default class Renderer {
     //     }
     //     return interpolatedObstacle;
     // }
-    hex2rgba(hex){
+    hex2rgb(hex){
         return {
             r: parseInt(hex.slice(1,3), 16),
             g: parseInt(hex.slice(3,5), 16),
@@ -193,11 +195,37 @@ export default class Renderer {
         const inner = this.vinette.inner;
 
         if(outer.color[0] === '#'){
-            outer.color = this.hex2rgba(outer.color);
+            outer.color = this.hex2rgb(outer.color);
         }
         if(inner.color[0] === '#'){
-            inner.color = this.hex2rgba(inner.color);
+            inner.color = this.hex2rgb(inner.color);
         }
+
+        // interpolation
+        for(let key in outer.interpolate){
+            if(key === 'color'){
+                outer[key] = mixRgb(outer[key], this.hex2rgb(outer.interpolate[key]), 0.8);
+            } else {
+                outer[key] = 0.8 * outer[key] + 0.2 * outer.interpolate[key];
+            }
+        }
+        for(let key in inner.interpolate){
+            if(key === 'color'){
+                inner[key] = mixRgb(outer[key], this.hex2rgb(outer.interpolate[key]), 0.8);
+            } else {
+                inner[key] = 0.8 * inner[key] + 0.2 * inner.interpolate[key];
+            }
+        }
+        outer.interpolate = {
+            color: '#000000',
+            size: 1,
+            alpha: 0.5
+        };
+        inner.interpolate = {
+            color: '#000000',
+            size: 1,
+            alpha: 0
+        };
 
         const gradient = ctx.createRadialGradient(
             canvas.w / 2,
@@ -361,4 +389,27 @@ function interpolateLinearDirection(a0,a1,t) {
 
 function clamp(min,max,x){
     return(Math.min(max,Math.max(min,x)));
+}
+
+function mixHex(color1, color2, t){
+    const rgb1 = {
+        r: parseInt(color1.slice(1,3), 16),
+        g: parseInt(color1.slice(3,5), 16),
+        b: parseInt(color1.slice(5,7), 16)
+    }
+    const rgb2 = {
+        r: parseInt(color2.slice(1,3), 16),
+        g: parseInt(color2.slice(3,5), 16),
+        b: parseInt(color2.slice(5,7), 16)
+    }
+    
+    return `rgb(${rgb1.r*(1-t)+rgb2.r*t},${rgb1.g*(1-t)+rgb2.g*t},${rgb1.b*(1-t)+rgb2.b*t})`;
+}
+
+function mixRgb(/*{r,g,b}*/color1,color2,t){
+    return {
+        r: color1.r*(1-t) + color2.r*t,
+        g: color1.g*(1-t) + color2.g*t,
+        b: color1.b*(1-t) + color2.b*t
+    }
 }

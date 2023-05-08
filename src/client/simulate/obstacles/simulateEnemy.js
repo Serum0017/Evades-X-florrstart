@@ -33,7 +33,7 @@ const SimulateEnemyMap = {
         }
 
         e.speed = Math.sqrt(e.xv**2+e.yv**2);
-        e.angle = Math.atan2(e.yv, e.xv) + e.wavyEnemyRotateSpeed * e.wavyEnemyDirection;
+        e.angle = Math.atan2(e.yv, e.xv) + e.wavyEnemyRotateSpeed * Math.sign(e.wavyEnemyDirection);
 
         e.xv = Math.cos(e.angle) * e.speed;
         e.yv = Math.sin(e.angle) * e.speed;

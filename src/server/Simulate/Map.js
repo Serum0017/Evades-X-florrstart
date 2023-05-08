@@ -73,6 +73,9 @@ function toNumber(num, defaultNumber=0){
 }
 
 function toHex(hex, defaultHex="#ff0000"){
+    if(typeof hex !== 'string'){
+        return defaultHex;
+    }
     for(let i = 0; i < hex.length; i++){
         if(i === 0 && hex[i] === '#')continue;
         if(Number.isFinite(hex[i]) === true)continue;

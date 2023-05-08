@@ -4,17 +4,17 @@ const initEffectMap = {
     },
     bounce: (obs, init) => {
         obs.bounciness = toNumber(init.bounciness, 10);
-        obs.friction = Math.min(1, toNumber(init.friction, 0.2));
+        obs.friction = toNumber(init.friction, 0.2);
     },
     coin: (obs, init) => {
         obs.collected = false;
-        obs.color = init.color ?? '#d6d611';
+        obs.color = toHex(init.color, '#d6d611');
         obs.coinAmount = toNumber(init.coinAmount, 1);
     },
     coindoor: (obs, init) => {
-        obs.maxCoins = init.coins;
-        obs.coins = init.coins;
-        obs.color = init.color ?? '#d6d611';
+        obs.maxCoins = toNumber(init.coins, 1);
+        obs.coins = toNumber(init.coins, 1);
+        obs.color = toHex(init.color, '#d6d611');
     },
     // TODO: make sure all of these are safe for any input (same for other files)
     changeMap: (obs, init, advanced) => {
@@ -39,30 +39,49 @@ const initEffectMap = {
         obs.difficulty = 'Peaceful';
     },
     changeColor: (obs, init) => {
-        obs.colorsToChange = {background: init.backgroundColor, tile: init.tileColor, safe: init.safeColor};
+        obs.colorsToChange = {
+            background: toHex(init.backgroundColor,'#000000'),
+            tile: toHex(init.tileColor,'#000000'),
+            safe: toHex(init.safeColor,'#000000')
+        };
     },
     changeSpeed: (obs, init) => {
-        obs.speedMult = init.speedMult;
+        obs.speedMult = toNumber(init.speedMult, 1.5);
     },
     changeRadius: (obs, init) => {
-        obs.radiusMult = init.radiusMult;
+        obs.radiusMult = toNumber(init.radiusMult, 0.5);
     },
     changeFriction: (obs, init) => {
         // changes player movement friction, not those applied to it
-        obs.frictionValue = init.frictionValue;
+        obs.frictionValue = toNumber(init.frictionValue, 0.9);
+    },
+    changeVinette: (obs, init) => {
+        obs.vinetteToChange = {
+            outer:  {
+                color: toHex(init?.vinetteToChange?.outer?.color,'#000000'),
+                size: toNumber(init?.vinetteToChange?.outer?.size, 1),
+                alpha: toNumber(init?.vinetteToChange?.outer?.alpha, 0.5)
+            },
+            inner:  {
+                color: toHex(init?.vinetteToChange?.inner?.color,'#000000'),
+                size: toNumber(init?.vinetteToChange?.inner?.size, 1),
+                alpha: toNumber(init?.vinetteToChange?.inner?.alpha, 0)
+            },
+        }
     },
     safe: (obs, init) => {},
     breakable: (obs, init) => {
         // all timings are in frames
-        obs.strength = init.maxStrength;
-        obs.maxStrength = init.maxStrength;
-        obs.regenTime = init.regenTime??1E99;
+        obs.strength = toNumber(init.maxStrength, 5);
+        obs.maxStrength = toNumber(init.maxStrength, 5);
+        obs.regenTime = toNumber(init.regenTime, 1E99);
         obs.lastBrokeTime = -1E99;
-        obs.healSpeed = init.healSpeed??1E99;
+        obs.healSpeed = toNumber(init.healSpeed, 1E99);
     },
     tp: (obs, init) => {
-        obs.tp = {x: init.tp.x??0, y: init.tp.y??0};
+        obs.tp = {x: toNumber(init.tp.x, 0), y: toNumber(init.tp.y, 0)};
     },
+    // TODO: make the rest of these toNumber/ toHex/ toWhatever
     platformer: (obs, init) => {
         obs.platformerForce = init.platformerForce ?? 1;
         obs.platformerAngle = init.platformerAngle ?? 90;
@@ -125,6 +144,18 @@ function toNumber(num, defaultNumber=0){
 
 function toString(str, defaultString="Hello World!"){
     return typeof str === 'string' ? str : defaultString;
+}
+
+function toHex(hex, defaultHex="#ff0000"){
+    if(typeof hex !== 'string'){
+        return defaultHex;
+    }
+    for(let i = 0; i < hex.length; i++){
+        if(i === 0 && hex[i] === '#')continue;
+        if(Number.isFinite(hex[i]) === true)continue;
+        return defaultHex;
+    }
+    return hex;
 }
 
 module.exports = function initEffect(params, advanced) {

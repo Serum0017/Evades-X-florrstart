@@ -62,14 +62,14 @@ const Effects = {
             client.game.lastRequestedMapTime = performance.now();
         }
     },
-    changeColor: (sat, player, obstacle, {client}) => {
+    changeColor: (sat, player, obstacle, advanced) => {
         client.game.renderer.colors = obstacle.colorsToChange;
     },
-    changeSpeed: (sat, player, obstacle, {client}) => {
+    changeSpeed: (sat, player, obstacle, advanced) => {
         player.axisSpeedMult.x *= obstacle.speedMult;
         player.axisSpeedMult.y *= obstacle.speedMult;
     },
-    changeRadius: (sat, player, obstacle, {client}) => {
+    changeRadius: (sat, player, obstacle, advanced) => {
         // TODO: revamp when multiple body types are added
         if(obstacle.radiusMult < 1){
             // since we dont want an infinite loop of getting smaller and then bigger, only trigger if we're colliding with the smaller player
@@ -80,8 +80,13 @@ const Effects = {
             player.r *= obstacle.radiusMult;
         }
     },
-    changeFriction: (sat, player, obstacle, {client}) => {
+    changeFriction: (sat, player, obstacle, advanced) => {
         player.friction = obstacle.frictionValue;
+    },
+    changeVinette: (sat, player, obstacle, {client}) => {
+        // TODO: average w/ existing instead of set?
+        client.game.renderer.vinette.outer.interpolate = obstacle.vinetteToChange.outer;
+        client.game.renderer.vinette.inner.interpolate = obstacle.vinetteToChange.inner;
     },
     breakable: (sat, player, obstacle, {tick}) => {
         if(obstacle.strength > 0){

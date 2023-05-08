@@ -58,9 +58,7 @@ const renderEffectMap = {
         ctx.globalAlpha = 0.25;
     },
     changeRadius: (o, ctx, advanced) => {
-        // ctx.toFill = false;
-        ctx.fillStyle = '#1c1852';
-        ctx.globalAlpha = 0.1;
+        ctx.toFill = false;
     },
     changeFriction: (o, ctx, advanced) => {
         if (o.frictionValue > 0.4){
@@ -69,6 +67,10 @@ const renderEffectMap = {
             ctx.fillStyle = '#1c1852';
         }
         ctx.globalAlpha = 0.28;
+    },
+    changeVinette: (o, ctx, { colors }) => {
+        ctx.fillStyle = colors.tile;
+        ctx.globalAlpha = 0.1;
     },
     resetFriction: (o, ctx, advanced) => {
         ctx.fillStyle = 'orange';

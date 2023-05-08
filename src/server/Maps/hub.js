@@ -18,7 +18,11 @@ module.exports = {
         // {type: 'square-rotate-bounce', w: 50, h: 50, x: 100, y: 0, rotation: 0, rotateSpeed: -1, pivot: {x: 150, y: 150}},
         {type: 'poly-rotate-coin', color: 'red', coinAmount: 2, w: 50, h: 50, x: 100, y: 0, rotation: 0, rotateSpeed: -1, pivot: {x: 150, y: 150}, points: [[0, 0], [100, 0], [50, 75]], path: [{x: 0, y: 0}, {x: 200, y: 200}, {x: 100, y: 100}], bounciness: 10, friction: 0.9, currentPoint: 0, speed: 3, maxStrength: 20, regenTime: 100, healSpeed: .1},
 
-        {type: 'circle-enemy-breakable', bound: {x: 0, y: 0, w: 500, h: 500}, wavyEnemyPeriod: 100000, wavyEnemyRotateSpeed: 1, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal,wavy' /*other enemy-specific parameters*/, speed: 4, r: 20, maxStrength: 100, regenTime: 100, healSpeed: 10},
+        // {type: 'circle-enemy-breakable', bound: {x: 0, y: 0, w: 500, h: 500}, wavyEnemyPeriod: 20, wavyEnemyRotateSpeed: 1, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal,wavy' /*other enemy-specific parameters*/, speed: 4, r: 20, maxStrength: 100, regenTime: 100, healSpeed: 10},
+        // {type: 'circle-enemy-breakable', bound: {x: 0, y: 0, w: 500, h: 500}, wavyEnemyPeriod: 20, wavyEnemyRotateSpeed: 1, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal,wavy' /*other enemy-specific parameters*/, speed: 4, r: 20, maxStrength: 100, regenTime: 100, healSpeed: 10},
+        // {type: 'circle-enemy-breakable', bound: {x: 0, y: 0, w: 500, h: 500}, wavyEnemyPeriod: 20, wavyEnemyRotateSpeed: 1, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal,wavy' /*other enemy-specific parameters*/, speed: 4, r: 20, maxStrength: 100, regenTime: 100, healSpeed: 10},
+        // {type: 'circle-enemy-breakable', bound: {x: 0, y: 0, w: 500, h: 500}, wavyEnemyPeriod: 20, wavyEnemyRotateSpeed: 1, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal,wavy' /*other enemy-specific parameters*/, speed: 4, r: 20, maxStrength: 100, regenTime: 100, healSpeed: 10},
+
         {type: 'circle-enemy-breakable', bound: {x: 350, y: 350, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 3, r: 10, maxStrength: 100, regenTime: 100, healSpeed: 10},
         {type: 'circle-enemy-lava', solid: false, bound: {x: 350, y: 350, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 3, r: 10, maxStrength: 100, regenTime: 100, healSpeed: 10},
         // {type: 'square-enemy-breakable', bound: {x: 350, y: 350, w: 100, h: 100}, w: 40, h: 40, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 1.8, r: 10, maxStrength: 100, regenTime: 100, healSpeed: 10},
@@ -32,9 +36,10 @@ module.exports = {
         // {type: 'square-normal-conveyor', x: 350, y: 200, w: 200, h: 400, conveyorAngleRotateSpeed: 1 /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
         // {type: 'square-normal-rotateMovement', x: 350, y: 200, w: 200, h: 200, rotateMovementAngle: 0, rotateMovementAngleRotateSpeed: -0.2, axisSpeedMult: 0.5 /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
         // {type: 'square-normal-restrictAxis', x: 350, y: 200, w: 200, h: 200, axisSpeedMults: {x: -0.01, y: 2} /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
-        // {type: 'square-normal-snapGrid', x: 175-32, y: 375-12, w: 200, h: 150, snapDistance: {x: 50, y: 50}, snapAngle: 0, snapAngleRotateSpeed: 0, /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
+        // {type: 'square-normal-snapGrid', x: 175-32, y: 375-12, w: 200, h: 150, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
 
         // {type: 'square-normal-changeFriction', frictionValue: 0.9, x: 400, y: 325, w: 100, h: 50},
+        {type: 'square-normal-changeVinette', vinetteToChange: {outer: {color: '#ff0000', size: 0.8, alpha: 0.8}}, x: 400, y: 325, w: 100, h: 50},
         // {type: 'square-normal-changeSpeed', speedMult: 0.1, x: 400, y: 325, w: 100, h: 50},
         {type: 'square-normal-safe', x: 250, y: 300, w: 50, h: 50},
         {type: 'circle-normal-normal', x: 300, y: 200, r: 25, isGround: false},

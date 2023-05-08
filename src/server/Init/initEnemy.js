@@ -12,7 +12,7 @@ const initEnemyMap = {
     },
     wavy: (e, init) => {
         defineNormal(e, init);
-        e.wavyEnemyDirection = e.angle;
+        e.wavyEnemyDirection = (init.wavyEnemyDirection/Math.sign(init.wavyEnemyDirection)) ?? Math.random() > 0.5 ? 1 : -1;
         e.wavyEnemyPeriod = init.wavyEnemyPeriod ?? 20;// we can actually implement this later, rn this is just an example
         e.wavyEnemyTimer = e.wavyEnemyPeriod //* Math.random();
         e.wavyEnemyRotateSpeed = init.wavyEnemyWaveLength ?? 6;
