@@ -55,6 +55,10 @@ function runObstacleCollisions(player, players, obstacles, tick, client){
             }
         }
     }
+
+    if(player.touching.safe.length > 0){
+		player.dead = false;
+	}
 }
 
 export default {simulateObstacles, runObstacleCollisions};

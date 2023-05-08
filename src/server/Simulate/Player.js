@@ -34,7 +34,7 @@ module.exports = class Player{
         this.spawn = init.map.settings.spawn;
         this.dead = false;
 
-        this.touching = {ground: [], platformer: []};
+        this.touching = {ground: [], platformer: [], safe: []};
         this.axisSpeedMult = {x: 1, y: 1, angle: 0};
 
         this.lastTick = 0;

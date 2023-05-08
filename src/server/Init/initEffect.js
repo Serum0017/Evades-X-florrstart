@@ -51,6 +51,7 @@ const initEffectMap = {
         // changes player movement friction, not those applied to it
         obs.frictionValue = init.frictionValue;
     },
+    safe: (obs, init) => {},
     breakable: (obs, init) => {
         // all timings are in frames
         obs.strength = init.maxStrength;

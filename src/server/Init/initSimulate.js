@@ -42,7 +42,9 @@ const initSimulateMap = {
     },
     enemy: (obs, init) => {
         //{type: 'circle-enemy-normal', bound: {x: 0, y: 0, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/}
+        init.enemyType = init.enemyType.split(',');
         obs.enemyType = init.enemyType;
+        
         obs.bound = {
             x: init.bound.x,
             y: init.bound.y,

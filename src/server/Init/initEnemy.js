@@ -12,8 +12,11 @@ const initEnemyMap = {
     },
     wavy: (e, init) => {
         defineNormal(e, init);
-        e.direction = init.direction;
-        e.period = init.period;// we can actually implement this later, rn this is just an example
+        e.wavyEnemyDirection = e.angle;
+        e.wavyEnemyPeriod = init.wavyEnemyPeriod ?? 20;// we can actually implement this later, rn this is just an example
+        e.wavyEnemyTimer = e.wavyEnemyPeriod //* Math.random();
+        e.wavyEnemyRotateSpeed = init.wavyEnemyWaveLength ?? 6;
+        e.wavyEnemyRotateSpeed *= Math.PI / 180;
     },
     etcetera: (e, init) => {
         
@@ -37,10 +40,15 @@ function initPosition(e, init){
 
 module.exports = function initEnemy(params, advanced) {
     let init = {};
-    if(params.enemyType === undefined || initEnemyMap[params.enemyType] === undefined) {
+    if(Array.isArray(params.enemyType) === false) {
         console.error("Obstacle enemyType undefined! " + JSON.stringify(params)); return;
     }
     initPosition(init, params);
-    initEnemyMap[params.enemyType](init, params, advanced);
+
+    for(let i = 0; i < params.enemyType.length; i++){
+        if(initEnemyMap[params.enemyType[i]] === undefined){console.error("Obstacle enemyType map undefined! " + JSON.stringify(params)); return;}
+        initEnemyMap[params.enemyType[i]](init, params, advanced);
+    }
+    
     return init;
 }

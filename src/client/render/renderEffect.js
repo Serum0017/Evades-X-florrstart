@@ -1,4 +1,5 @@
 import Utils from '../util.js';
+import renderShape from './renderShape.js';
 // ok basically this file basically renders effects
 // wow such insight
 
@@ -17,7 +18,7 @@ const renderEffectMap = {
         ctx.toStroke = true;
         ctx.lineWidth = 2;
     },
-    bounce: (o, ctx, advanced) => {
+    bounce: (o, ctx, { player }) => {
         ctx.fillStyle = 'blue';
     },
     coin: (o, ctx, advanced) => {
@@ -35,6 +36,8 @@ const renderEffectMap = {
     changeMap: (o, ctx, advanced) => {
         if(o.map === 'Winroom'){
             ctx.fillStyle = `hsl(${Date.now()/12},50%,50%)`;
+            ctx.shadowColor = ctx.fillStyle;
+            ctx.shadowBlur = 15;
         } else {
             // rendering acronym
             ctx.font = `${o.difference.x / 3.5}px Inter`;
@@ -72,6 +75,10 @@ const renderEffectMap = {
         ctx.strokeStyle = 'black';
         ctx.globalAlpha = 0.1;
         ctx.toStroke = true;
+    },
+    safe: (o, ctx, { colors }) => {
+        ctx.fillStyle = colors.safe;
+        ctx.globalAlpha = 0.25;
     },
     tp: (o, ctx, advanced) => {
         ctx.fillStyle = 'green';
@@ -134,7 +141,7 @@ const renderEffectMap = {
 
 const renderEffectAfterShapeMap = {
     changeMap: (o, ctx, advanced) => {
-        if(o.map === 'Winroom')return;
+        if(o.map === 'Winroom'){ ctx.shadowBlur = 0; return };
 
         // Note: if ctx.toClip is specified then a renderEffectAfterShape is required to restore ctx.
         ctx.drawImage(Utils.difficultyImages[o.difficulty], o.x - o.difference.x/2, o.y - o.difference.x/2, o.difference.x, o.difference.y);
@@ -148,11 +155,11 @@ const renderEffectAfterShapeMap = {
         
         ctx.restore();
     },
-    coin: (o, ctx, { colors }) => {
+    coin: (o, ctx, advanced) => {
         if(o.coinAmount === 1){
             return;
         }
-        ctx.fillStyle = colors.tile;//'#313131';
+        ctx.fillStyle = advanced.colors.tile;//'#313131';
         ctx.font = `${Math.min(20, o.difference.x/4, o.difference.y/4)}px Inter`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -165,6 +172,7 @@ const renderEffectAfterShapeMap = {
     coindoor: (o, ctx, { colors }) => {
         // render square in the middle saying amount of coins left
         ctx.fillStyle = o.color;
+
         ctx.beginPath();
         ctx.roundRect(o.x-o.difference.x/4, o.y-o.difference.y/4, o.difference.x/2, o.difference.y/2, Math.min(o.difference.x,o.difference.y)/20);
         ctx.fill();
@@ -183,8 +191,8 @@ const renderEffectAfterShapeMap = {
     platformer: (o, ctx, advanced) => {
         // TODO: optimize with pregeneration
         ctx.globalAlpha = 1;
-        for(let x = o.x - o.difference.x/2 + 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
-            for(let y = o.y - o.difference.y/2 + 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
+        for(let x = o.x - o.difference.x/2 + (o.platformerForce * Math.cos(o.platformerAngle) * performance.now()/10) % 50 - 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
+            for(let y = o.y - o.difference.y/2 + (o.platformerForce * Math.sin(o.platformerAngle) * performance.now()/10) % 50 - 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
                 ctx.translate(x,y);
                 ctx.rotate(o.render.platformerAngle+Math.PI/2);
                 ctx.drawImage(Utils.arrowImg, -25, -25, 50, 50);
@@ -243,7 +251,7 @@ const renderEffectAfterShapeMap = {
         ctx.setLineDash([15, 25]);
         
         o.renderCircleSize = Math.min(o.difference.x, o.difference.y)/4;
-        if(o.rotateMovementAngle <= Math.PI/2){
+        if(o.rotateMovementAngle <= Math.PI/2 && o.rotateMovementAngle === 0){
             ctx.translate(-o.renderCircleSize, -o.renderCircleSize)
             o.renderCircleSize *= 2;
         }
@@ -255,6 +263,15 @@ const renderEffectAfterShapeMap = {
         ctx.lineTo(o.x, o.y);
 
         ctx.stroke();
+        ctx.grd = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.renderCircleSize);
+
+        ctx.grd.addColorStop(0, "rgba(255,255,255,0)");
+        ctx.grd.addColorStop(1, "rgba(255,255,255,0.12)");
+
+        ctx.fillStyle = ctx.grd;
+        ctx.fill();
+        
+        ctx.closePath();
 
         ctx.restore();
         ctx.setLineDash([]);

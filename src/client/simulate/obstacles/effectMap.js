@@ -99,6 +99,9 @@ const Effects = {
     resetFriction: (sat, player, obstacle) => {
         player.frictions = {};
     },
+    safe: (sat, player, obstacle) => {
+        player.touching.safe.push(obstacle);
+    },
     tp: (sat, player, obstacle) => {
         player.x = obstacle.tp.x;
         player.y = obstacle.tp.y;
