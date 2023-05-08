@@ -49,7 +49,7 @@ const initEffectMap = {
     },
     changeFriction: (obs, init) => {
         // changes player movement friction, not those applied to it
-        obs.frictionMult = init.frictionMult;
+        obs.frictionValue = init.frictionValue;
     },
     breakable: (obs, init) => {
         // all timings are in frames

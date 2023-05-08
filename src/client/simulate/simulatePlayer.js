@@ -33,11 +33,6 @@ export default function simulatePlayer(p, map) {
 	p.x += p.xv;
 	p.y += p.yv;
 
-	// reset changable parameters
-	p.axisSpeedMult = {x: 1, y: 1, angle: 0};
-	p.friction = 0.4;
-	p.r = 24.5;
-
 	// bound player against the map
 	if (p.x - p.r < 0) {
 		p.x = p.r;
@@ -54,6 +49,11 @@ export default function simulatePlayer(p, map) {
 	
 	p.difference = {x: p.r*2, y: p.r*2};
 	p.body = new SAT.Circle(new SAT.Vector(p.x, p.y), p.r);// temp; will have generation later
+
+	// reset changable parameters
+	p.axisSpeedMult = {x: 1, y: 1, angle: 0};
+	p.friction = 0.4;
+	p.r = 24.5;
 
 	// TODO: make sure other players arent sending/ simulating with this (maybe isolate to a diff function?)
 	if(p.touching.ground.length > 0){

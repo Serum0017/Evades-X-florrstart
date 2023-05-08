@@ -10,7 +10,7 @@ class Collision {
 
         // these need to be specified in the same order
         this.addCollisionMap('circle', 'circle', (circle1, circle2) => {
-            if((circle1.x-circle2.x)**2+(circle1.y-circle2.y)**2 < (circle1.r+circle2.r)**2){
+            if((circle1.x-circle2.x)**2+(circle1.y-circle2.y)**2 < (circle1.body.r+circle2.body.r)**2){
                 const res = new SAT.Response();
                 SAT.testCircleCircle(circle2.body, circle1.body, res);
                 return res;

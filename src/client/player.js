@@ -21,7 +21,7 @@ export default class Player{
 
         this.renderX = this.x;
         this.renderY = this.y;
-        this.renderR = this.r;
+        this.renderR = this.r/4;
 
         this.createSimulateState(performance.now());
     }
@@ -50,7 +50,7 @@ export default class Player{
         this.updateInterpolate();
     }
     updateInterpolate(){
-        this.renderR = this.renderR * 0.9 + this.r * 0.1;
+        this.renderR = this.renderR * 0.917 + this.r * 0.083;
         if(this.dead === true)return;
         const time = (performance.now() - this.lastSimulateState.time) * (60/1000);
         this.renderX = this.lastSimulateState.x * (1-time) + this.x * time;

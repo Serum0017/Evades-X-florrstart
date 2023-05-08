@@ -60,7 +60,7 @@ const renderEffectMap = {
         ctx.globalAlpha = 0.1;
     },
     changeFriction: (o, ctx, advanced) => {
-        if (o.frictionMult > 0.4){
+        if (o.frictionValue > 0.4){
             ctx.fillStyle = '#0e30ad';
         } else {
             ctx.fillStyle = '#1c1852';

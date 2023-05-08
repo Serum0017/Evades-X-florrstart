@@ -81,7 +81,7 @@ const Effects = {
         }
     },
     changeFriction: (sat, player, obstacle, {client}) => {
-        player.friction *= obstacle.frictionMult;
+        player.friction = obstacle.frictionValue;
     },
     breakable: (sat, player, obstacle, {tick}) => {
         if(obstacle.strength > 0){
