@@ -1,3 +1,5 @@
+import transformBody from "./transformBody.js";
+
 const eventEmitterMap = {
     parameterEqualTo: (event, obstacle) => {
         /*eventEmitters: [{type: 'parameterEqualTo', keyChain: ['grav','z'], value: 100, id: 5}*/
@@ -42,6 +44,7 @@ const eventEmitterMap = {
 
 const eventRecieverMap = {
     changeParameter: (reciever, obstacle) => {
+        let lastState = {x: obstacle.x, y: obstacle.y, rotation: obstacle.rotation};
         let value = keyChain(obstacle, reciever.keyChain);
 
         // safeguard to prevent from setting x to undefined
@@ -68,6 +71,18 @@ const eventRecieverMap = {
         }
 
         applyToKeyChain(obstacle, reciever.keyChain, value);
+
+        let toTransform = false;
+        for(let key in lastState){
+            if(lastState[key] !== obstacle[key]){
+                toTransform = true;
+                break;
+            }
+        }
+        // TODO: once growing is implemented implement change in w/h
+        if(toTransform === true){
+            transformBody(obstacle, {x: obstacle.x - lastState.x, y: obstacle.y - lastState.y, rotation: obstacle.rotation - lastState.rotation})
+        }
     }
 }
 
@@ -84,12 +99,14 @@ function keyChain(obj, chain) {
 }
 
 function applyToKeyChain(obj, chain, value){
-    console.log(chain.reduce((accum, currentValue) => accum + `[${currentValue}]`));
     let lookUpString = '';
     for(let i = 0; i < chain.length; i++){
-        loopUpString += '[' + chain[i] + ']';
+        lookUpString += "['" + chain[i].replaceAll(']','') + "']";
     }
-    eval(`obj${lookUpString} = value;`);// TODO: ENSURE THIS IS SAFE!
+    
+    try {
+        eval(`obj${lookUpString} = value;`);// TODO: ENSURE THIS IS SAFE!
+    } catch(e){}
 }
 
 // O(n^4) algorithm 💀
