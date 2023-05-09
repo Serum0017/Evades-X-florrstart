@@ -253,6 +253,7 @@ const IdleEffects = {
 
 function runEffects(sat, player, obstacle, other){
     Effects[obstacle.effect](sat, player, obstacle, other);
+    obstacle.lastCollidedTime = other.tick;
 }
 
 function runIdleEffects(player, obstacle, other){

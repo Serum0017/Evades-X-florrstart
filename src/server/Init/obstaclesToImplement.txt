@@ -26,7 +26,7 @@ Follow (follow another obstacle's parameters ex. follows x, y, moveSpeed of anot
 FollowId (defines id that other obstacles can follow, but doesnt do anything in itself),
 FollowPlayer (copies player's x and y position so that other obstacles can follow this (with interpolation on the other obstacle's end if needed). Boolean value parameter to copy ALL the player's parameters instead of just x and y.),
 EventResponse that triggers something when an event with matching id is fired. Possible things to trigger are:
-    - spawning an obstacle
+    - cloning an obstacle
     - removing an obstacle
     - changing a parameter of this: {keyChain: ['grav','y']}, output: (id, obstacle) => {if(id === this.); this.getKeyInChain(this.eventResponse)/*['grav','x'] turns into this.grav.x*/}
     in practice, an obstacle with an eventResponse could be defined like this: {type: 'square-none-grav',x:0,y:0,w:100,h:100,direction:'down',force:100,eventResponses: [{type: 'changeParameter', id: 5, keyChain: ['amongUs','subparameter']},{type: 'changeParameter'/*you can change multiple parameters with a singular event*/, id: 5/*<- if i wanted to listen for 2 diff events and trigger two different things then i could set this id to 6*/, keyChain: ['otherParameter'/*can be same subparameter or different*/,'otherSubParameter']}]}
@@ -34,6 +34,7 @@ EventEmitters (stuff emits an event with id, eventType, as well as event-specifi
     - parameterEqualTo input: {keyChain: ['grav','x'], value: 3000}, emit: {id, obstacle}
     - parameterLessThan input: {keyChain: ['moveSpeed'], value: 2}, emit: {id, obstacle}
     - parameterGreaterThan input: {keyChain: ['moveSpeed'], value: 2}, emit: {id, obstacle}
+    - timePassed {maxTime: 5, startingTime: 2}/*in ticks*/ emit: {id, obstacle}
     in practice, an obstacle with an eventEmitter could be defined like this: {type: 'square-none-grav',x:0,y:0,w:100,h:100,direction:'down',force:100,eventEmitters: [{type: 'parameterEqualTo', keyChain: ['grav','z'], value: 100, id: 5}/*i could attach another parameterEqualTo to this array to check if its equal to one of two values if i wanted*/]}. If you wanted to get really spicy 
     NOTE: TODO: we should have presets in the editor for common things like an enemy hitting a wall or pushing buttons so that ppl dont get scared away from eventEmitters
 Enemy: 
@@ -131,7 +132,7 @@ simulate
 - ✅ normal, ✅ moving, ✅ rotating, ✅ normalEnemy, ❗spawner (turret), ✅ wavyEnemy
 shape:
 - ✅ square, ✅ circle, ✅ poly
-effect: ✅ snapgrid, ✅ speedchange, ✅ normal, ✅ bouncy, ✅ frictionchange, ✅ radiuschange, ✅ lava, ✅ conveyor, ✅ coin, ❗timeTrap, ✅ coindoor, ✅ breakable, ✅ tp, ✅ frictionChanger, ✅ platformer (will have a lot more settings than semioldevade platformer), ✅ rotateMovement, ✅ restrictAxis, ❗other necessities for managing game like vinetteIncrease/ musicChanger/ etc
+effect: ✅ snapgrid, ✅ speedchange, ✅ normal, ✅ bouncy, ✅ frictionchange, ✅ radiuschange, ✅ lava, ✅ conveyor, ✅ coin, ❗timeTrap, ✅ coindoor, ✅ breakable, ✅ tp, ✅ frictionChanger, ✅ platformer (will have a lot more settings than semioldevade platformer), ✅ rotateMovement, ✅ restrictAxis, other necessities for managing game like ✅ vinetteIncrease/ ❗musicChanger/ etc
 - render:
 some way to do text, cool effects for each obstacle
 
@@ -153,3 +154,7 @@ PoCA: blue/ purple + ocean-like
 PoDD: dark + red -> stereotypical endgame map
 PoTA: dark green + jungle-like
 PoWW: silver + industrial vibes
+
+random ideas:
+- 3d pizza flying around the screen (doesnt do anything, just random troll that i thought would be funny)
+- multiple vinettes

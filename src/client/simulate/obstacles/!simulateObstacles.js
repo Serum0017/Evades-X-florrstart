@@ -2,6 +2,7 @@ import Simulate from './simulateMap.js';
 import Collide from './collisionManager.js';
 import SpatialHash from './spatialHash.js';
 import effectMap from './effectMap.js';
+import eventSystem from './eventSystem.js';
 
 const hash = new SpatialHash();
 
@@ -55,6 +56,8 @@ function runObstacleCollisions(player, players, obstacles, tick, client){
             }
         }
     }
+
+    eventSystem.checkEmmisions(obstacles, {obstacles, players, tick, client});
 
     if(player.touching.safe.length > 0){
 		player.dead = false;

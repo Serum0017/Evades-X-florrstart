@@ -41,5 +41,12 @@ function initGlobal(init){
     if(init.isGround === false){
         obs.isGround = false;
     }
+    // TODO: make sure the props of these make sense via an initEvents.js
+    if(Array.isArray(init.eventEmitters) === true){
+        obs.eventEmitters = init.eventEmitters;
+    }
+    if(Array.isArray(init.eventRecievers) === true){
+        obs.eventRecievers = init.eventRecievers;
+    }
     return obs;
 }
