@@ -58,13 +58,21 @@ const initEffectMap = {
     changeVinette: (obs, init) => {
         obs.vinetteToChange = {
             outer:  {
-                color: toHex(init?.vinetteToChange?.outer?.color,'#000000'),
+                color: {
+                    r: toNumber(init?.vinetteToChange?.outer?.color?.r, 0),
+                    g: toNumber(init?.vinetteToChange?.outer?.color?.g, 0),
+                    b: toNumber(init?.vinetteToChange?.outer?.color?.b, 0)
+                },
                 size: toNumber(init?.vinetteToChange?.outer?.size, 1),
                 alpha: toNumber(init?.vinetteToChange?.outer?.alpha, 0.5)
             },
             inner:  {
-                color: toHex(init?.vinetteToChange?.inner?.color,'#000000'),
-                size: toNumber(init?.vinetteToChange?.inner?.size, 1),
+                color: {
+                    r: toNumber(init?.vinetteToChange?.inner?.color?.r, 0),
+                    g: toNumber(init?.vinetteToChange?.inner?.color?.g, 0),
+                    b: toNumber(init?.vinetteToChange?.inner?.color?.b, 0)
+                },
+                size: toNumber(init?.vinetteToChange?.inner?.size, 0.5),
                 alpha: toNumber(init?.vinetteToChange?.inner?.alpha, 0)
             },
         }

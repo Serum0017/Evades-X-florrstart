@@ -55,6 +55,9 @@ export default class Game {
         // simulate 1 tick
         this.map.simulate();
 
+        // run tickwise rendering stuff
+        this.renderer.updateState();
+
         this.sendState();
     }
     sendState(){

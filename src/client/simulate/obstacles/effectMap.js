@@ -83,7 +83,7 @@ const Effects = {
     changeFriction: (sat, player, obstacle, advanced) => {
         player.friction = obstacle.frictionValue;
     },
-    changeVinette: (sat, player, obstacle, {client}) => {
+    changeVinette: (sat, player, obstacle, {client, tick}) => {
         // TODO: average w/ existing instead of set?
         client.game.renderer.vinette.outer.interpolate = obstacle.vinetteToChange.outer;
         client.game.renderer.vinette.inner.interpolate = obstacle.vinetteToChange.inner;

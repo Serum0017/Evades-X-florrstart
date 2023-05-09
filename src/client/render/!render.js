@@ -22,18 +22,44 @@ export default class Renderer {
 
         this.vinette = {
             outer: {
-                color: '#000000',
+                color: {r: 0, g: 0, b: 0},
                 size: 1,
                 alpha: 0.5,
                 interpolate: {}
             },
             inner: {
-                color: '#000000',
+                color: {r: 0, g: 0, b: 0},
                 size: 0.5,
                 alpha: 0,
                 interpolate: {}
             },
         }
+        // for(let key in this.vinette.inner){
+        //     if(key === 'interpolate'){
+        //         continue;
+        //     } else if(key === 'color'){
+        //         this.vinette.inner.interpolate.color = {
+        //             r: this.vinette.inner.color.r,
+        //             g: this.vinette.inner.color.g,
+        //             b: this.vinette.inner.color.b
+        //         }
+        //     } else {
+        //         this.vinette.inner.interpolate[key] = this.vinette.inner[key];
+        //     }
+        // }
+        // for(let key in this.vinette.outer){
+        //     if(key === 'interpolate'){
+        //         continue;
+        //     } else if(key === 'color'){
+        //         this.vinette.outer.interpolate.color = {
+        //             r: this.vinette.outer.color.r,
+        //             g: this.vinette.outer.color.g,
+        //             b: this.vinette.outer.color.b
+        //         }
+        //     } else {
+        //         this.vinette.outer.interpolate[key] = this.vinette.outer[key];
+        //     }
+        // }
 
         this.colors = {};
         for(let key in this.defaultColors){
@@ -194,39 +220,6 @@ export default class Renderer {
         const outer = this.vinette.outer;
         const inner = this.vinette.inner;
 
-        if(outer.color[0] === '#'){
-            outer.color = this.hex2rgb(outer.color);
-        }
-        if(inner.color[0] === '#'){
-            inner.color = this.hex2rgb(inner.color);
-        }
-
-        // interpolation
-        for(let key in outer.interpolate){
-            if(key === 'color'){
-                outer[key] = mixRgb(outer[key], this.hex2rgb(outer.interpolate[key]), 0.8);
-            } else {
-                outer[key] = 0.8 * outer[key] + 0.2 * outer.interpolate[key];
-            }
-        }
-        for(let key in inner.interpolate){
-            if(key === 'color'){
-                inner[key] = mixRgb(outer[key], this.hex2rgb(outer.interpolate[key]), 0.8);
-            } else {
-                inner[key] = 0.8 * inner[key] + 0.2 * inner.interpolate[key];
-            }
-        }
-        outer.interpolate = {
-            color: '#000000',
-            size: 1,
-            alpha: 0.5
-        };
-        inner.interpolate = {
-            color: '#000000',
-            size: 1,
-            alpha: 0
-        };
-
         const gradient = ctx.createRadialGradient(
             canvas.w / 2,
             canvas.h / 2,
@@ -241,6 +234,48 @@ export default class Renderer {
 
         ctx.fillStyle = gradient;
         ctx.fillRect(0,0,canvas.w,canvas.h);
+    }
+    updateState(){
+        this.updateVinette();
+    }
+    updateVinette(){
+        const outer = this.vinette.outer;
+        const inner = this.vinette.inner;
+
+        // interpolation
+        for(let key in outer.interpolate){
+            if(key === 'color'){
+                outer.color = {
+                    r: 0.9  * outer.color.r + 0.1 * outer.interpolate.color.r,
+                    g: 0.9 * outer.color.g + 0.1 * outer.interpolate.color.g,
+                    b: 0.9 * outer.color.b + 0.1 * outer.interpolate.color.b, 
+                }
+            } else {
+                outer[key] = 0.9 * outer[key] + 0.1 * outer.interpolate[key];
+            }
+        }
+        for(let key in inner.interpolate){
+            if(key === 'color'){
+                inner.color = {
+                    r: 0.9 * inner.color.r + 0.1 * inner.interpolate.color.r,
+                    g: 0.9 * inner.color.g + 0.1 * inner.interpolate.color.g,
+                    b: 0.9 * inner.color.b + 0.1 * inner.interpolate.color.b, 
+                }
+            } else {
+                inner[key] = 0.9 * inner[key] + 0.1 * inner.interpolate[key];
+            }
+        }
+        
+        outer.interpolate = {
+            color: {r: 0, g: 0, b: 0},
+            size: 1,
+            alpha: 0.5
+        };
+        inner.interpolate = {
+            color: {r: 0, g: 0, b: 0},
+            size: 0.5,
+            alpha: 0
+        };
     }
 }
 
