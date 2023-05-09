@@ -1,4 +1,5 @@
 import transformBody from "./transformBody.js";
+import satFactory from "./satFactory.js";
 
 const eventEmitterMap = {
     parameterEqualTo: (event, obstacle) => {
@@ -71,17 +72,23 @@ const eventRecieverMap = {
         }
 
         applyToKeyChain(obstacle, reciever.keyChain, value);
-
-        let toTransform = false;
-        for(let key in lastState){
-            if(lastState[key] !== obstacle[key]){
-                toTransform = true;
-                break;
-            }
-        }
+        
         // TODO: once growing is implemented implement change in w/h
-        if(toTransform === true){
-            transformBody(obstacle, {x: obstacle.x - lastState.x, y: obstacle.y - lastState.y, rotation: obstacle.rotation - lastState.rotation})
+        transformBody(obstacle, {x: obstacle.x - lastState.x, y: obstacle.y - lastState.y, rotation: obstacle.rotation - lastState.rotation});
+    },
+    clone: (reciever, obstacle, { obstacles }) => {
+        obstacles.push(window.structuredClone(obstacle));
+        delete obstacles[obstacles.length-1].eventRecievers;
+        obstacles[obstacles.length-1].body = satFactory.generateSAT(obstacles[obstacles.length-1].body, obstacles[obstacles.length-1]);
+
+        for(let key in reciever.parametersToChange){
+            obstacles[obstacles.length-1][key] = reciever.parametersToChange[key];
+        }
+        for(let key in reciever.parametersToAdd){
+            if(Number.isFinite(reciever.parametersToAdd[key]) === false){
+                continue;
+            }
+            obstacles[obstacles.length-1][key] += reciever.parametersToAdd[key];
         }
     }
 }

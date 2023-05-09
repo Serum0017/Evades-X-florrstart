@@ -8,13 +8,13 @@ const initEffectMap = {
     },
     coin: (obs, init) => {
         obs.collected = false;
-        obs.color = toHex(init.color, '#d6d611');
+        obs.color = init.color ?? '#d6d611';
         obs.coinAmount = toNumber(init.coinAmount, 1);
     },
     coindoor: (obs, init) => {
         obs.maxCoins = toNumber(init.coins, 1);
         obs.coins = toNumber(init.coins, 1);
-        obs.color = toHex(init.color, '#d6d611');
+        obs.color = init.color ?? '#d6d611';
     },
     // TODO: make sure all of these are safe for any input (same for other files)
     changeMap: (obs, init, advanced) => {
