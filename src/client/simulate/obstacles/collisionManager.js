@@ -40,6 +40,12 @@ class Collision {
             }
             return false;
         });
+
+        for(let key in this.collisionMap){
+            this.addCollisionMap('text', key, (text, otherObj) => {
+                return false;
+            });
+        }
     }
 	// outsource this later
     addCollisionMap(type1, type2, fn) {

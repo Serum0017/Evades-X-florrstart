@@ -19,6 +19,31 @@ const renderShapeMap = {
         fsin(o, ctx, advanced);
         ctx.translate(o.x - o.render.x, o.y - o.render.y);
         ctx.closePath();
+    },
+    text: (o, ctx, advanced) => {
+        ctx.translate(o.render.x, o.render.y);
+        ctx.rotate(o.render.rotation);
+
+        ctx.font = `${o.fontSize}px Inter`;
+        if(ctx.toFill === true)ctx.fillText(o.text, 0, 0);
+        if(ctx.toStroke === true)ctx.strokeText(o.text, 0, 0);
+
+        ctx.rotate(-o.render.rotation);
+        ctx.translate(-o.render.x, -o.render.y);
+
+        // bounding box is the best we can do
+        // if(ctx.toClip === true){
+        //     const textBoundingBox = ctx.measureText(o.text);
+        //     // console.log(textBoundingBox);
+        //     ctx.globalAlpha = 1;
+        //     // 
+        //     ctx.save();
+        //     ctx.translate(o.render.x, o.render.y);
+        //     ctx.rotate(o.render.rotation);
+        //     // testRect({x:-textBoundingBox.width/2, y:-textBoundingBox.fontBoundingBoxAscent/2, w:textBoundingBox.width, h:textBoundingBox.fontBoundingBoxAscent}, ctx);
+        //     // ctx.rect(-textBoundingBox.width/2, -textBoundingBox.fontBoundingBoxAscent/2, textBoundingBox.width, textBoundingBox.fontBoundingBoxAscent);
+        //     ctx.clip();
+        // }
     }
 }
 

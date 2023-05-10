@@ -39,22 +39,24 @@ module.exports = {
         // {type: 'square-normal-snapGrid', x: 175-32, y: 375-12, w: 200, h: 150, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
 
         // {type: 'square-normal-changeFriction', frictionValue: 0.9, x: 400, y: 325, w: 100, h: 50},
-        {type: 'square-normal-changeVinette', vinetteToChange: {outer: {color: {r: 20, g: 0, b: 0}, size: 0.05, alpha: 0}, inner: {color: {r: 0, g: 0, b: 0}, size: 0.02, alpha: 1}}, x: 400, y: 325, w: 100, h: 50,
-            eventEmitters: [{type: 'playerDie', maxTime: 5, currentTime: 5, id: 0}],
-            eventRecievers: [
-                {id: 0, type: 'changeParameter', keyChain: ['vinetteToChange','outer','size'], addValue: 0.001},
-                {id: 1, type: 'changeParameter', keyChain: ['vinetteToChange','outer','size'], setValue: 0.05}
-            ],
-        },
         // {type: 'square-normal-changeSpeed', speedMult: 0.1, x: 400, y: 325, w: 100, h: 50},
-        {type: 'square-normal-normal', x: 250, y: 150, w: 50, h: 50,
-            eventRecievers: [
-                {id: 0, type: 'changeParameter', keyChain: ['x'], addValue: 0, toLoop: true, multiplyValue: 1.03},
-                {id: 1, type: 'clone', parametersToSet: {x: 100, y: 100}, parametersToAdd: {x: 50}},
-                {id: 1, type: 'changeParameter', keyChain: ['x'], setValue: 250, toLoop: true}
-            ],
-            eventEmitters: [{type: 'parameterGreaterThan', id: 1, toLoop: true, value: 500, keyChain: ['x']}]
-        },
+
+        // {type: 'square-normal-changeVinette', vinetteToChange: {outer: {color: {r: 20, g: 0, b: 0}, size: 0.05, alpha: 0}, inner: {color: {r: 0, g: 0, b: 0}, size: 0.02, alpha: 1}}, x: 400, y: 325, w: 100, h: 50,
+        //     eventEmitters: [{type: 'playerDie', maxTime: 5, currentTime: 5, id: 0}],
+        //     eventRecievers: [
+        //         {id: 0, type: 'changeParameter', keyChain: ['vinetteToChange','outer','size'], addValue: 0.001},
+        //         {id: 1, type: 'changeParameter', keyChain: ['vinetteToChange','outer','size'], setValue: 0.05}
+        //     ],
+        // },
+        // {type: 'square-normal-normal', x: 250, y: 150, w: 50, h: 50,
+        //     eventRecievers: [
+        //         {id: 0, type: 'changeParameter', keyChain: ['x'], addValue: 0, toLoop: true, multiplyValue: 1.03},
+        //         {id: 1, type: 'clone', parametersToSet: {x: 100, y: 100}, parametersToAdd: {x: 50}},
+        //         {id: 1, type: 'changeParameter', keyChain: ['x'], setValue: 250, toLoop: true}
+        //     ],
+        //     eventEmitters: [{type: 'parameterGreaterThan', id: 1, toLoop: true, value: 500, keyChain: ['x']}]
+        // },
         {type: 'circle-normal-normal', x: 300, y: 200, r: 25, isGround: false},
+        {type: 'text-rotate-conveyor', rotation: 0, pivot: {x: 0, y: 0}, rotateSpeed: 1, text: 'Evades X', fontSize: 30, x: 100, y: 100, r: 25, isGround: false},
     ]
 }

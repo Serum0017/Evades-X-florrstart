@@ -1,5 +1,6 @@
 import Utils from '../util.js';
 
+
 import EffectManager from './renderEffect.js'
 import renderShape from './renderShape.js';
 import renderSimulate from './renderSimulate.js';

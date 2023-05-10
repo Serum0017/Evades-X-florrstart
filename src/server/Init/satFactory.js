@@ -10,6 +10,9 @@ const SATMap = {
     },
     poly: ({ points,x,y }) => {
         return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
+    },
+    text: ({ x,y }) => {
+        return new SAT.Circle(new SAT.Vector(x, y), 0);
     }
 };
 
@@ -98,7 +101,10 @@ const DimensionsMap = {
             // x: (left + right)/2,
             // y: (bottom + top)/2
         };
-    }
+    },
+    text: ({w, h}) => {
+        return {difference: {x: 0, y: 0}};
+    },
 }
 
 function generateDimensions(obstacle){

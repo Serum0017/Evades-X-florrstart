@@ -4,7 +4,7 @@ function generateSAT(body, obstacle){
     if(obstacle.shape === 'poly'){
         sat = new SAT.Polygon(new SAT.Vector());
         initPolySAT(sat, body);
-    } else if(obstacle.shape === 'circle'){
+    } else if(obstacle.shape === 'circle' || obstacle.shape === 'text'){
         sat = new SAT.Circle(new SAT.Vector());
         initCircleSAT(sat, body);
     }

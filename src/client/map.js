@@ -2,6 +2,11 @@ import Player from './player.js';
 import ObstacleManager from './simulate/obstacles/!simulateObstacles.js';
 import satFactory from './simulate/obstacles/satFactory.js';
 
+// TODO: REMOVE TEMP
+import Utils from '../util.js';
+let canvas = Utils.ref.canvas;
+let ctx = canvas.getContext('2d');
+
 export default class Map {
     constructor(client){
         this.client = client;
@@ -31,6 +36,14 @@ export default class Map {
 
         for(let i = 0; i < this.obstacles.length; i++){
             this.obstacles[i].body = satFactory.generateSAT(this.obstacles[i].body, this.obstacles[i]);
+            if(this.obstacles[i].shape === 'text'){// TODO: REMOVE TEMP
+                ctx.font = `${this.obstacles[i].fontSize}px Inter`;
+                const textBoundingBox = ctx.measureText(this.obstacles[i].text);
+                this.obstacles[i].difference = {
+                    x: textBoundingBox.width,
+                    y: textBoundingBox.fontBoundingBoxAscent
+                };
+            }
         }
 
         console.log(this.obstacles);

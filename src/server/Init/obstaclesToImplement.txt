@@ -132,7 +132,7 @@ simulate
 - ✅ normal, ✅ moving, ✅ rotating, ✅ normalEnemy, ✅ spawner (turret), ✅ wavyEnemy
 shape:
 - ✅ square, ✅ circle, ✅ poly
-effect: ✅ snapgrid, ✅ speedchange, ✅ normal, ✅ bouncy, ✅ frictionchange, ✅ radiuschange, ✅ lava, ✅ conveyor, ✅ coin, ✅timeTrap, ✅ coindoor, ✅ breakable, ✅ tp, ✅ frictionChanger, ✅ platformer (will have a lot more settings than semioldevade platformer), ✅ rotateMovement, ✅ restrictAxis, other necessities for managing game like ✅ vinetteIncrease/ ❗musicChanger/ etc
+effect: ❗none (no bounding or anything), ✅ snapgrid, ✅ speedchange, ✅ normal, ✅ bouncy, ✅ frictionchange, ✅ radiuschange, ✅ lava, ✅ conveyor, ✅ coin, ✅timeTrap, ✅ coindoor, ✅ breakable, ✅ tp, ✅ frictionChanger, ✅ platformer (will have a lot more settings than semioldevade platformer), ✅ rotateMovement, ✅ restrictAxis, other necessities for managing game like ✅ vinetteIncrease/ ❗musicChanger/ etc
 - render:
 some way to do text, cool effects for each obstacle
 
