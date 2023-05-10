@@ -56,5 +56,5 @@ module.exports = {
             eventEmitters: [{type: 'parameterGreaterThan', id: 1, toLoop: true, value: 500, keyChain: ['x']}]
         },
         {type: 'circle-normal-normal', x: 300, y: 200, r: 25, isGround: false},
-    ]
+    ]// TODO: add collision response back
 }
