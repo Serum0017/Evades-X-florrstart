@@ -27,7 +27,7 @@ const eventEmitterMap = {
         }
         return false;
     },
-    enterCollisionWithPlayer: (event, obstacle, { tick }) => {
+    enterCollisionWithPlayer: (event, obstacle) => {
         // if obstacle wasnt colliding last frame but colliding this frame
         if(obstacle.lastlastCollidedTime === undefined && obstacle.lastCollidedTime !== undefined){
             obstacle.lastlastCollidedTime = obstacle.lastCollidedTime;
@@ -46,13 +46,41 @@ const eventEmitterMap = {
         }
         return false;
     },
-    exitCollisionWithPlayer: (event, obstacle, { tick }) => {
+    exitCollisionWithPlayer: (event, obstacle) => {
         // if obstacle wasnt colliding last frame but colliding this frame
         if(obstacle.lastlastCollidedTime !== undefined && obstacle.lastCollidedTime === undefined){
             obstacle.lastlastCollidedTime = obstacle.lastCollidedTime;
             return true;
         }
         obstacle.lastlastCollidedTime = obstacle.lastCollidedTime;
+        return false;
+    },
+    playerRespawn: (event, obstacle, { player }) => {
+        // if player is alive but wasnt alive last frame
+        if(player.dead !== true && event.lastPlayerDead === true){
+            event.lastPlayerDead = player.dead;
+            return true;
+        }
+        event.lastPlayerDead = player.dead;
+        return false;
+    },
+    playerIsDead: (event, obstacle, { player }) => {
+        if(player.dead === true){
+            event.currentTime--;
+            if(event.currentTime < 0){
+                event.currentTime = event.maxTime;
+                return true;
+            }
+        }
+        return false;
+    },
+    playerDie: (event, obstacle, { player }) => {
+        // if player is dead but wasnt dead last frame
+        if(player.dead === true && event.lastPlayerDead !== true){
+            event.lastPlayerDead = player.dead;
+            return true;
+        }
+        event.lastPlayerDead = player.dead;
         return false;
     },
     timePassed: (event, obstacle) => {

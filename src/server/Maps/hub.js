@@ -40,7 +40,7 @@ module.exports = {
 
         // {type: 'square-normal-changeFriction', frictionValue: 0.9, x: 400, y: 325, w: 100, h: 50},
         {type: 'square-normal-changeVinette', vinetteToChange: {outer: {color: {r: 20, g: 0, b: 0}, size: 0.05, alpha: 0}, inner: {color: {r: 0, g: 0, b: 0}, size: 0.02, alpha: 1}}, x: 400, y: 325, w: 100, h: 50,
-            eventEmitters: [{type: 'exitCollisionWithPlayer', maxTime: 5, currentTime: 5, id: 0}],
+            eventEmitters: [{type: 'playerDie', maxTime: 5, currentTime: 5, id: 0}],
             eventRecievers: [
                 {id: 0, type: 'changeParameter', keyChain: ['vinetteToChange','outer','size'], addValue: 0.001},
                 {id: 1, type: 'changeParameter', keyChain: ['vinetteToChange','outer','size'], setValue: 0.05}
@@ -56,5 +56,5 @@ module.exports = {
             eventEmitters: [{type: 'parameterGreaterThan', id: 1, toLoop: true, value: 500, keyChain: ['x']}]
         },
         {type: 'circle-normal-normal', x: 300, y: 200, r: 25, isGround: false},
-    ]// TODO: add collision response back
+    ]
 }

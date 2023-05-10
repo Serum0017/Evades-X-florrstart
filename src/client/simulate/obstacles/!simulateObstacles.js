@@ -60,7 +60,7 @@ function runObstacleCollisions(player, players, obstacles, tick, client){
         }
     }
 
-    eventSystem.checkEmmisions(obstacles, {obstacles, players, tick, client});
+    eventSystem.checkEmmisions(obstacles, {obstacles, player, players, tick, client});
 
     if(player.touching.safe.length > 0){
 		player.dead = false;
