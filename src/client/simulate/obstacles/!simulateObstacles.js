@@ -53,6 +53,9 @@ function runObstacleCollisions(player, players, obstacles, tick, client){
             if(response !== false){
                 // run collision response
                 effectMap.runEffects(response, player, obstacles[i], {obstacles, players, tick, client});
+                obstacles[i].lastCollidedTime = tick;
+            } else {
+                obstacles[i].lastCollidedTime = undefined;
             }
         }
     }

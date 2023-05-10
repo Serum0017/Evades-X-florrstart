@@ -27,12 +27,34 @@ const eventEmitterMap = {
         }
         return false;
     },
-    // collidedWithPlayer: (event, obstacle, {tick}) => {
-    //     if(obstacle.lastCollidedTime === tick){
-    //         return true;
-    //     }
-    //     return false;
-    // },
+    enterCollisionWithPlayer: (event, obstacle, { tick }) => {
+        // if obstacle wasnt colliding last frame but colliding this frame
+        if(obstacle.lastlastCollidedTime === undefined && obstacle.lastCollidedTime !== undefined){
+            obstacle.lastlastCollidedTime = obstacle.lastCollidedTime;
+            return true;
+        }
+        obstacle.lastlastCollidedTime = obstacle.lastCollidedTime;
+        return false;
+    },
+    collidedWithPlayer: (event, obstacle, { tick }) => {
+        if(obstacle.lastCollidedTime === tick){
+            event.currentTime--;
+            if(event.currentTime < 0){
+                event.currentTime = event.maxTime;
+                return true;
+            }
+        }
+        return false;
+    },
+    exitCollisionWithPlayer: (event, obstacle, { tick }) => {
+        // if obstacle wasnt colliding last frame but colliding this frame
+        if(obstacle.lastlastCollidedTime !== undefined && obstacle.lastCollidedTime === undefined){
+            obstacle.lastlastCollidedTime = obstacle.lastCollidedTime;
+            return true;
+        }
+        obstacle.lastlastCollidedTime = obstacle.lastCollidedTime;
+        return false;
+    },
     timePassed: (event, obstacle) => {
         event.currentTime--;
         if(event.currentTime < 0){
@@ -138,7 +160,7 @@ function checkEmmisions(obstacles, advanced){
     for(let i = 0; i < obstacles.length; i++){
         if(obstacles[i].eventEmitters === undefined){ continue; }
         for(let j = 0; j < obstacles[i].eventEmitters.length; j++){
-            if(eventEmitterMap[obstacles[i].eventEmitters[j].type](obstacles[i].eventEmitters[j], obstacles[i]) === true && obstacles[i].eventEmitters[j].finished !== true){
+            if(eventEmitterMap[obstacles[i].eventEmitters[j].type](obstacles[i].eventEmitters[j], obstacles[i], advanced) === true && obstacles[i].eventEmitters[j].finished !== true){
                 emitEvent(obstacles, obstacles[i].eventEmitters[j].id, advanced);
                 // if(obstacles[i].eventEmitters[j].toLoop === false){
                 //     obstacles[i].eventEmitters[j].finished = true;
