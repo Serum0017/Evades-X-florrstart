@@ -77,19 +77,26 @@ const eventRecieverMap = {
         transformBody(obstacle, {x: obstacle.x - lastState.x, y: obstacle.y - lastState.y, rotation: obstacle.rotation - lastState.rotation});
     },
     clone: (reciever, obstacle, { obstacles }) => {
-        obstacles.push(window.structuredClone(obstacle));
-        delete obstacles[obstacles.length-1].eventRecievers;
-        obstacles[obstacles.length-1].body = satFactory.generateSAT(obstacles[obstacles.length-1].body, obstacles[obstacles.length-1]);
+        let clone = window.structuredClone(obstacle);
 
-        for(let key in reciever.parametersToChange){
-            obstacles[obstacles.length-1][key] = reciever.parametersToChange[key];
+        delete clone.eventEmitters;
+        delete clone.eventRecievers;
+
+        for(let key in reciever.parametersToSet){
+            clone[key] = reciever.parametersToSet[key];
         }
         for(let key in reciever.parametersToAdd){
             if(Number.isFinite(reciever.parametersToAdd[key]) === false){
                 continue;
             }
-            obstacles[obstacles.length-1][key] += reciever.parametersToAdd[key];
+            clone[key] += reciever.parametersToAdd[key];
         }
+
+        clone.body = satFactory.generateSAT(clone.body, clone);
+
+        transformBody(clone, {x: clone.x - obstacle.x, y: clone.y - obstacle.y, rotation: clone.rotation - obstacle.rotation});
+
+        obstacles.push(clone);
     }
 }
 
@@ -105,6 +112,16 @@ function keyChain(obj, chain) {
     return subObject;
 }
 
+// story behind this algo:
+// this was my first stackoverflow question
+// posted the question on 5/9
+// got an answer the same day
+// thank you to unmitigated 4 working answer :D
+// function applyToKeyChain(obj, chain, value){
+//     const last = chain.pop();
+//     chain.reduce((acc, k) => acc[k], obj)[last] = value;
+//     console.log(obj);
+// }
 function applyToKeyChain(obj, chain, value){
     let lookUpString = '';
     for(let i = 0; i < chain.length; i++){
@@ -121,8 +138,11 @@ function checkEmmisions(obstacles, advanced){
     for(let i = 0; i < obstacles.length; i++){
         if(obstacles[i].eventEmitters === undefined){ continue; }
         for(let j = 0; j < obstacles[i].eventEmitters.length; j++){
-            if(eventEmitterMap[obstacles[i].eventEmitters[j].type](obstacles[i].eventEmitters[j], obstacles[i]) === true){
+            if(eventEmitterMap[obstacles[i].eventEmitters[j].type](obstacles[i].eventEmitters[j], obstacles[i]) === true && obstacles[i].eventEmitters[j].finished !== true){
                 emitEvent(obstacles, obstacles[i].eventEmitters[j].id, advanced);
+                // if(obstacles[i].eventEmitters[j].toLoop === false){
+                //     obstacles[i].eventEmitters[j].finished = true;
+                // }
             }
         }
     }
@@ -132,8 +152,11 @@ function emitEvent(obstacles, id, advanced){
     for(let i = 0; i < obstacles.length; i++){
         if(obstacles[i].eventRecievers === undefined){ continue; }
         for(let j = 0; j < obstacles[i].eventRecievers.length; j++){
-            if(obstacles[i].eventRecievers[j].id === id){
+            if(obstacles[i].eventRecievers[j].id === id && obstacles[i].eventRecievers[j].finished !== true){
                 eventRecieverMap[obstacles[i].eventRecievers[j].type](obstacles[i].eventRecievers[j], obstacles[i], advanced);
+                if(obstacles[i].eventRecievers[j].toLoop !== true){
+                    obstacles[i].eventRecievers[j].finished = true;
+                }
             }
         }
     }
