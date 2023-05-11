@@ -21,39 +21,31 @@ const renderShapeMap = {
         ctx.closePath();
     },
     text: (o, ctx, advanced) => {
-        ctx.translate(o.render.x - o.x + o.body.pos.x, o.render.y - o.y + o.body.pos.y);
-        ctx.rotate(o.render.rotation);
+        // renderShapeMap.poly(o, ctx, advanced);
+        o.averagePointsPosition = {x: o.body.calcPoints.reduce((acc, point) => acc + point.x, 0), y: o.body.calcPoints.reduce((acc, point) => acc + point.y, 0)};
+        o.averagePointsPosition.x /= o.body.calcPoints.length;
+        o.averagePointsPosition.y /= o.body.calcPoints.length;
+
+        ctx.translate(o.body.pos.x + o.averagePointsPosition.x + o.render.x - o.x, o.body.pos.y + o.averagePointsPosition.y + o.render.y - o.y);
 
         ctx.font = `${o.fontSize}px Inter`;
         ctx.textBaseline = 'middle';
         ctx.textAlign = 'center';
+        ctx.rotate(o.render.rotation/2);
         if(ctx.toFill === true)ctx.fillText(o.text, 0, 0);
         if(ctx.toStroke === true)ctx.strokeText(o.text, 0, 0);
+        ctx.rotate(-o.render.rotation/2);
 
-        ctx.rotate(-o.render.rotation);
-        ctx.translate(-o.render.x + o.x - o.body.pos.x, -o.render.y + o.y - o.body.pos.y);
+        ctx.translate(-o.body.pos.x - o.averagePointsPosition.x - o.render.x + o.x, -o.body.pos.y - o.averagePointsPosition.y - o.render.y + o.y)
 
-        // bounding box is the best we can do
-        // if(ctx.toClip === true){
-        //     const textBoundingBox = ctx.measureText(o.text);
-        //     // console.log(textBoundingBox);
-        //     ctx.globalAlpha = 1;
-        //     // 
-        //     ctx.save();
-        //     ctx.translate(o.render.x, o.render.y);
-        //     ctx.rotate(o.render.rotation);
-        //     // testRect({x:-textBoundingBox.width/2, y:-textBoundingBox.fontBoundingBoxAscent/2, w:textBoundingBox.width, h:textBoundingBox.fontBoundingBoxAscent}, ctx);
-        //     // ctx.rect(-textBoundingBox.width/2, -textBoundingBox.fontBoundingBoxAscent/2, textBoundingBox.width, textBoundingBox.fontBoundingBoxAscent);
-        //     ctx.clip();
-        // }
+        // // bounding box is the best we can do
         if(ctx.toClip === true){
             ctx.save();
-            ctx.translate(o.render.x - o.x + o.body.pos.x, o.render.y - o.y + o.body.pos.y);
-            ctx.rotate(o.render.rotation);
+            // ctx.translate(o.render.x - o.x, o.render.y - o.y);
             ctx.beginPath();
-            ctx.rect(-o.difference.x/2, -o.difference.y/2, o.difference.x, o.difference.y);
-            // ctx.clip();
-            ctx.fill();
+            renderShapeMap.poly(o, ctx, advanced);
+            ctx.clip();
+            // ctx.fill();
         }
     }
 }
