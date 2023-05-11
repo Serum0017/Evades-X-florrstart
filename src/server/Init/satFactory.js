@@ -1,3 +1,7 @@
+const { createCanvas } = require('canvas');
+const canvas = createCanvas(1,1);
+const ctx = canvas.getContext('2d');
+
 // SATFactory.generateSAT.circle(x,y,r);
 const SAT = require('sat');//require('sat');
 
@@ -11,8 +15,12 @@ const SATMap = {
     poly: ({ points,x,y }) => {
         return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
     },
-    text: ({ x,y }) => {
-        return new SAT.Circle(new SAT.Vector(x, y), 0);
+    text: ({ x,y,text,fontSize }) => {
+        ctx.font = `${fontSize}px Inter`;
+        const textMeasurements = ctx.measureText(text);
+        const w = textMeasurements.width;
+        const h = textMeasurements.actualBoundingBoxAscent;
+        return new SAT.Box(new SAT.Vector(x, y), w, h).toPolygon();
     }
 };
 
@@ -47,7 +55,6 @@ function generateBody(obstacle) {
 
     if(obstacle.shape === 'square'){
         init.shape = 'poly';
-        // console.log(init.body);
     }
 
     return init;
@@ -102,8 +109,10 @@ const DimensionsMap = {
             // y: (bottom + top)/2
         };
     },
-    text: ({w, h}) => {
-        return {difference: {x: 0, y: 0}};
+    text: ({ text,fontSize }) => {
+        ctx.font = `${fontSize}px Inter`;
+        const textMeasurements = ctx.measureText(text);
+        return {difference: {x: textMeasurements.width, y: textMeasurements.actualBoundingBoxAscent}};
     },
 }
 

@@ -1,10 +1,10 @@
 // recreating the sat given the old sat
 function generateSAT(body, obstacle){
     let sat;
-    if(obstacle.shape === 'poly'){
+    if(obstacle.shape === 'poly' || obstacle.shape === 'text'){
         sat = new SAT.Polygon(new SAT.Vector());
         initPolySAT(sat, body);
-    } else if(obstacle.shape === 'circle' || obstacle.shape === 'text'){
+    } else if(obstacle.shape === 'circle'){
         sat = new SAT.Circle(new SAT.Vector());
         initCircleSAT(sat, body);
     }

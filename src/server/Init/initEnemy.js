@@ -24,7 +24,6 @@ const initEnemyMap = {
 };
 
 function initPosition(e, init){
-    // TODO: fix poly not translating to bound in some global system
     if(!isNaN(init.x)){
         e.x = init.x;
     } else {

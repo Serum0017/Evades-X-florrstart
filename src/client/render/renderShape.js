@@ -21,15 +21,17 @@ const renderShapeMap = {
         ctx.closePath();
     },
     text: (o, ctx, advanced) => {
-        ctx.translate(o.render.x, o.render.y);
+        ctx.translate(o.render.x - o.x + o.body.pos.x, o.render.y - o.y + o.body.pos.y);
         ctx.rotate(o.render.rotation);
 
         ctx.font = `${o.fontSize}px Inter`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
         if(ctx.toFill === true)ctx.fillText(o.text, 0, 0);
         if(ctx.toStroke === true)ctx.strokeText(o.text, 0, 0);
 
         ctx.rotate(-o.render.rotation);
-        ctx.translate(-o.render.x, -o.render.y);
+        ctx.translate(-o.render.x + o.x - o.body.pos.x, -o.render.y + o.y - o.body.pos.y);
 
         // bounding box is the best we can do
         // if(ctx.toClip === true){
@@ -44,6 +46,15 @@ const renderShapeMap = {
         //     // ctx.rect(-textBoundingBox.width/2, -textBoundingBox.fontBoundingBoxAscent/2, textBoundingBox.width, textBoundingBox.fontBoundingBoxAscent);
         //     ctx.clip();
         // }
+        if(ctx.toClip === true){
+            ctx.save();
+            ctx.translate(o.render.x - o.x + o.body.pos.x, o.render.y - o.y + o.body.pos.y);
+            ctx.rotate(o.render.rotation);
+            ctx.beginPath();
+            ctx.rect(-o.difference.x/2, -o.difference.y/2, o.difference.x, o.difference.y);
+            // ctx.clip();
+            ctx.fill();
+        }
     }
 }
 

@@ -75,6 +75,7 @@ const renderEffectMap = {
     resetFriction: (o, ctx, advanced) => {
         ctx.fillStyle = 'orange';
         ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
         ctx.globalAlpha = 0.1;
         ctx.toStroke = true;
     },
@@ -309,6 +310,7 @@ const renderEffectAfterShapeMap = {
     },
     snapGrid: (o, ctx, { player }) => {
         ctx.strokeStyle = mixHex('#0f0000', '#000000', Math.max(0,o.render.snapCooldown) / o.maxSnapCooldown);
+        ctx.lineWidth = 2;
         ctx.globalAlpha = 0.25;
         ctx.translate(o.x, o.y);
 

@@ -132,9 +132,11 @@ simulate
 - ✅ normal, ✅ moving, ✅ rotating, ✅ normalEnemy, ✅ spawner (turret), ✅ wavyEnemy
 shape:
 - ✅ square, ✅ circle, ✅ poly
-effect: ❗none (no bounding or anything), ✅ snapgrid, ✅ speedchange, ✅ normal, ✅ bouncy, ✅ frictionchange, ✅ radiuschange, ✅ lava, ✅ conveyor, ✅ coin, ✅timeTrap, ✅ coindoor, ✅ breakable, ✅ tp, ✅ frictionChanger, ✅ platformer (will have a lot more settings than semioldevade platformer), ✅ rotateMovement, ✅ restrictAxis, other necessities for managing game like ✅ vinetteIncrease/ ❗musicChanger/ etc
-- render:
+effect: ✅ snapgrid, ✅ speedchange, ✅ normal, ✅ bouncy, ✅ frictionchange, ✅ radiuschange, ✅ lava, ✅ conveyor, ✅ coin, ✅timeTrap, ✅ coindoor, ✅ breakable, ✅ tp, ✅ frictionChanger, ✅ platformer (will have a lot more settings than semioldevade platformer), ✅ rotateMovement, ✅ restrictAxis, other necessities for managing game like ✅ vinetteIncrease/ ❗musicChanger/ etc
+- ❗render:
 some way to do text, cool effects for each obstacle
+- bugs:
+❗type: 'square-normal-snapGrid', x: 175-32, y: 375-12, w: 150, h: 150, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2 or similar snapGrids not rendering the rects all the way to the edges
 
 Core Mechanics:
 - account system + usernames
