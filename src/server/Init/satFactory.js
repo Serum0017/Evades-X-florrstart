@@ -117,6 +117,7 @@ const DimensionsMap = {
 }
 
 function generateDimensions(obstacle){
+    if(!DimensionsMap[obstacle.shape])console.log(obstacle.shape);
     return DimensionsMap[obstacle.shape](obstacle);
 }
 

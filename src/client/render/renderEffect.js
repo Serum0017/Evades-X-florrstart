@@ -227,7 +227,7 @@ const renderEffectAfterShapeMap = {
         ctx.beginPath();
         ctx.translate(o.x,o.y);
         ctx.rotate(o.render.rotateMovementAngle);
-        o.rotateMovementExpansion = Math.ceil((Math.max(o.difference.x,o.difference.y)**2/Math.sqrt(o.difference.x**2+o.difference.y**2))/50)*50;
+        o.rotateMovementExpansion = Math.ceil((Math.max(o.difference.x,o.difference.y)**2/Math.sqrt(o.difference.x**2+o.difference.y**2))/50+1)*50;
 
         ctx.globalAlpha = o.axisSpeedMult > 1 ? 1 : Math.max(0,1-Math.abs(o.axisSpeedMult));
         
@@ -317,8 +317,8 @@ const renderEffectAfterShapeMap = {
         o.snapRotateMovementExpansion = {
             base: (Math.max(o.difference.x,o.difference.y)**2/Math.sqrt(o.difference.x**2+o.difference.y**2))
         }
-        o.snapRotateMovementExpansion.x = Math.ceil(o.snapRotateMovementExpansion.base/o.snapDistance.x)*o.snapDistance.x
-        o.snapRotateMovementExpansion.y = Math.ceil(o.snapRotateMovementExpansion.base/o.snapDistance.y)*o.snapDistance.y
+        o.snapRotateMovementExpansion.x = Math.ceil(o.snapRotateMovementExpansion.base/o.snapDistance.x+1)*o.snapDistance.x;
+        o.snapRotateMovementExpansion.y = Math.ceil(o.snapRotateMovementExpansion.base/o.snapDistance.y+1)*o.snapDistance.y;
 
         ctx.rotate(o.render.snapAngle);
 

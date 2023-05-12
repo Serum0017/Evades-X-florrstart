@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "clipboardy": "^3.0.0"
+  },
+  "name": "semioldevademapconverter",
+  "version": "1.0.0",
+  "main": "!conversionClasses.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./!mapToNewEvadeConverter.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
