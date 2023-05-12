@@ -62,6 +62,6 @@ module.exports = {
 
         // {type: 'text-rotate-snapGrid', x: 150, y: 200, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, text: 'Evades X', fontSize: 60 /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
         
-        // {type: 'text-rotate-conveyor', rotation: 0, pivot: {x: 200, y: 200}, rotateSpeed: .5, text: 'Go right.', fontSize: 30, x: 100, y: 100, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, isGround: false},
+        {type: 'text-rotate-conveyor', rotation: 0, pivot: {x: 0, y: 0}, rotateSpeed: .5, text: 'Go right.', fontSize: 30, x: 200, y: 200, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, isGround: false},
     ]
 }

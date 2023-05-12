@@ -62,7 +62,7 @@ const Effects = {
             client.game.lastRequestedMapTime = performance.now();
         }
     },
-    changeColor: (sat, player, obstacle, advanced) => {
+    changeColor: (sat, player, obstacle, { client }) => {
         client.game.renderer.colors = obstacle.colorsToChange;
     },
     changeSpeed: (sat, player, obstacle, advanced) => {

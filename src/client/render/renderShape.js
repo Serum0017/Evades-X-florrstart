@@ -22,21 +22,20 @@ const renderShapeMap = {
     },
     text: (o, ctx, advanced) => {
         // renderShapeMap.poly(o, ctx, advanced);
-        o.averagePointsPosition = {x: o.body.calcPoints.reduce((acc, point) => acc + point.x, 0), y: o.body.calcPoints.reduce((acc, point) => acc + point.y, 0)};
-        o.averagePointsPosition.x /= o.body.calcPoints.length;
-        o.averagePointsPosition.y /= o.body.calcPoints.length;
 
-        ctx.translate(o.body.pos.x + o.averagePointsPosition.x + o.render.x - o.x, o.body.pos.y + o.averagePointsPosition.y + o.render.y - o.y);
+        ctx.translate(o.body.pos.x + o.body.calcPoints[0].x + o.render.x - o.x, o.body.pos.y + o.body.calcPoints[0].y + o.render.y - o.y);
 
         ctx.font = `${o.fontSize}px Inter`;
-        ctx.textBaseline = 'middle';
-        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.textAlign = 'left';
         ctx.rotate(o.render.rotation/2);
+
         if(ctx.toFill === true)ctx.fillText(o.text, 0, 0);
         if(ctx.toStroke === true)ctx.strokeText(o.text, 0, 0);
+
         ctx.rotate(-o.render.rotation/2);
 
-        ctx.translate(-o.body.pos.x - o.averagePointsPosition.x - o.render.x + o.x, -o.body.pos.y - o.averagePointsPosition.y - o.render.y + o.y)
+        ctx.translate(-o.body.pos.x - o.body.calcPoints[0].x - o.render.x + o.x, -o.body.pos.y - o.body.calcPoints[0].y - o.render.y + o.y)
 
         // // bounding box is the best we can do
         if(ctx.toClip === true){
