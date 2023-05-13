@@ -160,7 +160,7 @@ function toHex(hex, defaultHex="#ff0000"){
     }
     for(let i = 0; i < hex.length; i++){
         if(i === 0 && hex[i] === '#')continue;
-        if(Number.isFinite(hex[i]) === true)continue;
+        if(Number.isFinite(parseInt(hex[i], 16)) === true)continue;
         return defaultHex;
     }
     return hex;

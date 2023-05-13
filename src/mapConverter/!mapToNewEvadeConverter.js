@@ -1,14 +1,16 @@
-const map = require('./oldhub.js');
+const map = require('./poca.js');
+const typeConversion = require('./!typeConversion.js')
+const obstacles = require('./!conversionClasses.js');
 // const clipboardy = require('clipboardy');
 
-let converted = newEvade(map);
+let converted = newEvade(map, false);
 
 // Copy
 // clipboardy.writeSync(converted);
-console.log(JSON.stringify(converted))
+// console.log(JSON.stringify(converted))
 
 // converting old evade maps to new Evade
-function newEvade(map){
+function newEvade(map, isSerialized=false){
     // SECTIONS
 
 
@@ -37,15 +39,18 @@ function newEvade(map){
 
     // convert obstacles to classes
     for(let i = 0; i < map.obstacles.length; i++){
-        if(Array.isArray(map.obstacles[i]) == true){
-            // for example, if we have a tp obstacle that changes color, we want the tp and colorchange obstacle to be 2 separate obstacles instead of 1
-            for(let j = 0; j < map.obstacles[i].length; j++){
-                newMap.init.push(map.obstacles[i][j]);
-            }
-        } else {
-            newMap.init.push(map.obstacles[i]);
-        }
+        initObstacle(map.obstacles[i], newMap.init, isSerialized);
     }
+
+    // making obselete settings into obstacles
+    newMap.init.push({
+        type: 'square-normal-changeColor',
+        x: map.playerSpawn.x,
+        y: map.playerSpawn.y,
+        w: 1, h: 1,
+        tileColor: map.bgColor,
+        backgroundColor: map.tileColor
+    })
     
     // handling other types like safes and texts
 
@@ -53,4 +58,20 @@ function newEvade(map){
     return newMap;
 }
 
-module.exports = newEvade;
+function initObstacle(o, init, isSerialized){
+    if(typeConversion.supportedObjects[o.type] === undefined)return;
+    if(isSerialized === false){
+        o = serializeObstacle(o);
+    }
+    if(Array.isArray(o)){
+        o.map(subO => initObstacle(subO, init, isSerialized));
+    } else {
+        init.push(o);
+    }
+}
+
+function serializeObstacle(o){
+    return new typeConversion.supportedObjects[o.type](...typeConversion.mappedPara[o.type].map(parameter => o[parameter]));
+}
+
+module.exports = converted;// newEvade;

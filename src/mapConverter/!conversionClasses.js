@@ -31,12 +31,12 @@ class RotatingLava {
         let pivot = {x: w/2, y: h/2};
         // if(pivotX !== undefined && pivotY !== undefined){
         //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
-        // } else if(distToPivot !== undefined){
-        //     pivot = {x: w/2+distToPivot, y: h/2};
-        // }
+        /*} else*/ if(distToPivot !== undefined){
+            pivot = {x: w/2+distToPivot, y: h/2};
+        }
         return {
             type: 'square-rotate-lava',
-            x:x+w/2,y:y+h/2,w,h,rotateSpeed: spd/eq400,rotation: angle, pivot, solid: canCollide
+            x:x+w/2,y:y+h/2,w,h,rotateSpeed: spd/200,rotation: angle, pivot, solid: canCollide
         }
 	}
 }
@@ -46,12 +46,12 @@ class RotatingNormal{
         let pivot = {x: w/2, y: h/2};
         // if(pivotX !== undefined && pivotY !== undefined){
         //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
-        // } else if(distToPivot !== undefined){
-        //     pivot = {x: w/2+distToPivot, y: h/2};
-        // }
+        /*} else*/ if(distToPivot !== undefined){
+            pivot = {x: w/2+distToPivot, y: h/2};
+        }
         return {
             type: 'square-rotate-normal',
-            x:x+w/2,y:y+h/2,w,h,rotateSpeed: spd/1000,rotation: angle, pivot, solid: canCollide
+            x:x+w/2,y:y+h/2,w,h,rotateSpeed: spd/200,rotation: angle, pivot, solid: canCollide
         }
     }
 }
@@ -61,7 +61,7 @@ class BouncyObstacle {
         //{type: 'square-rotate-bounce', w: 50, h: 50, x: 100, y: 0, rotation: 0, rotateSpeed: -1, pivot: {x: 150, y: 150}},
         return {
             type: 'square-normal-bounce',
-            x:x+w/2,y:y+h/2,w,h,bounciness: effect, friction: 0.4
+            x:x+w/2,y:y+h/2,w,h,bounciness: effect*0.6, friction: 0.4
         }
 	}
 }
@@ -79,7 +79,7 @@ class CircularBouncyObstacle {
 	constructor(x, y, r, effect=30) {
 		return {
             type: 'circle-normal-bounce',
-            x,y,r,bounciness: effect, friction: 0.4
+            x,y,r,bounciness: effect*0.6, friction: 0.4
         }
 	}
 }
@@ -87,7 +87,7 @@ class CircularBouncyObstacle {
 class SpeedObstacle {
     constructor(x, y, w, h, speedInc = 1.5){
         return {
-            type: 'circle-normal-changeSpeed',
+            type: 'square-normal-changeSpeed',
             x:x+w/2,y:y+h/2,w,h,speedMult: speedInc
         }
     }
@@ -122,7 +122,7 @@ class GravObstacle {
             // obs.conveyorFriction = init.conveyorFriction ?? 0.8;
             type: 'square-normal-conveyor',
             x:x+w/2,y:y+h/2,w,h,
-            conveyorForce: force/5000,
+            conveyorForce: force/4000,
             conveyorAngle: Math.atan2(this.dir.y,this.dir.x)*180/Math.PI
         }
     }
@@ -170,6 +170,54 @@ class Coin {
     }
 }
 
+class BreakableObstacle {
+    constructor(x, y, w, h, strength, time, regenTime = 10){
+        // obs.strength = toNumber(init.maxStrength, 5);
+        // obs.maxStrength = toNumber(init.maxStrength, 5);
+        // obs.regenTime = toNumber(init.regenTime, 1E99);
+        // obs.lastBrokeTime = -1E99;
+        // obs.healSpeed = toNumber(init.healSpeed, 1E99);
+        return {
+            type: 'square-normal-breakable',
+            x: x+w/2, y: y+h/2, strength: strength*time/1000,regenTime
+        }
+    }
+}
+
+class TransObstacle {
+    constructor(x, y, w, h){
+        return [];//new NormalObstacle(x, y, w, h);
+    }
+}
+
+class Portal {
+    constructor(x, y, size, name, acronym, difficulty, difficultyNumber, musicPath) {
+        // obs.map = toString(init.map, 'Winroom');
+        // obs.acronym = '';
+        // for(let i = 0; i < obs.map.length-1; i++) {
+        //     if(obs.map[i] === ' '){
+        //         obs.acronym += obs.map[i+1];
+        //     } else if(i === 0){
+        //         obs.acronym += obs.map[0];
+        //     }
+        // }
+        // if(obs.map === 'Hub'){obs.acronym = 'Hub';}
+        // const mapData = advanced.game.mapData[init.map ?? 'Winroom'];
+        // for(let i = 0; i < mapData.init.length; i++){
+        //     if(mapData.init[i].type === 'settings'){
+        //         obs.difficulty = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Grass','Undefined'].includes(mapData.init[i].difficulty) ? mapData.init[i].difficulty : 'Peaceful';
+        //         obs.difficultyNumber = Math.max(0,Math.min(1,toNumber(mapData.init[i].difficultyNumber)));
+        //         return;
+        //     }
+        // }
+        // obs.difficulty = 'Peaceful';
+        return [];
+        // return {
+        //     x: x+w/2,y:y+h/2,w:size,h:size,acronym: name,difficultyNumber
+        // }
+    }
+}
+
 module.exports = {
-    NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin
+    NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Portal
 }

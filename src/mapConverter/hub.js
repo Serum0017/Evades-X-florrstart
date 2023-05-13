@@ -142,10 +142,31 @@ const {
     PolygonBreakable,
     PolygonBouncyBreakable,
 } = require('./!conversionClasses.js');
-const Npc = require('../npc.js');
-const Spawner = require('../spawner.js');
-const Safe = require('../safe.js');
-const Text = require('../text.js');
+// const Npc = require('../npc.js');
+// const Spawner = require('../spawner.js');
+// const Safe = require('../safe.js');
+// const Text = require('../text.js');
+
+class Npc{
+    constructor(){
+  
+    }
+  };
+  class Spawner{
+    constructor(){
+  
+    }
+  };
+  class Safe{
+    constructor(){
+  
+    }
+  };
+  class Text{
+    constructor(){
+  
+    }
+  };
 
 const hub = {
     arena: { width: 5000, height: 5000 },
@@ -171,24 +192,24 @@ let { texts, obstacles, safes, spawns, playerSpawn, arena, npcs } = hub;
 // obstacles.push(new TurretSentry(2450, 1700, 33, 24, 0.3, 120, 90, 0.6, 480));
 
 //points = [], strength, effect, regenTime = 10
-obstacles.push(new PolygonBouncyBreakable([
-	[2300, 1900],
-	[2500, 1900],
-	[2550, 2000],
-],10,30,6));
+// obstacles.push(new PolygonBouncyBreakable([
+// 	[2300, 1900],
+// 	[2500, 1900],
+// 	[2550, 2000],
+// ],10,30,6));
 
-//points = [], strength, time, regenTime = 10
-obstacles.push(new PolygonBreakable([
-	[2200, 1800],
-	[2400, 1800],
-	[2450, 1900],
-],10,0.1,6));
+// //points = [], strength, time, regenTime = 10
+// obstacles.push(new PolygonBreakable([
+// 	[2200, 1800],
+// 	[2400, 1800],
+// 	[2450, 1900],
+// ],10,0.1,6));
 
-obstacles.push(new PolygonBouncy([
-	[2200, 1600],
-	[2400, 1600],
-	[2450, 1700],
-],30));
+// obstacles.push(new PolygonBouncy([
+// 	[2200, 1600],
+// 	[2400, 1600],
+// 	[2450, 1700],
+// ],30));
 
 // obstacles.push(new Torch(2500, 2500, 100, 200));
 
@@ -1524,7 +1545,7 @@ obstacles.push(new RotatingLava(1300, 4995, 400, 10, 240, 45));
 obstacles.push(new RotatingLava(1800, 5015, 400, 10, 120, 0));
 obstacles.push(new RotatingLava(1800, 5015, 400, 10, 120, 120));
 obstacles.push(new RotatingLava(1800, 5015, 400, 10, 120, 60));
-obstacles.push(new Air(2300, -999, 500, 1000));
+// obstacles.push(new Air(2300, -999, 500, 1000));
 
 //obstacles.push(new TpTrap(2250, 1450, 450, 250, 5, 2500, 2500));
 //obstacles.push(new WB(2200, 2150, 10, 550, 10, 80))
