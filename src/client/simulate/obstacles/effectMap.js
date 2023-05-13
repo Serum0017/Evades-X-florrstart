@@ -1,4 +1,5 @@
 import Collide from './collisionManager.js';
+import transformBody from './transformBody.js';
 
 function bound(sat, player, obstacle){
     player.x += sat.overlapV.x;
@@ -252,11 +253,19 @@ const IdleEffects = {
 }
 
 function runEffects(sat, player, obstacle, other){
+    const last = {x: player.x, y: player.y};
     Effects[obstacle.effect](sat, player, obstacle, other);
+    if(last.x !== player.x || last.y !== player.y){
+        transformBody(player, {x: player.x - last.x, y: player.y - last.y, rotation: 0});
+    }
 }
 
 function runIdleEffects(player, obstacle, other){
+    const last = {x: player.x, y: player.y};
     IdleEffects[obstacle.effect]?.(player, obstacle, other);
+    if(last.x !== player.x || last.y !== player.y){
+        transformBody(player, {x: player.x - last.x, y: player.y - last.y, rotation: 0});
+    }
 }
 
 export default { runEffects, runIdleEffects };

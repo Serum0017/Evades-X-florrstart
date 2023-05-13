@@ -51,6 +51,8 @@ function newEvade(map, isSerialized=false){
         tileColor: map.bgColor,
         backgroundColor: map.tileColor
     })
+
+    // console.log(newMap);
     
     // handling other types like safes and texts
 
@@ -59,8 +61,8 @@ function newEvade(map, isSerialized=false){
 }
 
 function initObstacle(o, init, isSerialized){
-    if(typeConversion.supportedObjects[o.type] === undefined)return;
     if(isSerialized === false){
+        if(typeConversion.supportedObjects[o.type] === undefined)return;
         o = serializeObstacle(o);
     }
     if(Array.isArray(o)){

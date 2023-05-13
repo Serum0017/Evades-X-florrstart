@@ -8,7 +8,7 @@ class NormalObstacle {
         //type: 'square-normal-normal', x: 250, y: 150, w: 50, h: 50,
 		return {
             type: 'square-normal-normal',
-            x:x+w/2,y:y+h/2,w,h,isGround: canJump
+            x:x+w/2,y:y+h/2,w,h/*,isGround: canJump*/
         }
 	}
 }
@@ -130,10 +130,10 @@ class GravObstacle {
 
 class Tp {
     constructor(x, y, w, h, tpx, tpy, bgColor, tileColor, changeColor=true){
-        let a = [{
+        let a = /*[*/{
             type: 'square-normal-tp',
             x:x+w/2,y:y+h/2,w,h,tp: {x: tpx, y: tpy},
-        }]
+        }/*]*/
         // if(changeColor === true){
         //     // usually false
         //     a.push({
@@ -190,34 +190,55 @@ class TransObstacle {
     }
 }
 
-class Portal {
-    constructor(x, y, size, name, acronym, difficulty, difficultyNumber, musicPath) {
-        // obs.map = toString(init.map, 'Winroom');
-        // obs.acronym = '';
-        // for(let i = 0; i < obs.map.length-1; i++) {
-        //     if(obs.map[i] === ' '){
-        //         obs.acronym += obs.map[i+1];
-        //     } else if(i === 0){
-        //         obs.acronym += obs.map[0];
-        //     }
-        // }
-        // if(obs.map === 'Hub'){obs.acronym = 'Hub';}
-        // const mapData = advanced.game.mapData[init.map ?? 'Winroom'];
-        // for(let i = 0; i < mapData.init.length; i++){
-        //     if(mapData.init[i].type === 'settings'){
-        //         obs.difficulty = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Grass','Undefined'].includes(mapData.init[i].difficulty) ? mapData.init[i].difficulty : 'Peaceful';
-        //         obs.difficultyNumber = Math.max(0,Math.min(1,toNumber(mapData.init[i].difficultyNumber)));
-        //         return;
-        //     }
-        // }
-        // obs.difficulty = 'Peaceful';
-        return [];
-        // return {
-        //     x: x+w/2,y:y+h/2,w:size,h:size,acronym: name,difficultyNumber
-        // }
+// class Portal {
+//     constructor(x, y, size, name, acronym, difficulty, difficultyNumber, musicPath) {
+//         // obs.map = toString(init.map, 'Winroom');
+//         // obs.acronym = '';
+//         // for(let i = 0; i < obs.map.length-1; i++) {
+//         //     if(obs.map[i] === ' '){
+//         //         obs.acronym += obs.map[i+1];
+//         //     } else if(i === 0){
+//         //         obs.acronym += obs.map[0];
+//         //     }
+//         // }
+//         // if(obs.map === 'Hub'){obs.acronym = 'Hub';}
+//         // const mapData = advanced.game.mapData[init.map ?? 'Winroom'];
+//         // for(let i = 0; i < mapData.init.length; i++){
+//         //     if(mapData.init[i].type === 'settings'){
+//         //         obs.difficulty = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Grass','Undefined'].includes(mapData.init[i].difficulty) ? mapData.init[i].difficulty : 'Peaceful';
+//         //         obs.difficultyNumber = Math.max(0,Math.min(1,toNumber(mapData.init[i].difficultyNumber)));
+//         //         return;
+//         //     }
+//         // }
+//         // obs.difficulty = 'Peaceful';
+//         return [];
+//         // return {
+//         //     x: x+w/2,y:y+h/2,w:size,h:size,acronym: name,difficultyNumber
+//         // }
+//     }
+// }
+
+class Polygon {
+    constructor(points = [], type = 'poly-normal', tpx = null, tpy = null){
+        if(type === 'poly-tp'){
+            return {
+                type: 'poly-normal-tp', tp: {x: tpx, y: tpy}, x: 0, y: 0,
+                points//: points.map(p => {return {x: p[0], y: p[1]}})
+            }
+        } else if(type == 'poly-lava'){
+            return {
+                type: 'poly-normal-lava', x: 0, y: 0,
+                points//: points.map(p => {return {x: p[0], y: p[1]}})
+            }
+        } else {//points: [[0, 0], [100, 0], [50, 75]],
+            return {
+                type: 'poly-normal-normal', x: 0, y: 0,
+                points//: points.map(p => {return {x: p[0], y: p[1]}})
+            }
+        }
     }
 }
 
 module.exports = {
-    NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Portal
+    NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon, /*Portal*/
 }

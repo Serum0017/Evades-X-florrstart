@@ -47,7 +47,7 @@ function runObstacleCollisions(player, players, obstacles, tick, client){
     //  - if we have influenced it, then send changes to server
 
     // TODO: spatial hashing
-    if(player.dead !== true){
+    if(player.dead !== true && player.god !== true){
         for(let i = 0; i < obstacles.length; i++){
             const response = Collide(player, obstacles[i]);
             if(response !== false){

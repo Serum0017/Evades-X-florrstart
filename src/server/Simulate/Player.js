@@ -17,6 +17,7 @@ module.exports = class Player{
         this.magnitude = 0;
 
         this.dev = init.dev;
+        this.god = init.god;
 
         this.input = {
             up: false,
@@ -36,6 +37,7 @@ module.exports = class Player{
 
         this.touching = {ground: [], platformer: [], safe: []};
         this.axisSpeedMult = {x: 1, y: 1, angle: 0};
+        this.pivot = {x: 0, y: 0};
 
         this.lastTick = 0;
     }

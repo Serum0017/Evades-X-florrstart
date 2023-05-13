@@ -7,14 +7,14 @@ export default function simulatePlayer(p, map) {
 	
 	if(p.axisSpeedMult.angle !== 0){
 		p.xv +=
-			Math.cos(p.axisSpeedMult.angle) * /*xv*/(p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.x +
-			- Math.sin(p.axisSpeedMult.angle) * /*yv*/(p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.y;
+			Math.cos(p.axisSpeedMult.angle) * /*xv*/(p.input.right - p.input.left) * p.speed * (p.input.shift ? (p.god ? 3 : 0.5) : 1) * p.axisSpeedMult.x +
+			- Math.sin(p.axisSpeedMult.angle) * /*yv*/(p.input.down - p.input.up) * p.speed * (p.input.shift ? (p.god ? 3 : 0.5) : 1) * p.axisSpeedMult.y;
 		p.yv +=
-			Math.sin(p.axisSpeedMult.angle) * /*xv*/(p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.x +
-			Math.cos(p.axisSpeedMult.angle) * /*yv*/(p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.y;
+			Math.sin(p.axisSpeedMult.angle) * /*xv*/(p.input.right - p.input.left) * p.speed * (p.input.shift ? (p.god ? 3 : 0.5) : 1) * p.axisSpeedMult.x +
+			Math.cos(p.axisSpeedMult.angle) * /*yv*/(p.input.down - p.input.up) * p.speed * (p.input.shift ? (p.god ? 3 : 0.5) : 1) * p.axisSpeedMult.y;
 	} else {
-		p.xv += (p.input.right - p.input.left) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.x;
-		p.yv += (p.input.down - p.input.up) * p.speed * (p.input.shift ? 0.5 : 1) * p.axisSpeedMult.y;
+		p.xv += (p.input.right - p.input.left) * p.speed * (p.input.shift ? (p.god ? 3 : 0.5) : 1) * p.axisSpeedMult.x;
+		p.yv += (p.input.down - p.input.up) * p.speed * (p.input.shift ? (p.god ? 3 : 0.5) : 1) * p.axisSpeedMult.y;
 	}
 
 	p.xv *= p.friction;
@@ -49,6 +49,7 @@ export default function simulatePlayer(p, map) {
 	
 	p.difference = {x: p.r*2, y: p.r*2};
 	p.body = new SAT.Circle(new SAT.Vector(p.x, p.y), p.r);// temp; will have generation later
+	p.pivot = {x: p.x, y: p.y};
 
 	// reset changable parameters
 	p.axisSpeedMult = {x: 1, y: 1, angle: 0};

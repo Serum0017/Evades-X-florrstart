@@ -13,8 +13,6 @@ export default class Player{
         this.angle = 0;
         this.magnitude = 0;
 
-        this.dev = false;
-
         for(let key in init){
             this[key] = init[key];
         }
@@ -45,6 +43,13 @@ export default class Player{
         ctx.beginPath();
         ctx.arc(this.renderX, this.renderY, this.renderR, 0, Math.PI*2);
         ctx.fill();
+
+        if(this.god === true){
+            ctx.strokeStyle = 'purple';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+        }
+
         ctx.closePath();
 
         this.updateInterpolate();
