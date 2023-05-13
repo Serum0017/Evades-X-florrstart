@@ -66,7 +66,10 @@ function initObstacle(o, init, isSerialized){
         o = serializeObstacle(o);
     }
     if(Array.isArray(o)){
-        o.map(subO => initObstacle(subO, init, isSerialized));
+        for(let i = 0; i < o.length; i++){
+            initObstacle(o[i], init, true);
+            // console.log(o[i],typeConversion.supportedObjects[o[i].type]);
+        }
     } else {
         init.push(o);
     }

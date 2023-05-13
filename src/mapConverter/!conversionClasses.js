@@ -36,13 +36,22 @@ class RotatingLava {
         }
         return {
             type: 'square-rotate-lava',
-            x:x+w/2,y:y+h/2,w,h,rotateSpeed: spd/200,rotation: angle, pivot, solid: canCollide
+            x:x+w/2,y:y+h/2,w,h,rotateSpeed: spd*Math.PI/180,rotation: angle*Math.PI/180, pivot, solid: canCollide
         }
 	}
 }
 
+class Winpad {
+    constructor(x,y,w,h){
+        return {
+            type: 'square-normal-changeMap', map: 'Winroom',
+            x:x+w/2,y:y+h/2,w,h
+        }
+    }
+}
+
 class RotatingNormal{
-    constructor(x, y, w, h, spd, angle=0, pivotX, pivotY, distToPivot=0, canCollide=true){
+    constructor(x, y, w, h, spd, angle=0, pivotX, pivotY, distToPivot=0){
         let pivot = {x: w/2, y: h/2};
         // if(pivotX !== undefined && pivotY !== undefined){
         //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
@@ -51,7 +60,7 @@ class RotatingNormal{
         }
         return {
             type: 'square-rotate-normal',
-            x:x+w/2,y:y+h/2,w,h,rotateSpeed: spd/200,rotation: angle, pivot, solid: canCollide
+            x:x,y,w,h,rotateSpeed: spd*Math.PI/180,rotation: angle*Math.PI/180, pivot
         }
     }
 }
@@ -80,6 +89,24 @@ class CircularBouncyObstacle {
 		return {
             type: 'circle-normal-bounce',
             x,y,r,bounciness: effect*0.6, friction: 0.4
+        }
+	}
+}
+
+class CircularLavaObstacle {
+	constructor(x, y, r) {
+		return {
+            type: 'circle-normal-lava',
+            x,y,r
+        }
+	}
+}
+
+class CircularTpObstacle {
+	constructor(x, y, r,tpx,tpy) {
+		return {
+            type: 'circle-normal-tp',
+            x,y,r,tp: {x:tpx,y:tpy},
         }
 	}
 }
@@ -122,8 +149,9 @@ class GravObstacle {
             // obs.conveyorFriction = init.conveyorFriction ?? 0.8;
             type: 'square-normal-conveyor',
             x:x+w/2,y:y+h/2,w,h,
-            conveyorForce: force/4000,
-            conveyorAngle: Math.atan2(this.dir.y,this.dir.x)*180/Math.PI
+            conveyorForce: force/5050,
+            conveyorAngle: Math.atan2(this.dir.y,this.dir.x)*180/Math.PI,
+            conveyorFriction: 0.86,
         }
     }
 }
@@ -162,10 +190,38 @@ class MovingObstacle {
     }
 }
 
+class MovingLavaObstacle {
+    constructor(w, h, points = [[50, 50]], speed = 30, currentPoint=0, collidable = false){
+        return {
+            type: 'square-move-lava',
+            x: points[currentPoint][0]+w/2,y: points[currentPoint][1]+h/2,w,h,
+            speed:speed/100,currentPoint,
+            path: points.map(p => {return {x: p[0]+w/2, y: p[1]+h/2}}),
+            solid: collidable
+        }
+    }
+}
+
 class Coin {
     constructor(x,y,w,h){
         return {
             x:x+w/2,y:y+h/2,w,h,type:'square-normal-coin'
+        }
+    }
+}
+
+class CircularCoin {
+    constructor(x,y,r){
+        return {
+            x,y,r,type:'circle-normal-coin'
+        }
+    }
+}
+
+class CoinDoor {
+    constructor(x,y,w,h,coins){
+        return {
+            x:x+w/2,y:y+h/2,w,h,type:"square-normal-coindoor",coins
         }
     }
 }
@@ -177,9 +233,11 @@ class BreakableObstacle {
         // obs.regenTime = toNumber(init.regenTime, 1E99);
         // obs.lastBrokeTime = -1E99;
         // obs.healSpeed = toNumber(init.healSpeed, 1E99);
+
+        //maxStrength: 100, regenTime: 100, healSpeed: 10
         return {
             type: 'square-normal-breakable',
-            x: x+w/2, y: y+h/2, strength: strength*time/1000,regenTime
+            x: x+w/2, y: y+h/2,w,h, maxStrength: strength/2,regenTime:regenTime, healSpeed: 1
         }
     }
 }
@@ -187,6 +245,69 @@ class BreakableObstacle {
 class TransObstacle {
     constructor(x, y, w, h){
         return [];//new NormalObstacle(x, y, w, h);
+    }
+}
+
+class PlatformerGrav {
+	constructor(x, y, w, h, dir, jumpHeight, force = 500, maxForce, variableJumpHeight = false, friction = 0.8) {
+        this.dir = { x: 0, y: 0 };
+		let direction = dir;
+		if (dir == null) {
+			direction = 'up';
+		}
+		this.direction = direction;
+		if (direction === 'down') {
+			this.dir.y = force;
+		}
+		if (direction === 'up') {
+			this.dir.y = -force;
+		}
+		if (direction === 'left') {
+			this.dir.x = -force;
+		}
+		if (direction === 'right') {
+			this.dir.x = force;
+		}
+        return {
+            // obs.platformerForce = init.platformerForce ?? 1;
+            // obs.platformerAngle = init.platformerAngle ?? 90;
+            // obs.platformerAngle *= Math.PI/180;
+            // obs.platformerAngleRotateSpeed = init.platformerAngleRotateSpeed ?? 0;
+            // obs.platformerAngleRotateSpeed *= Math.PI/180;
+            // obs.platformerFriction = init.platformerFriction ?? 0.875;
+            // obs.maxJumps = init.maxJumps ?? 1;// TODO: IMPLEMENT JUMPS
+            // obs.maxJumpCooldown = init.maxJumpCooldown ?? 30;// in ticks
+            // obs.jumpCooldown = obs.initJumpCooldown ?? obs.maxJumpCooldown;
+            // obs.jumpForce = init.jumpForce ?? 20;
+            // obs.jumpFriction = init.jumpFriction ?? 0.95;
+            type: 'square-normal-platformer',
+            x:x+w/2,y:y+h/2,w,h,
+            platformerForce: force/1050,
+            platformerAngle: Math.atan2(this.dir.y,this.dir.x)*180/Math.PI,maxJumps:1,
+            jumpForce: jumpHeight/8,
+            jumpFriction: 0.92,
+            platformerFriction: 0.4,
+        }
+    }
+}
+
+class RestrictAxis {
+	constructor(x, y, w, h, rx, ry) {
+        return {
+            type: 'square-normal-restrictAxis',
+            x: x+w/2,y:y+h/2,w,h,
+            axisSpeedMults: {x: rx ? 0 : 1, y: ry ? 0 : 1}
+        }
+    }
+}
+
+class ColorChange {
+	constructor(x, y, w, h, bgColor, tileColor) {
+        return {
+            type: 'square-normal-changeColor',
+            x:x+w/2, y:y+h/2, w,h,
+            backgroundColor: tileColor, tileColor: bgColor
+        }
     }
 }
 
@@ -218,6 +339,70 @@ class TransObstacle {
 //     }
 // }
 
+class RoundedCorners {
+    constructor(x,y,w,h,roundRadius){
+        this.x = x;this.y=y;this.w=w;this.h=h;
+        this.circles = [
+            {x: this.x+roundRadius, y: this.y+roundRadius, radius: roundRadius},
+            {x: this.x+this.w-roundRadius, y: this.y+roundRadius, radius: roundRadius},
+            {x: this.x+roundRadius, y: this.y+this.h-roundRadius, radius: roundRadius},
+            {x: this.x+this.w-roundRadius, y: this.y+this.h-roundRadius, radius: roundRadius},
+        ];
+        this.rects = [
+            {x: this.x+roundRadius, y: this.y, w: this.w-roundRadius*2, h: this.h},
+            {x: this.x, y: this.y+roundRadius, w: this.w, h: this.h-roundRadius*2}
+        ]
+        const a = [];
+        for(let i = 0; i < this.circles.length; i++){
+            const data = this.circles[i];
+            a.push({
+                type: 'circle-normal-normal',
+                x: data.x,y:data.y,r:data.radius
+            })
+        }
+        for(let i = 0; i < this.rects.length; i++){
+            const data = this.rects[i];
+            a.push({
+                type: 'square-normal-normal',
+                x: data.x+data.w/2,y:data.y+data.h/2,w:data.w,h:data.h
+            })
+        }
+        return a;
+    }
+}
+
+class RoundedLava {
+    constructor(x,y,w,h,roundRadius){
+        this.x = x;this.y=y;this.w=w;this.h=h;
+        this.circles = [
+            {x: this.x+roundRadius, y: this.y+roundRadius, radius: roundRadius},
+            {x: this.x+this.w-roundRadius, y: this.y+roundRadius, radius: roundRadius},
+            {x: this.x+roundRadius, y: this.y+this.h-roundRadius, radius: roundRadius},
+            {x: this.x+this.w-roundRadius, y: this.y+this.h-roundRadius, radius: roundRadius},
+        ];
+        this.rects = [
+            {x: this.x+roundRadius, y: this.y, w: this.w-roundRadius*2, h: this.h},
+            {x: this.x, y: this.y+roundRadius, w: this.w, h: this.h-roundRadius*2}
+        ]
+        const a = [];
+        for(let i = 0; i < this.circles.length; i++){
+            const data = this.circles[i];
+            a.push({
+                type: 'circle-normal-lava',
+                x: data.x,y:data.y,r:data.radius
+            })
+        }
+        for(let i = 0; i < this.rects.length; i++){
+            const data = this.rects[i];
+            a.push({
+                type: 'square-normal-lava',
+                x: data.x+data.w/2,y:data.y+data.h/2,w:data.w,h:data.h
+            })
+        }
+        return a;
+    }
+}
+
 class Polygon {
     constructor(points = [], type = 'poly-normal', tpx = null, tpy = null){
         if(type === 'poly-tp'){
@@ -239,6 +424,26 @@ class Polygon {
     }
 }
 
+class SnapGrid {
+	constructor(x, y, w, h, snapX, snapY, snapDistance, snapWait) {
+		return {
+            type: 'square-normal-snapGrid',
+            x:x+w/2,y:y+h/2,w,h,
+            toSnap: {x: snapX, y: snapY},
+            snapDistance: {x: snapDistance, y: snapDistance},snapCooldown: snapWait*60,
+        }
+	}
+}
+
+// class Spawner {
+//     constructor(x,y,w,h,spawnData){
+//         return {
+
+//         }
+//     }
+// }
+
 module.exports = {
-    NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon, /*Portal*/
+    NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingNormal, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon,
+    PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle /*Portal*/
 }

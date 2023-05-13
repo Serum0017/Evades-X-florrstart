@@ -136,7 +136,7 @@ effect: ✅ snapgrid, ✅ speedchange, ✅ normal, ✅ bouncy, ✅ frictionchang
 - ❗render:
 some way to do ✅text, ❓cool effects for each obstacle
 - bugs:
-❗type: 'square-normal-snapGrid', x: 175-32, y: 375-12, w: 150, h: 150, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2 or similar snapGrids not rendering the rects all the way to the edges
+
 
 Core Mechanics:
 - account system + usernames

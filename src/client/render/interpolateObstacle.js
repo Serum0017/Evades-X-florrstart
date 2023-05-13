@@ -25,11 +25,40 @@ const interpolateMap = {
     }
 }
 
-function interpolateKey(key, interpolate, last, next, time){
+let interpolateKey;
+let interpolateAngleKey;
+
+const interpolateKeysMap = {
+    shape: {},
+    simulate: {},
+    effect: {/*breakable: ['strength']*/}
+}
+
+function calculateInterpolateKeysMap() {
+    interpolateKey = (keyName, type, objectName) => {
+        if(interpolateKeysMap[type][objectName] === undefined){
+            interpolateKeysMap[type][objectName] = [];
+        }
+        interpolateKeysMap[type][objectName].push(keyName);
+    }
+    interpolateAngleKey = interpolateKey;
+    for(let key in interpolateMap.shape){
+        interpolateMap.shape[key]('shape', key);
+    }
+    for(let key in interpolateMap.simulate){
+        interpolateMap.simulate[key]('simulate', key);
+    }
+    for(let key in interpolateMap.effect){
+        interpolateMap.effect[key]('effect', key);
+    }
+}
+calculateInterpolateKeysMap();
+
+interpolateKey = (key, interpolate, last, next, time) => {
     interpolate[key] = linearInterpolate(last[key], next[key], time);
 }
 
-function interpolateAngleKey(key, interpolate, last, next, time){
+interpolateAngleKey = (key, interpolate, last, next, time) => {
     interpolate[key] = interpolateDirection(last[key], next[key], time);
 }
 
@@ -67,8 +96,39 @@ function interpolateDirection(d1, d2, time) {
 //     }
 //     return d1 + dif * dir;
 // };
+function createInterpolateState(last){
+    last.lastState = {
+        x: last.x,
+        y: last.y,
+        rotation: last.rotation
+    }
 
-export default function interpolateObstacle(last, next, time/*0-1*/, advanced){
+    // interpolate extra things if needed
+    if(interpolateMap.shape[last.shape] !== undefined){
+        for(let i = 0; i < interpolateKeysMap.shape[last.shape].length; i++){
+            const key = interpolateKeysMap.shape[last.shape][i]
+            last.lastState[key] = last[key];
+        }
+    }
+
+    for(let j = 0; j < last.simulate.length; j++){
+        if(interpolateMap.simulate[last.simulate[j]] !== undefined){
+            for(let i = 0; i < interpolateKeysMap.simulate[last.simulate[j]].length; i++){
+                const key = interpolateKeysMap.simulate[last.simulate[j]][i];
+                last.lastState[key] = last[key];
+            }
+        }
+    }
+
+    if(interpolateMap.effect[last.effect] !== undefined){
+        for(let i = 0; i < interpolateKeysMap.effect[last.effect].length; i++){
+            const key = interpolateKeysMap.effect[last.effect][i];
+            last.lastState[key] = last[key];
+        }
+    }
+}
+
+function interpolateObstacle(last, next, time/*0-1*/, advanced){
     // every obstacle interpolates position
     const interpolate = {
         x: last.x * (1 - time) + next.x * time,
@@ -77,19 +137,21 @@ export default function interpolateObstacle(last, next, time/*0-1*/, advanced){
     };
 
     // interpolate extra things if needed
-    if(interpolateMap.shape[last.shape] !== undefined){
-        interpolateMap.shape[last.shape](interpolate, last, next, time, advanced);
+    if(interpolateMap.shape[next.shape] !== undefined){
+        interpolateMap.shape[next.shape](interpolate, last, next, time, advanced);
     }
 
-    for(let i = 0; i < last.simulate.length; i++){
-        if(interpolateMap.simulate[last.simulate[i]] !== undefined){
-            interpolateMap.simulate[last.simulate[i]](interpolate, last, next, time, advanced);
+    for(let i = 0; i < next.simulate.length; i++){
+        if(interpolateMap.simulate[next.simulate[i]] !== undefined){
+            interpolateMap.simulate[next.simulate[i]](interpolate, last, next, time, advanced);
         }
     }
 
-    if(interpolateMap.effect[last.effect] !== undefined){
-        interpolateMap.effect[last.effect](interpolate, last, next, time, advanced);
+    if(interpolateMap.effect[next.effect] !== undefined){
+        interpolateMap.effect[next.effect](interpolate, last, next, time, advanced);
     }
 
     return interpolate;
 }
+
+export default { interpolateObstacle, createInterpolateState };

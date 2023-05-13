@@ -29,6 +29,7 @@ const initEffectMap = {
         }
         if(obs.map === 'Hub'){obs.acronym = 'Hub';}
         const mapData = advanced.game.mapData[init.map ?? 'Winroom'];
+        if(mapData.init === undefined){console.log('Portal points to an invalid map! initEffect.js.' + JSON.stringify(obs)); return;}
         for(let i = 0; i < mapData.init.length; i++){
             if(mapData.init[i].type === 'settings'){
                 obs.difficulty = ['Peaceful','Moderate','Difficult','Hardcore','Exhausting','Agonizing','Terrorizing','Cataclysmic','Grass','Undefined'].includes(mapData.init[i].difficulty) ? mapData.init[i].difficulty : 'Peaceful';
@@ -98,9 +99,9 @@ const initEffectMap = {
         obs.platformerAngleRotateSpeed *= Math.PI/180;
         obs.platformerFriction = init.platformerFriction ?? 0.875;
 
-        obs.maxJumps = init.maxJumps ?? 1;// TODO: IMPLEMENT JUMPS
+        obs.maxJumps = init.maxJumps ?? 1;// TODO: IMPLEMENT JUMPS. also TODO: add a preserve jump parameter that makes jumps conserve even if you are not bounded that frame. If disabled, platformer only lets you jump when you're on a plat THAT FRAME
         obs.maxJumpCooldown = init.maxJumpCooldown ?? 30;// in ticks
-        obs.jumpCooldown = obs.initJumpCooldown ?? obs.maxJumpCooldown;
+        obs.jumpCooldown = obs.initJumpCooldown ?? 0;
         obs.jumpForce = init.jumpForce ?? 20;
         obs.jumpFriction = init.jumpFriction ?? 0.95;
 
@@ -114,6 +115,9 @@ const initEffectMap = {
         obs.conveyorAngleRotateSpeed = init.conveyorAngleRotateSpeed ?? 0;
         obs.conveyorAngleRotateSpeed *= Math.PI/180;
         obs.conveyorFriction = init.conveyorFriction ?? 0.8;
+    },
+    hole: (obs, init) => {
+        // TODO: add specific obs ids to apply hole to
     },
     rotateMovement: (obs, init) => {
         obs.axisSpeedMult = init.axisSpeedMult ?? 1;

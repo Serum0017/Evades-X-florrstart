@@ -1,6 +1,7 @@
 import Player from './player.js';
 import ObstacleManager from './simulate/obstacles/!simulateObstacles.js';
 import satFactory from './simulate/obstacles/satFactory.js';
+import interpolateManager from './render/interpolateObstacle.js';
 
 export default class Map {
     constructor(client){
@@ -45,7 +46,7 @@ export default class Map {
 
         this.tick = data.tick;
 
-        this.lastState = this.createRenderState(performance.now());
+        this.createRenderState(performance.now());
     }
     updatePack(playerData){
         for(let id in playerData){
@@ -79,12 +80,11 @@ export default class Map {
 
         const time = performance.now();
 
-        // create a deep copy of the last state for rendering
-        this.lastState = this.createRenderState(time);
-
         for(let id in this.players){
             this.players[id].createSimulateState(time);
         }
+
+        this.createRenderState(time);
 
         // - simulate player
         // - update the player's sat
@@ -108,9 +108,9 @@ export default class Map {
         };
     }
     createRenderState(time){
-        return window.structuredClone({
-            obstacles: this.obstacles,
-            time
-        });
+        for(let i = 0; i < this.obstacles.length; i++){
+            interpolateManager.createInterpolateState(this.obstacles[i]);
+        }
+        this.lastInterpolateTime = time;
     }
 }

@@ -120,6 +120,14 @@ const renderEffectMap = {
         ctx.toStroke = true;
         ctx.toClip = true;
     },
+    hole: (o, ctx, { colors }) => {
+        ctx.fillStyle = colors.background;
+        ctx.setLineDash([15, 15]);
+        ctx.lineDashOffset = -performance.now() / 15;
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = colors.tile;
+        ctx.toStroke = true;
+    },
     restrictAxis: (o, ctx, { colors }) => {
         if(o.axisSpeedMults.x < 0 && o.axisSpeedMults.y < 0){
             ctx.strokeStyle = 'red';
@@ -194,8 +202,8 @@ const renderEffectAfterShapeMap = {
     platformer: (o, ctx, advanced) => {
         // TODO: optimize with pregeneration
         ctx.globalAlpha = 1;
-        for(let x = o.x - o.difference.x/2 + (o.platformerForce * Math.cos(o.platformerAngle) * performance.now()/10) % 50 - 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
-            for(let y = o.y - o.difference.y/2 + (o.platformerForce * Math.sin(o.platformerAngle) * performance.now()/10) % 50 - 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
+        for(let x = o.x - o.difference.x/2 + (o.platformerForce/*/(1-o.platformerFriction)*0.6*/ * Math.cos(o.platformerAngle) * performance.now()/18) % 50 - 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
+            for(let y = o.y - o.difference.y/2 + (o.platformerForce/*/(1-o.platformerFriction)*0.6*/ * Math.sin(o.platformerAngle) * performance.now()/18) % 50 - 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
                 ctx.translate(x,y);
                 ctx.rotate(o.render.platformerAngle+Math.PI/2);
                 ctx.drawImage(Utils.arrowImg, -25, -25, 50, 50);
@@ -220,6 +228,9 @@ const renderEffectAfterShapeMap = {
         }
 
         ctx.restore();
+    },
+    hole: (o, ctx, advanced) => {
+        ctx.setLineDash([]);
     },
     rotateMovement: (o, ctx, advanced) => {
         // render grid lines showing axis
@@ -284,7 +295,7 @@ const renderEffectAfterShapeMap = {
         
         ctx.translate(o.x, o.y);
 
-        ctx.globalAlpha = o.axisSpeedMults.x > 1 ? 0.8 : (Math.max(0.3,(o.axisSpeedMults.x > 0)-o.axisSpeedMults.x));
+        ctx.globalAlpha = o.axisSpeedMults.x > 1 ? 0.8 : (Math.max(0.3,o.axisSpeedMults.x < 0 ? -o.axisSpeedMults.x : 1-o.axisSpeedMults.x));
         ctx.strokeStyle = o.axisSpeedMults.x < 0 ? 'red' : (o.axisSpeedMults.x > 1 ? '#c5c500' : 'white');
 
         ctx.beginPath();
@@ -295,7 +306,7 @@ const renderEffectAfterShapeMap = {
         ctx.stroke();
         ctx.closePath();
 
-        ctx.globalAlpha = o.axisSpeedMults.y > 1 ? 0.8 : (Math.max(0.3,(o.axisSpeedMults.y > 0)-o.axisSpeedMults.y));
+        ctx.globalAlpha = o.axisSpeedMults.y > 1 ? 0.8 : (Math.max(0.3,o.axisSpeedMults.y < 0 ? -o.axisSpeedMults.y : 1-o.axisSpeedMults.y));
         ctx.strokeStyle = o.axisSpeedMults.y < 0 ? 'red' : (o.axisSpeedMults.y > 1 ? '#c5c500' : 'white');
 
         ctx.beginPath();
@@ -325,15 +336,20 @@ const renderEffectAfterShapeMap = {
         ctx.translate(o.x%50,o.y%50);
 
         let renderPath = new Path2D();
-        for(let x = -o.snapRotateMovementExpansion.x; x <= o.snapRotateMovementExpansion.x; x += o.snapDistance.x){
-            renderPath.rect(-5 + x, -o.snapRotateMovementExpansion.x - 5, 10, 2 * o.snapRotateMovementExpansion.x + 10);
-            // ctx.moveTo(x,-o.snapRotateMovementExpansion);
-            // ctx.lineTo(x,o.snapRotateMovementExpansion);
+        if(o.toSnap.x === true){
+            for(let x = -o.snapRotateMovementExpansion.x; x <= o.snapRotateMovementExpansion.x; x += o.snapDistance.x){
+                renderPath.rect(-5 + x, -o.snapRotateMovementExpansion.x - 5, 10, 2 * o.snapRotateMovementExpansion.x + 10);
+                // ctx.moveTo(x,-o.snapRotateMovementExpansion);
+                // ctx.lineTo(x,o.snapRotateMovementExpansion);
+            }
         }
-        for(let y = -o.snapRotateMovementExpansion.y; y <= o.snapRotateMovementExpansion.y; y += o.snapDistance.y){
-            renderPath.rect(-o.snapRotateMovementExpansion.y - 5, -5 + y, 2 * o.snapRotateMovementExpansion.y + 10, 10);
-            // ctx.moveTo(-o.snapRotateMovementExpansion,y);
-            // ctx.lineTo(o.snapRotateMovementExpansion,y);
+
+        if(o.toSnap.y === true){
+            for(let y = -o.snapRotateMovementExpansion.y; y <= o.snapRotateMovementExpansion.y; y += o.snapDistance.y){
+                renderPath.rect(-o.snapRotateMovementExpansion.y - 5, -5 + y, 2 * o.snapRotateMovementExpansion.y + 10, 10);
+                // ctx.moveTo(-o.snapRotateMovementExpansion,y);
+                // ctx.lineTo(o.snapRotateMovementExpansion,y);
+            }
         }
         ctx.stroke(renderPath);
         ctx.closePath();

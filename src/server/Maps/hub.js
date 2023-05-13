@@ -1,8 +1,10 @@
 module.exports = {
     name: 'Sandbox',
     init: [
-        {type: 'settings', dimensions: {x: 500, y: 500}, spawn: {x: 50, y: 50}, difficulty: 'Peaceful'},// settings obstacle will always be the first obstacle, otherwise default to saved settings
+        {type: 'settings', dimensions: {x: 500, y: 500}, spawn: {x: 0, y: 0}, difficulty: 'Peaceful'},// settings obstacle will always be the first obstacle, otherwise default to saved settings
         // shape, simulate, effect
+
+        {type: 'circle-normal-hole', x: 370, y: 270, r: 60},
 
         {type: 'circle-normal-changeMap', x: 400, y: 400, r: 25, w: 50, h: 50, map: 'Planet of Simple Challenges' },
         {type: 'poly-move-changeMap', x: 0, y: 0, points: [[100, 0], [200, 0], [150, 75]], path: [{x: 100,y: 0},{x: 200, y: 0}], currentPoint: 0, speed: 1, maxStrength: 20, regenTime: 100, healSpeed: .1, map: 'Winroom' },
@@ -10,7 +12,7 @@ module.exports = {
         {type: 'poly-move-changeMap', x: 0, y: 0, points: [[100, 0], [200, 0], [150, 75]], path: [{x: 100,y: 0},{x: 200, y: 0}], currentPoint: 0.5, speed: 1, maxStrength: 20, regenTime: 100, healSpeed: .1, map: 'Winroom' },
         
         // {type: 'square-normal-lava', x: 400, y: 150, w: 50, h: 50, bounciness: 1, friction: 0.98 },
-        {type: 'square-normal-normal', x: 399.5, y: 299.5, w: 75, h: 75 },
+        {type: 'square-normal-normal', x: 399.5, y: 299.5, w: 200, h: 75 },
         {type: 'circle-normal-normal', x: 75, y: 425, r: 50, bounciness: 10, friction: 0.9 },
         {type: 'circle-normal-resetFriction', x: 250, y: 250, r: 50},
         {type: 'circle-rotate,move-normal', coins: 3, color: 'red', rotation: 0, rotateSpeed: 1, path: [{x: 300,y: 0},{x: 400, y: 0}], currentPoint: 0, speed: 1, pivot: {x: 200, y: 200}, x: 150, y: 150, r: 50, tp: {x: 450, y: 50}},
@@ -56,12 +58,11 @@ module.exports = {
         //     ],
         //     eventEmitters: [{type: 'parameterGreaterThan', id: 1, toLoop: true, value: 500, keyChain: ['x']}]
         // },
-        {type: 'circle-normal-normal', x: 300, y: 200, r: 25, isGround: false},
 
-        {type: 'circle-normal-changeMap', x: 25, y: 375, r: 15, w: 50, h: 50, map: 'Oldhub' },
+        {type: 'circle-normal-changeMap', x: 25, y: 375, r: 15, w: 50, h: 50, map: 'Planet of Conveyor Abuse' },
 
         // {type: 'text-rotate-snapGrid', x: 150, y: 200, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, text: 'Evades X', fontSize: 60 /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
         
-        {type: 'text-rotate-conveyor', rotation: 0, pivot: {x: 0, y: 0}, rotateSpeed: .5, text: 'Go right.', fontSize: 30, x: 200, y: 200, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, isGround: false},
+        // {type: 'text-rotate-conveyor', rotation: 0, pivot: {x: 0, y: 0}, rotateSpeed: .5, text: 'Go right.', fontSize: 30, x: 200, y: 200, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, isGround: false},
     ]
 }

@@ -17,6 +17,11 @@ export default class Player{
             this[key] = init[key];
         }
 
+        this.body = new SAT.Box(new SAT.Vector(this.x - this.r,this.y-this.r),this.r*2,this.r*2).toPolygon();//new SAT.Circle(new SAT.Vector(this.x, this.y), this.r);
+        this.shape = 'poly';
+        this.body.angle = 0;
+        this.isPlayer = true;
+
         this.renderX = this.x;
         this.renderY = this.y;
         this.renderR = this.r/4;
@@ -41,7 +46,9 @@ export default class Player{
         }
         
         ctx.beginPath();
-        ctx.arc(this.renderX, this.renderY, this.renderR, 0, Math.PI*2);
+        // ctx.arc(this.renderX, this.renderY, this.renderR, 0, Math.PI*2);
+        ctx.rect(this.renderX - this.r, this.renderY - this.r, this.r*2, this.r*2);
+        console.log(this.body);
         ctx.fill();
 
         if(this.god === true){

@@ -4,7 +4,7 @@ import Utils from '../util.js';
 import EffectManager from './renderEffect.js'
 import renderShape from './renderShape.js';
 import renderSimulate from './renderSimulate.js';
-import interpolateObstacle from './interpolateObstacle.js';
+import interpolateManager from './interpolateObstacle.js';
 
 let canvas = Utils.ref.canvas;
 let ctx = canvas.getContext('2d');
@@ -86,17 +86,17 @@ export default class Renderer {
         this.camera.setTranslate({x: -me.renderX + canvas.w / 2, y: -me.renderY + canvas.h / 2});
     
         this.renderBounds(map);
-        this.renderPlayers(map.players);
 
         // render obstacles with interpolation
-        const ratio = (performance.now() - map.lastState.time) * (60/1000);
-        
         for(let i = 0; i < map.obstacles.length; i++){
-            // TODO: get this working with sats
-            map.obstacles[i].render = interpolateObstacle(map.lastState.obstacles[i], map.obstacles[i], ratio, { map });
+            map.obstacles[i].toRender = this.camera.isInsideView(map.obstacles[i]);
+            if(map.obstacles[i].toRender === false)continue;
+            map.obstacles[i].render = interpolateManager.interpolateObstacle(map.obstacles[i].lastState, map.obstacles[i], (performance.now() - map.lastInterpolateTime) * (60/1000), { map });
         }
         
-        this.renderObstacles(map.obstacles, map.players, map.self);
+        this.renderObstacles(map.obstacles.filter(o => o.toRender !== false), map.players, map.self);
+
+        this.renderPlayers(map.players);
 
         this.camera.resetTranslate();
 
@@ -357,6 +357,11 @@ class Camera {
         // ctx.translate(-canvas.width/2, -canvas.height/2);
         this.angle = 0;
         this.scale = 1;
+    }
+    isInsideView(obstacle){
+        if(obstacle.x - obstacle.difference.x/2 > -this.x + canvas.w || obstacle.x + obstacle.difference.x/2 < -this.x) return false;
+        if(obstacle.y - obstacle.difference.y/2 > -this.y + canvas.h || obstacle.y + obstacle.difference.y/2 < -this.y) return false;
+        return true;
     }
 }
 

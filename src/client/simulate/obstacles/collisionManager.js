@@ -35,7 +35,7 @@ class Collision {
                 return false;
             }
             const res = new SAT.Response();
-            if (SAT.testPolygonPolygon(poly1.body, poly2.body, res)) {
+            if (SAT.testPolygonPolygon(poly2.body, poly1.body, res)) {
                 return res;
             }
             return false;
@@ -70,7 +70,11 @@ function intersectingBoundingBox(obj1, obj2){
 
 const collisions = new Collision();
 function Collide(body1, body2){
-    return collisions.collisionMap[body1.shape][body2.shape](body1, body2);
+    if(body1.isPlayer === true){
+        return collisions.collisionMap[body1.shape][body2.shape](body1, body2);
+    } else {
+        return collisions.collisionMap[body2.shape][body1.shape](body2, body1);
+    }
 }
 
 export default Collide;

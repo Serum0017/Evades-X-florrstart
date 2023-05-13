@@ -1,9 +1,12 @@
+import transformBody from "./obstacles/transformBody.js";
+
 // simple simulate function for simulating the p based on input
 export default function simulatePlayer(p, map) {
 	if(p.dead === true){
 		return;
 	}
-	
+
+	p.last = {x: p.x, y: p.y};
 	
 	if(p.axisSpeedMult.angle !== 0){
 		p.xv +=
@@ -48,8 +51,10 @@ export default function simulatePlayer(p, map) {
 	}
 	
 	p.difference = {x: p.r*2, y: p.r*2};
-	p.body = new SAT.Circle(new SAT.Vector(p.x, p.y), p.r);// temp; will have generation later
-	p.pivot = {x: p.x, y: p.y};
+
+	transformBody(p, {x: p.x - p.last.x, y: p.y - p.last.y, rotation: 0});
+
+	p.pivot = {x: p.x, y: p.y};// TODO: remove?
 
 	// reset changable parameters
 	p.axisSpeedMult = {x: 1, y: 1, angle: 0};
