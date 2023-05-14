@@ -36,23 +36,28 @@ export default function simulatePlayer(p, map) {
 	p.x += p.xv;
 	p.y += p.yv;
 
-	// bound player against the map
-	if (p.x - p.r < 0) {
-		p.x = p.r;
+	if(p.touching.changeShape.length > 0){
+		const shapeChanger = p.touching.changeShape[0];
+		switch (shapeChanger.shapeType){
+			case 'circle':
+				p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), shapeChanger.shapeRadius).toPolygon();
+				break;
+			case 'poly':
+				p.body = new SAT.Polygon(new SAT.Vector(), [...shapeChanger.shapePoints.map(point => new SAT.Vector(point.x+p.x, point.y+p.y))]);
+				break;
+			default:
+				p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), p.r).toPolygon();
+				break;
+		}
+		p.shape = shapeChanger.shapeType;
+		p.boundingBox = p.body.getBoundingBox();
+		p.difference = {x: p.boundingBox.w, y: p.boundingBox.h};
+	} else {
+		p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), p.r);
+		p.shape = 'circle';
+		p.difference = {x: p.r*2, y: p.r*2};
 	}
-	if (p.x + p.r > map.settings.dimensions.x) {
-		p.x = map.settings.dimensions.x - p.r;
-	}
-	if (p.y - p.r < 0) {
-		p.y = p.r;
-	}
-	if (p.y + p.r > map.settings.dimensions.y) {
-		p.y = map.settings.dimensions.y - p.r;
-	}
-	
-	p.difference = {x: p.r*2, y: p.r*2};
-
-	transformBody(p, {x: p.x - p.last.x, y: p.y - p.last.y, rotation: 0});
+	// transformBody(p, {x: p.x - p.last.x, y: p.y - p.last.y, rotation: 0});
 
 	p.pivot = {x: p.x, y: p.y};// TODO: remove?
 
@@ -60,6 +65,20 @@ export default function simulatePlayer(p, map) {
 	p.axisSpeedMult = {x: 1, y: 1, angle: 0};
 	p.friction = 0.4;
 	p.r = 24.5;
+
+	// bound player against the map
+	if (p.x - p.difference.x/2 < 0) {
+		p.x = p.difference.x/2;
+	}
+	if (p.x + p.difference.x/2 > map.settings.dimensions.x) {
+		p.x = map.settings.dimensions.x - p.difference.x/2;
+	}
+	if (p.y - p.difference.x/2 < 0) {
+		p.y = p.difference.x/2;
+	}
+	if (p.y + p.difference.x/2 > map.settings.dimensions.y) {
+		p.y = map.settings.dimensions.y - p.difference.x/2;
+	}
 
 	// TODO: make sure other players arent sending/ simulating with this (maybe isolate to a diff function?)
 	if(p.touching.ground.length > 0){

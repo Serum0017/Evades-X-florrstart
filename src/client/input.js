@@ -88,6 +88,7 @@ export default class InputHandler {
         // handling god mode if player is a dev
         if (this.map.self.dev === true && e.code === 'KeyO' && e.type === 'keydown'){
             this.map.self.god = !this.map.self.god;
+            this.map.self.dead = false;
             return e.preventDefault();
         }
 

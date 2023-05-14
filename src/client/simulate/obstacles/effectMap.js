@@ -89,6 +89,9 @@ const Effects = {
         client.game.renderer.vinette.outer.interpolate = obstacle.vinetteToChange.outer;
         client.game.renderer.vinette.inner.interpolate = obstacle.vinetteToChange.inner;
     },
+    changeShape: (sat, player, obstacle, advanced) => {
+        player.touching.changeShape.push(obstacle);
+    },
     breakable: (sat, player, obstacle, {tick}) => {
         if(obstacle.strength > 0){
             bound(sat, player, obstacle);

@@ -72,6 +72,10 @@ const renderEffectMap = {
         ctx.fillStyle = colors.tile;
         ctx.globalAlpha = 0.1;
     },
+    changeShape: (o, ctx, {colors}) => {
+        ctx.fillStyle = colors.tile;
+        ctx.globalAlpha = 0.1;
+    },
     resetFriction: (o, ctx, advanced) => {
         ctx.fillStyle = 'orange';
         ctx.strokeStyle = 'black';

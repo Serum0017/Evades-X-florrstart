@@ -18,7 +18,7 @@ export default class Player{
         }
 
         this.body = new SAT.Box(new SAT.Vector(this.x - this.r,this.y-this.r),this.r*2,this.r*2).toPolygon();//new SAT.Circle(new SAT.Vector(this.x, this.y), this.r);
-        this.shape = 'poly';
+        this.shape = 'circle';
         this.body.angle = 0;
         this.isPlayer = true;
 
@@ -46,9 +46,17 @@ export default class Player{
         }
         
         ctx.beginPath();
-        // ctx.arc(this.renderX, this.renderY, this.renderR, 0, Math.PI*2);
-        ctx.rect(this.renderX - this.r, this.renderY - this.r, this.r*2, this.r*2);
-        console.log(this.body);
+        if(this.shape === 'circle'){
+            ctx.arc(this.renderX, this.renderY, this.renderR, 0, Math.PI*2);
+        } else if(this.shape === 'poly') {
+            ctx.translate(this.renderX - this.x, this.renderY - this.y);
+            ctx.moveTo(this.body.calcPoints[0].x + this.body.pos.x, this.body.calcPoints[0].y + this.body.pos.y);
+            for(let i = 1; i < this.body.calcPoints.length; i++){
+                ctx.lineTo(this.body.calcPoints[i].x + this.body.pos.x, this.body.calcPoints[i].y + this.body.pos.y);
+            }
+            ctx.lineTo(this.body.calcPoints[0].x + this.body.pos.x, this.body.calcPoints[0].y + this.body.pos.y);
+            ctx.translate(this.x - this.renderX, this.y - this.renderY);
+        }
         ctx.fill();
 
         if(this.god === true){

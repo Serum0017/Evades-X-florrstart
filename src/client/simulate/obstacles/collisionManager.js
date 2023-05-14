@@ -25,6 +25,12 @@ class Collision {
             
             const res = new SAT.Response();
             if (SAT.testPolygonCircle(poly.body, circle.body, res)) {
+                if(poly.isPlayer === true){
+                    res.overlapV.x *= -1;
+                    res.overlapV.y *= -1;
+                    res.overlapN.x *= -1;
+                    res.overlapN.y *= -1;
+                }
                 return res;
             }
             return false;
@@ -70,11 +76,7 @@ function intersectingBoundingBox(obj1, obj2){
 
 const collisions = new Collision();
 function Collide(body1, body2){
-    if(body1.isPlayer === true){
-        return collisions.collisionMap[body1.shape][body2.shape](body1, body2);
-    } else {
-        return collisions.collisionMap[body2.shape][body1.shape](body2, body1);
-    }
+    return collisions.collisionMap[body1.shape][body2.shape](body1, body2);
 }
 
 export default Collide;

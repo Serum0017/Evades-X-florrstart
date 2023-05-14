@@ -78,6 +78,37 @@ const initEffectMap = {
             },
         }
     },
+    changeShape: (obs, init) => {
+        obs.shapeType = init.shapeType ?? 'poly';
+        if(obs.shapeType === 'square'){
+            obs.shapeWidth = toNumber(init.shapeWidth, 50);
+            obs.shapeHeight = toNumber(init.shapeHeight, 50);
+            obs.shapePoints = [
+                {x: 0, y: 0},
+                {x: obs.shapeWidth, y: 0},
+                {x: obs.shapeWidth, y: obs.shapeHeight},
+                {x: 0, y: obs.shapeHeight},
+            ];
+            obs.shapeType = 'poly';
+        } else if(obs.shapeType === 'poly'){
+            obs.shapePoints = init.shapePoints ?? [{x: 0, y: -50},{x: 40, y: 30},{x: -40, y: 30}];
+        } else if(obs.shapeType === 'circle'){
+            obs.r = init.shapeRadius ?? 24.5;
+        }
+        if(obs.shapePoints !== undefined){
+            let average = {x: 0, y: 0};
+            for(let i = 0; i < obs.shapePoints.length; i++){
+                average.x += obs.shapePoints[i].x;
+                average.y += obs.shapePoints[i].y;
+            }
+            average.x /= obs.shapePoints.length;
+            average.y /= obs.shapePoints.length;
+            for(let i = 0; i < obs.shapePoints.length; i++){
+                obs.shapePoints[i].x -= average.x;
+                obs.shapePoints[i].y -= average.y;
+            }
+        }
+    },
     safe: (obs, init) => {},
     breakable: (obs, init) => {
         // all timings are in frames

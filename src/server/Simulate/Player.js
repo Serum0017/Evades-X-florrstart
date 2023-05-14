@@ -35,7 +35,7 @@ module.exports = class Player{
         this.spawn = init.map.settings.spawn;
         this.dead = false;
 
-        this.touching = {ground: [], platformer: [], safe: []};
+        this.touching = {ground: [], platformer: [], safe: [], changeShape: []};
         this.axisSpeedMult = {x: 1, y: 1, angle: 0};
         this.pivot = {x: 0, y: 0};
 
