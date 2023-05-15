@@ -120,6 +120,7 @@ Rail,
 DeadPusher,
 Wind (moves you in direction obstacles is moving w/ strength param.),
 GravityAura (pulls player to a point, default to center of obs),
+Obstacle that only bounds you if you're x px away from the center, (or something similar that cant be replicated by bouncy with 0 friction?) 
 Portal (has an id, blue/orange boolean. When entering a portal, you will be teleported to a random portal that has both the opposite parity (orange->blue, blue->orange) and same id. If none exist, you will be sent to {x: 0, y: 0})
 
 

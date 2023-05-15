@@ -1,3 +1,4 @@
+import transformBody from './simulate/obstacles/transformBody.js';
 import simulatePlayer from './simulate/simulatePlayer.js';
 
 export default class Player{
@@ -17,7 +18,7 @@ export default class Player{
             this[key] = init[key];
         }
 
-        this.body = new SAT.Box(new SAT.Vector(this.x - this.r,this.y-this.r),this.r*2,this.r*2).toPolygon();//new SAT.Circle(new SAT.Vector(this.x, this.y), this.r);
+        this.body = new SAT.Circle(new SAT.Vector(this.x, this.y), this.r);
         this.shape = 'circle';
         this.body.angle = 0;
         this.isPlayer = true;
@@ -32,12 +33,35 @@ export default class Player{
         // basic simulation that doesnt require anything else; same thing used in prediction
         simulatePlayer(this, map);
     }
+    changeShape({shapeType, shapePoints}){
+        this.body = this.getShape({shapeType, shapePoints});
+		this.shape = shapeType;
+		this.boundingBox = this.body.getBoundingBox();
+		this.difference = {x: this.boundingBox.w, y: this.boundingBox.h};
+    }
+    getShape({shapeType, shapePoints}){
+        let body;
+        switch (shapeType){
+			case 'circle':
+				body = new SAT.Circle(new SAT.Vector(this.x,this.y), this.r).toPolygon();
+				break;
+			case 'poly':
+				body = new SAT.Polygon(new SAT.Vector(this.x,this.y), [...shapePoints.map(point => new SAT.Vector(point.x*this.r/24.5, point.y*this.r/24.5))]);
+				break;
+			default:
+				body = new SAT.Circle(new SAT.Vector(this.x,this.y), this.r).toPolygon();
+				break;
+		}
+        return body;
+    }
     respawn(){
         // TODO
         // this.renderRadius = 0;
+        const last = {x: this.x, y: this.y};
         this.x = this.spawn.x;
         this.y = this.spawn.y;
         this.dead = false;
+        transformBody(this, {x: this.x - last.x, y: this.y-last.y, rotation: 0});
     }
     render(ctx, canvas, camera) {
         ctx.fillStyle = 'black';

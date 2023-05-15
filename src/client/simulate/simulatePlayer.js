@@ -37,21 +37,10 @@ export default function simulatePlayer(p, map) {
 	p.y += p.yv;
 
 	if(p.touching.changeShape.length > 0){
-		const shapeChanger = p.touching.changeShape[0];
-		switch (shapeChanger.shapeType){
-			case 'circle':
-				p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), shapeChanger.shapeRadius).toPolygon();
-				break;
-			case 'poly':
-				p.body = new SAT.Polygon(new SAT.Vector(), [...shapeChanger.shapePoints.map(point => new SAT.Vector(point.x+p.x, point.y+p.y))]);
-				break;
-			default:
-				p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), p.r).toPolygon();
-				break;
+		if(p.touching.changeShape[0].shapeRadius !== undefined){
+			p.r = p.shapeChanger.shapeRadius;
 		}
-		p.shape = shapeChanger.shapeType;
-		p.boundingBox = p.body.getBoundingBox();
-		p.difference = {x: p.boundingBox.w, y: p.boundingBox.h};
+		p.changeShape(p.touching.changeShape[0]);
 	} else {
 		p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), p.r);
 		p.shape = 'circle';

@@ -1,3 +1,5 @@
+const SATFactory = require('./satFactory.js');
+
 const initEffectMap = {
     lava: (obs, init) => {
         obs.solid = toBoolean(init.solid, true);
@@ -96,16 +98,31 @@ const initEffectMap = {
             obs.r = init.shapeRadius ?? 24.5;
         }
         if(obs.shapePoints !== undefined){
-            let average = {x: 0, y: 0};
-            for(let i = 0; i < obs.shapePoints.length; i++){
-                average.x += obs.shapePoints[i].x;
-                average.y += obs.shapePoints[i].y;
+            var top, right, bottom, left;
+            top = right = bottom = left = null;
+            for(let {x,y} of obs.shapePoints){
+                if(x < left || left === null){
+                    left = x;
+                }
+                if(x > right || right === null){
+                    right = x;
+                }
+                if(y > bottom || bottom === null){
+                    bottom = y;
+                }
+                if(y < top || top === null){
+                    top = y;
+                }
             }
-            average.x /= obs.shapePoints.length;
-            average.y /= obs.shapePoints.length;
+            const middle = {
+                x: (left+right)/2,
+                y: (top+bottom)/2,
+            };
+
+            // making them all fit in the bounding box
             for(let i = 0; i < obs.shapePoints.length; i++){
-                obs.shapePoints[i].x -= average.x;
-                obs.shapePoints[i].y -= average.y;
+                obs.shapePoints[i].x -= middle.x;
+                obs.shapePoints[i].y -= middle.y;
             }
         }
     },

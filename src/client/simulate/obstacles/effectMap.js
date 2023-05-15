@@ -74,9 +74,14 @@ const Effects = {
         // TODO: revamp when multiple body types are added
         if(obstacle.radiusMult < 1){
             // since we dont want an infinite loop of getting smaller and then bigger, only trigger if we're colliding with the smaller player
-            if(Collide({...player, body: new SAT.Circle(new SAT.Vector(player.x, player.y), player.r*obstacle.radiusMult)}, obstacle) !== false){
-                player.r *= obstacle.radiusMult;
-            }
+            player.r *= obstacle.radiusMult;
+
+            // TODO: actually get this working (with different player shapes)
+            // const body = player.getShape({shapeType: player.shape, shapePoints: player.body?.points});
+            // const bb = body.getBoundingBox();
+            // if(Collide({...player, body, difference: {x: bb.w, y: bb.h}}, obstacle) === false){
+            //     player.r /= obstacle.radiusMult;
+            // }
         } else {
             player.r *= obstacle.radiusMult;
         }
@@ -147,57 +152,74 @@ const Effects = {
         player.axisSpeedMult.y *= obstacle.axisSpeedMults.y;
     },
     hole: (sat, player, obstacle, { tick }) => {
-        return;
-        // general idea: subtract player's sat by what's inside the hole
-        
-        // convert both sats to poly (for testing: assume that the obstacle is circular and dont)
-
-        // get all intersections points between the player and obstacle
-        const intersections = [];
-
-        const samplePoints = 20;
-        const playerSamplePoints = [];
-        const obstacleSamplePoints = [];
-        for(let i = 0; i < Math.PI*2; i += Math.PI*2/samplePoints){
-            playerSamplePoints.push({x: player.x + Math.cos(i) * player.r, y: player.x + Math.sin(i) * player.r});
-            obstacleSamplePoints.push({x: obstacle.x + Math.cos(i) * obstacle.r, y: obstacle.x + Math.sin(i) * obstacle.r});
-        }
-
-        // looping through all lines of both objs and checking them against another
-        for(let i = 0; i < playerSamplePoints.length-1; i++){
-            for(let j = 0; j < obstacleSamplePoints.length-1; j++){
-                const intersection = lineLineIntersection(playerSamplePoints[i], playerSamplePoints[i+1], obstacleSamplePoints[j], obstacleSamplePoints[j+1]);
-                if(intersection !== false){
-                    intersections.push({x: intersection[0], y: intersection[1], playerLine: i, obstacleLine: j});
+        // step 1: convert player's sat to poly if not done already
+        if(player.shape !== 'poly'){
+            const shapePoints = [];
+            for(let i = 0; i < Math.PI*2; i+=Math.PI*2/20){
+                const point = {x: Math.cos(i) * 24.5 + player.x, y: Math.sin(i) * 24.5 + player.y};
+                if(Collide({shape: 'circle', difference: {x: 0, y: 0}, r: 0, x: point.x, y: point.y, body: new SAT.Circle(new SAT.Vector(point.x, point.y), 0)}, obstacle) === false){
+                    shapePoints.push({
+                        x: point.x - player.x,
+                        y: point.y - player.y
+                    });
                 }
             }
+            if(shapePoints.length > 0){
+                player.changeShape({shapeType: 'poly', shapePoints });
+            } else {
+                player.changeShape({shapeType: 'poly', shapePoints: [{x: 0, y: 0}]});
+            }
         }
+        // // general idea: subtract player's sat by what's inside the hole
         
-        // the first intersection will always be in -> out and 2nd will always be out -> in
-        // (unless the lines are exactly tangent, but that wont be included for testing) (TODO include)
-        // thus, loop through 2 at a time and do this to the sat for each: 
+        // // convert both sats to poly (for testing: assume that the obstacle is circular and dont)
 
-        // this wont work for multiple collision indicies because array will get shifted around (TODO: fix this)
-        for(let i = 0; i < intersections.length-1; i+=2){
-            // slice off all points of the player's sat between the point before the first intersection and the point after the second intersection
-            playerSamplePoints.splice(intersections[i].playerLine, intersections[i+1].playerLine-intersections[i].playerLine);
+        // // get all intersections points between the player and obstacle
+        // const intersections = [];
+
+        // const samplePoints = 20;
+        // const playerSamplePoints = [];
+        // const obstacleSamplePoints = [];
+        // for(let i = 0; i < Math.PI*2; i += Math.PI*2/samplePoints){
+        //     playerSamplePoints.push({x: player.x + Math.cos(i) * player.r, y: player.x + Math.sin(i) * player.r});
+        //     obstacleSamplePoints.push({x: obstacle.x + Math.cos(i) * obstacle.r, y: obstacle.x + Math.sin(i) * obstacle.r});
+        // }
+
+        // // looping through all lines of both objs and checking them against another
+        // for(let i = 0; i < playerSamplePoints.length-1; i++){
+        //     for(let j = 0; j < obstacleSamplePoints.length-1; j++){
+        //         const intersection = lineLineIntersection(playerSamplePoints[i], playerSamplePoints[i+1], obstacleSamplePoints[j], obstacleSamplePoints[j+1]);
+        //         if(intersection !== false){
+        //             intersections.push({x: intersection[0], y: intersection[1], playerLine: i, obstacleLine: j});
+        //         }
+        //     }
+        // }
+        
+        // // the first intersection will always be in -> out and 2nd will always be out -> in
+        // // (unless the lines are exactly tangent, but that wont be included for testing) (TODO include)
+        // // thus, loop through 2 at a time and do this to the sat for each: 
+
+        // // this wont work for multiple collision indicies because array will get shifted around (TODO: fix this)
+        // for(let i = 0; i < intersections.length-1; i+=2){
+        //     // slice off all points of the player's sat between the point before the first intersection and the point after the second intersection
+        //     playerSamplePoints.splice(intersections[i].playerLine, intersections[i+1].playerLine-intersections[i].playerLine);
             
-            // create a new point at the first intersection and 2nd intersection
-            playerSamplePoints.splice(intersections[i].playerLine, 0, {
-                x: intersections[i].x,
-                y: intersections[i].y
-            })
-            playerSamplePoints.splice(intersections[i].playerLine+1, 0, {
-                x: intersections[i+1].x,
-                y: intersections[i+1].y
-            })
+        //     // create a new point at the first intersection and 2nd intersection
+        //     playerSamplePoints.splice(intersections[i].playerLine, 0, {
+        //         x: intersections[i].x,
+        //         y: intersections[i].y
+        //     })
+        //     playerSamplePoints.splice(intersections[i].playerLine+1, 0, {
+        //         x: intersections[i+1].x,
+        //         y: intersections[i+1].y
+        //     })
 
-            // insert all points from the point after the first intersection and the point before the second intersection between the intersection points
-            playerSamplePoints.splice(intersections[i].playerLine+1, 0, ...obstacleSamplePoints.slice(intersections[i].obstacleLine+1,intersections[i+1].obstacleLine));
-        }
+        //     // insert all points from the point after the first intersection and the point before the second intersection between the intersection points
+        //     playerSamplePoints.splice(intersections[i].playerLine+1, 0, ...obstacleSamplePoints.slice(intersections[i].obstacleLine+1,intersections[i+1].obstacleLine));
+        // }
 
-        player.shape = 'poly';
-        player.sat = new SAT.Polygon(new SAT.Vector(), ...playerSamplePoints.map(p => new SAT.Vector(p.x, p.y)));
+        // player.shape = 'poly';
+        // player.sat = new SAT.Polygon(new SAT.Vector(), ...playerSamplePoints.map(p => new SAT.Vector(p.x, p.y)));
     },
     snapGrid: (sat, player, obstacle) => {
         obstacle.snapCooldown--;

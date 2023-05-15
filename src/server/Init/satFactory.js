@@ -118,7 +118,7 @@ const DimensionsMap = {
 }
 
 function generateDimensions(obstacle){
-    if(!DimensionsMap[obstacle.shape])console.log(obstacle.shape);
+    if(!DimensionsMap[obstacle.shape])console.log('dimensionMap not defined for: ' + JSON.stringify(obstacle.shape));
     return DimensionsMap[obstacle.shape](obstacle);
 }
 
