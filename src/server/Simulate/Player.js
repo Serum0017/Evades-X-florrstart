@@ -32,12 +32,14 @@ module.exports = class Player{
         this.xv = init.xv;
         this.yv = init.yv;
 
-        this.spawn = init.map.settings.spawn;
+        // TODO: fix this; spawn just sets to 0,0
+        this.spawn = {x: init.x, y: init.y};// init.map.settings.spawn;
         this.dead = false;
 
-        this.touching = {ground: [], platformer: [], safe: [], changeShape: []};
+        this.touching = {ground: [], platformer: [], safe: [], changeRadius: [], changeShape: []};
         this.axisSpeedMult = {x: 1, y: 1, angle: 0};
         this.pivot = {x: 0, y: 0};
+        this.difference = {x: this.r*2, y: this.r*2};
 
         this.lastTick = 0;
     }

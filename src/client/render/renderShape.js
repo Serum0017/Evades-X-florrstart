@@ -8,6 +8,10 @@ const renderShapeMap = {
         ctx.closePath();
     },
     poly: (o, ctx, advanced) => {
+        if(o.renderFlag === 'oval'){
+            renderShapeMap.oval(o, ctx, advanced);
+            return;
+        }
         // drawing body
         ctx.beginPath();
         ctx.translate(o.render.x - o.x, o.render.y - o.y);
@@ -18,6 +22,12 @@ const renderShapeMap = {
         ctx.lineTo(o.body.calcPoints[0].x + o.body.pos.x, o.body.calcPoints[0].y + o.body.pos.y);
         fsin(o, ctx, advanced);
         ctx.translate(o.x - o.render.x, o.y - o.render.y);
+        ctx.closePath();
+    },
+    oval: (o, ctx, advanced) => {
+        ctx.beginPath();
+        ctx.ellipse(o.render.x, o.render.y, o.rw, o.rh, o.render.rotation/2, 0, Math.PI*2);
+        fsin(o, ctx, advanced);
         ctx.closePath();
     },
     text: (o, ctx, advanced) => {

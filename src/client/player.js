@@ -21,6 +21,8 @@ export default class Player{
         this.body = new SAT.Circle(new SAT.Vector(this.x, this.y), this.r);
         this.shape = 'circle';
         this.body.angle = 0;
+        this.shapePoints = [];
+
         this.isPlayer = true;
 
         this.renderX = this.x;
@@ -34,8 +36,13 @@ export default class Player{
         simulatePlayer(this, map);
     }
     changeShape({shapeType, shapePoints}){
+        // TODO
+        // if(shapeType !== this.lastSimulateShape){
+        //     this.renderR = 0;
+        // }
+        this.shape = shapeType;
         this.body = this.getShape({shapeType, shapePoints});
-		this.shape = shapeType;
+        this.shapePoints = shapePoints;
 		this.boundingBox = this.body.getBoundingBox();
 		this.difference = {x: this.boundingBox.w, y: this.boundingBox.h};
     }
@@ -43,20 +50,20 @@ export default class Player{
         let body;
         switch (shapeType){
 			case 'circle':
-				body = new SAT.Circle(new SAT.Vector(this.x,this.y), this.r).toPolygon();
+				body = new SAT.Circle(new SAT.Vector(this.x,this.y), this.r);
 				break;
 			case 'poly':
 				body = new SAT.Polygon(new SAT.Vector(this.x,this.y), [...shapePoints.map(point => new SAT.Vector(point.x*this.r/24.5, point.y*this.r/24.5))]);
 				break;
 			default:
-				body = new SAT.Circle(new SAT.Vector(this.x,this.y), this.r).toPolygon();
+				body = new SAT.Circle(new SAT.Vector(this.x,this.y), this.r);
 				break;
 		}
         return body;
     }
     respawn(){
         // TODO
-        // this.renderRadius = 0;
+        this.renderR = 0;
         const last = {x: this.x, y: this.y};
         this.x = this.spawn.x;
         this.y = this.spawn.y;
@@ -74,13 +81,14 @@ export default class Player{
             ctx.arc(this.renderX, this.renderY, this.renderR, 0, Math.PI*2);
         } else if(this.shape === 'poly') {
             ctx.translate(this.renderX - this.x, this.renderY - this.y);
-            ctx.moveTo(this.body.calcPoints[0].x + this.body.pos.x, this.body.calcPoints[0].y + this.body.pos.y);
+            ctx.moveTo(this.body.calcPoints[0].x*this.renderR/this.r + this.body.pos.x, this.body.calcPoints[0].y*this.renderR/this.r + this.body.pos.y);
             for(let i = 1; i < this.body.calcPoints.length; i++){
-                ctx.lineTo(this.body.calcPoints[i].x + this.body.pos.x, this.body.calcPoints[i].y + this.body.pos.y);
+                ctx.lineTo(this.body.calcPoints[i].x*this.renderR/this.r + this.body.pos.x, this.body.calcPoints[i].y*this.renderR/this.r + this.body.pos.y);
             }
-            ctx.lineTo(this.body.calcPoints[0].x + this.body.pos.x, this.body.calcPoints[0].y + this.body.pos.y);
+            ctx.lineTo(this.body.calcPoints[0].x*this.renderR/this.r + this.body.pos.x, this.body.calcPoints[0].y*this.renderR/this.r + this.body.pos.y);
             ctx.translate(this.x - this.renderX, this.y - this.renderY);
         }
+        this.lastRenderShape = this.shape;
         ctx.fill();
 
         if(this.god === true){

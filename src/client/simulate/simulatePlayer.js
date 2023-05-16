@@ -1,4 +1,4 @@
-import transformBody from "./obstacles/transformBody.js";
+import Collide from './obstacles/collisionManager.js';
 
 // simple simulate function for simulating the p based on input
 export default function simulatePlayer(p, map) {
@@ -36,25 +36,6 @@ export default function simulatePlayer(p, map) {
 	p.x += p.xv;
 	p.y += p.yv;
 
-	if(p.touching.changeShape.length > 0){
-		if(p.touching.changeShape[0].shapeRadius !== undefined){
-			p.r = p.shapeChanger.shapeRadius;
-		}
-		p.changeShape(p.touching.changeShape[0]);
-	} else {
-		p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), p.r);
-		p.shape = 'circle';
-		p.difference = {x: p.r*2, y: p.r*2};
-	}
-	// transformBody(p, {x: p.x - p.last.x, y: p.y - p.last.y, rotation: 0});
-
-	p.pivot = {x: p.x, y: p.y};// TODO: remove?
-
-	// reset changable parameters
-	p.axisSpeedMult = {x: 1, y: 1, angle: 0};
-	p.friction = 0.4;
-	p.r = 24.5;
-
 	// bound player against the map
 	if (p.x - p.difference.x/2 < 0) {
 		p.x = p.difference.x/2;
@@ -69,31 +50,76 @@ export default function simulatePlayer(p, map) {
 		p.y = map.settings.dimensions.y - p.difference.x/2;
 	}
 
-	// TODO: make sure other players arent sending/ simulating with this (maybe isolate to a diff function?)
-	if(p.touching.ground.length > 0){
-		for(let i = 0; i < p.touching.platformer.length; i++){
-			simulatePlatformer(p, p.touching.platformer[i]);
+	p.axisSpeedMult = {x: 1, y: 1, angle: 0};
+	p.friction = 0.4;
+	p.r = 24.5;
+
+	p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), p.r);
+	p.shape = 'circle';
+	p.difference = {x: p.r*2, y: p.r*2};
+
+	// simulate touching effects that need to occur at the end of the frame
+	if(p.id === map.selfId){
+		for(let i = 0; i < touchingSimulateMap.length; i++){
+			for(let j = 0; j < p.touching[touchingSimulateMapKeys[i]].length; j++){
+				touchingSimulateMap[i][touchingSimulateMapKeys[i]](p, p.touching[touchingSimulateMapKeys[i]][j], {map, index: j});
+			}
 		}
 	}
+
+	// transformBody(p, {x: p.x - p.last.x, y: p.y - p.last.y, rotation: 0});
+
+	p.pivot = {x: p.x, y: p.y};
+	p.lastSimulateShape = p.shape;
 	
 	for(let key in p.touching){
 		p.touching[key] = [];
 	}
 }
 
-function simulatePlatformer(p, obstacle){
-	if(obstacle.jumpCooldown > 0){
-		return;
-	}
-	
-	if(p.input[obstacle.jumpInput] === true){
-		obstacle.jumpCooldown = obstacle.maxJumpCooldown;
-		bounce({
-			x: -Math.cos(obstacle.platformerAngle) * obstacle.jumpForce,
-			y: -Math.sin(obstacle.platformerAngle) * obstacle.jumpForce
-		}, p, obstacle.jumpFriction);
-	}
-}
+const touchingSimulateMap = [
+	{
+		platformer: (p, obstacle) => {
+			if(obstacle.jumpCooldown > 0){
+				return;
+			}
+			
+			if(p.input[obstacle.jumpInput] === true && p.touching.ground.length > 0){
+				obstacle.jumpCooldown = obstacle.maxJumpCooldown;
+				bounce({
+					x: -Math.cos(obstacle.platformerAngle) * obstacle.jumpForce,
+					y: -Math.sin(obstacle.platformerAngle) * obstacle.jumpForce
+				}, p, obstacle.jumpFriction);
+			}
+		}
+	},
+	{
+		changeRadius: (p, obstacle) => {
+			p.r *= obstacle.radiusMult;
+			if(obstacle.radiusMult < 1){
+				const body = p.getShape({shapeType: p.shape, shapePoints: p.shapePoints});
+				const boundingBox = p.body.getBoundingBox();
+				if(Collide({x: p.x, y: p.y, r: p.r, shape: p.shape, difference: {x: boundingBox.w, y: boundingBox.h}, body}, obstacle) === false){
+					p.r /= obstacle.radiusMult;
+				}
+			}
+			p.changeShape({shapeType: p.shape, shapePoints: p.shapePoints});
+		}
+	},
+	{
+		changeShape: (p, obstacle, {index}) => {
+			if(index !== 0){
+				return;
+			}
+			if(obstacle.shapeRadius !== undefined){
+				p.r = p.shapeChanger.shapeRadius;
+			}
+			p.changeShape(obstacle);
+		}
+	},
+]
+
+const touchingSimulateMapKeys = touchingSimulateMap.map(obj => Object.keys(obj)[0]);
 
 function bounce(/*amount: */{x, y}, player, friction){
     if(!player.frictions[friction]){

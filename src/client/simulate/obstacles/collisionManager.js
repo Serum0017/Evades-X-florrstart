@@ -19,9 +19,9 @@ class Collision {
         });
 
         this.addCollisionMap('circle', 'poly', (circle, poly) => {
-            if(!intersectingBoundingBox(circle, poly)){
-                return false;
-            }
+            // if(!intersectingBoundingBox(circle, poly)){
+            //     return false;
+            // }
             
             const res = new SAT.Response();
             if (SAT.testPolygonCircle(poly.body, circle.body, res)) {

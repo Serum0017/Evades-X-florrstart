@@ -16,6 +16,13 @@ const SATMap = {
     poly: ({ points,x,y }) => {
         return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
     },
+    oval: ({ x,y,rw,rh }) => {
+        const points = [];
+        for(let a = 0; a < Math.PI*2; a += Math.PI*2/(Math.max(3,rw/25)*Math.max(3,rh/25))){
+            points.push([Math.cos(a) * rw, Math.sin(a) * rh]);
+        }
+        return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
+    },
     text: ({ x,y,text,fontSize }) => {
         ctx.font = `${fontSize}px Inter`;
         const textMeasurements = ctx.measureText(text);
@@ -56,6 +63,9 @@ function generateBody(obstacle) {
 
     if(obstacle.shape === 'square'){
         init.shape = 'poly';
+    } else if(obstacle.shape === 'oval'){
+        init.shape = 'poly';
+        init.renderFlag = 'oval';
     }
 
     return init;
@@ -109,6 +119,9 @@ const DimensionsMap = {
             // x: (left + right)/2,
             // y: (bottom + top)/2
         };
+    },
+    oval: ({ rw, rh }) => {
+        return {difference: {x: rw*2, y: rh*2}};
     },
     text: ({ text,fontSize }) => {
         ctx.font = `${fontSize}px Inter`;
