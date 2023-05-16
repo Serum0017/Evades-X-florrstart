@@ -40,7 +40,7 @@ module.exports = {
         // {type: 'square-normal-restrictAxis', x: 350, y: 200, w: 200, h: 200, axisSpeedMults: {x: -0.01, y: 2} /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
         // {type: 'square-normal-snapGrid', x: 175-32, y: 375-12, w: 150, h: 150, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
 
-        // {type: 'square-normal-changeShape', frictionValue: 0.9, x: 0, y: 250, w: 1000, h: 500, shapeType: 'square', shapeWidth: 50, shapeHeight: 50},
+        {type: 'square-normal-changeShape', frictionValue: 0.9, x: 0, y: 250, w: 1000, h: 500, shapeType: 'square', shapeWidth: 50, shapeHeight: 50},
         // {type: 'square-normal-changeRadius', x: 200, y: 325, w: 100, h: 50, radiusMult: 0.5 },
         // {type: 'square-normal-changeSpeed', speedMult: 0.1, x: 400, y: 325, w: 100, h: 50},
 

@@ -1,8 +1,5 @@
 const Obstacles = require('./!conversionClasses.js');
 
-class Spawner{
-    constructor(){}
-};
 class Safe{
     constructor(){}
 };
@@ -11,12 +8,13 @@ class Text{
 };
 
 const supportedObjects = {
-	'spawner': Spawner,
-	'turret': Spawner,
-	'square': Spawner,
-	'switch': Spawner,
-	'flashlight': Spawner,
-	'enemymove': Spawner,
+	'spawner': Obstacles.Spawner,
+	'normalEnemy': Obstacles.Spawner,
+	'turret': Obstacles.Spawner,
+	'square': Obstacles.Spawner,
+	'switch': Obstacles.Spawner,
+	'flashlight': Obstacles.Spawner,
+	'enemymove': Obstacles.Spawner,
 	
 	'normal': Obstacles.NormalObstacle,
 	'lava': Obstacles.Lava,

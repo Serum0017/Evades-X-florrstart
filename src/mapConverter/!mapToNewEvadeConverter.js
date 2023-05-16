@@ -42,6 +42,13 @@ function newEvade(map, isSerialized=false){
         initObstacle(map.obstacles[i], newMap.init, isSerialized);
     }
 
+    // convert enemies to classes
+    for(let i = 0; i < map.spawns.length; i++){
+        if(map.spawns[i].data.type === 'normal')map.spawns[i].data.type = 'normalEnemy';
+        map.spawns[i].type = map.spawns[i].data.type;
+        initObstacle(map.spawns[i], newMap.init, isSerialized);
+    }
+
     // making obselete settings into obstacles
     newMap.init.push({
         type: 'square-normal-changeColor',
@@ -76,6 +83,7 @@ function initObstacle(o, init, isSerialized){
 }
 
 function serializeObstacle(o){
+    console.log(o.type);
     return new typeConversion.supportedObjects[o.type](...typeConversion.mappedPara[o.type].map(parameter => o[parameter]));
 }
 

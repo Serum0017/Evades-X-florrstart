@@ -152,11 +152,6 @@ class Npc{
   
     }
   };
-  class Spawner{
-    constructor(){
-  
-    }
-  };
   class Safe{
     constructor(){
   

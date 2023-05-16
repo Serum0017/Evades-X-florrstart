@@ -435,15 +435,42 @@ class SnapGrid {
 	}
 }
 
-// class Spawner {
-//     constructor(x,y,w,h,spawnData){
-//         return {
-
-//         }
-//     }
-// }
+class Spawner {
+    constructor(x,y,w,h,spawnData){
+        const enemies = [];
+        for(let i = 0; i < spawnData.amount; i++){
+            switch(spawnData.type){
+                case 'normal':
+                    enemies.push({
+                        type: 'circle-enemy-lava',
+                        solid: false,
+                        bound: {x,y,w,h},
+                        enemyType: 'normal',
+                        speed: spawnData.speed,
+                        r: spawnData.radius
+                    })
+                    break;
+                case 'square':
+                    enemies.push({
+                        type: 'square-enemy-lava',
+                        solid: false,
+                        bound: {x,y,w,h},
+                        enemyType: 'normal',
+                        speed: spawnData.speed,
+                        w: spawnData.size,
+                        h: spawnData.size
+                    });
+                    break;
+                default: 
+                    break;
+            }
+        }
+        console.log(enemies);
+        return enemies;
+    }
+}
 
 module.exports = {
     NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingNormal, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon,
-    PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle /*Portal*/
+    PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner /*Portal*/
 }

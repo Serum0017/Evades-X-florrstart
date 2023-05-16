@@ -34,7 +34,7 @@ module.exports = class Game {
             this.loadMap(mapName);
         }
 
-        this.players[id] = new Player(id, this.defaultState);
+        this.players[id] = new Player(id, {...this.defaultState, map: this.maps[mapName], mapName});
 
         this.maps[mapName].addPlayer(this.players[id]);
         this.players[id].map = mapName;

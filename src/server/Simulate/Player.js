@@ -33,7 +33,7 @@ module.exports = class Player{
         this.yv = init.yv;
 
         // TODO: fix this; spawn just sets to 0,0
-        this.spawn = {x: init.x, y: init.y};// init.map.settings.spawn;
+        this.spawn = init.map.settings.spawn;
         this.dead = false;
 
         this.touching = {ground: [], platformer: [], safe: [], changeRadius: [], changeShape: []};
