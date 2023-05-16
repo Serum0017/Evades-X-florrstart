@@ -8,13 +8,13 @@ class Text{
 };
 
 const supportedObjects = {
-	'spawner': Obstacles.Spawner,
+	// 'spawner': Obstacles.Spawner,
 	'normalEnemy': Obstacles.Spawner,
-	'turret': Obstacles.Spawner,
-	'square': Obstacles.Spawner,
-	'switch': Obstacles.Spawner,
-	'flashlight': Obstacles.Spawner,
-	'enemymove': Obstacles.Spawner,
+	// 'turret': Obstacles.Spawner,
+	// 'square': Obstacles.Spawner,
+	// 'switch': Obstacles.Spawner,
+	// 'flashlight': Obstacles.Spawner,
+	// 'enemymove': Obstacles.Spawner,
 	
 	'normal': Obstacles.NormalObstacle,
 	'lava': Obstacles.Lava,
@@ -101,12 +101,13 @@ const supportedObjects = {
 }
 
 const mappedPara = {
-	'spawner': ['x', 'y', 'w', 'h', 'spawnData'],
-	'turret': ['x', 'y', 'w', 'h', 'spawnData'],
-	'square': ['x', 'y', 'w', 'h', 'spawnData'],
-	'switch': ['x', 'y', 'w', 'h', 'spawnData'],
-	'flashlight': ['x', 'y', 'w', 'h', 'spawnData'],
-	'enemymove': ['x', 'y', 'w', 'h', 'spawnData'],
+	'normalEnemy': ['x','y','w','h','data'],
+	'spawner': ['x', 'y', 'w', 'h', 'data'],
+	'turret': ['x', 'y', 'w', 'h', 'data'],
+	'square': ['x', 'y', 'w', 'h', 'data'],
+	'switch': ['x', 'y', 'w', 'h', 'data'],
+	'flashlight': ['x', 'y', 'w', 'h', 'data'],
+	'enemymove': ['x', 'y', 'w', 'h', 'data'],
 	
 	'normal': ['x', 'y', 'w', 'h', 'canJump', 'angle'],
 	'lava': ['x', 'y', 'w', 'h', 'canCollide', 'angle'],
@@ -175,7 +176,7 @@ const mappedPara = {
 	'circle-sentry': ['x', 'y', 'r', 'lw', 'lh', 'speed', 'rest'],
 	'tptrap': ['x', 'y', 'w', 'h', 'maxTime', 'tpx', 'tpy'],
 	'movinggrapplepoint': ['points', 'speed', 'currentPoint'],
-	'oval': ['x', 'y', 'r0', 'r1'],
+	'oval': ['x', 'y', 'radius', 'radius2'],
 	'lava-oval': ['x', 'y', 'r0', 'r1'],
 	'resetcoins': ['x', 'y', 'w', 'h'],
 	'switchlava': ['x', 'y', 'w', 'h', 'offTime', 'onTime', 'state', 'offset'],

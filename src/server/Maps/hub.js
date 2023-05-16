@@ -60,7 +60,7 @@ module.exports = {
         //     eventEmitters: [{type: 'parameterGreaterThan', id: 1, toLoop: true, value: 500, keyChain: ['x']}]
         // },
 
-        {type: 'circle-normal-changeMap', x: 25, y: 375, r: 15, w: 50, h: 50, map: 'Planet of Conveyor Abuse' },
+        {type: 'circle-normal-changeMap', x: 25, y: 375, r: 15, w: 50, h: 50, map: 'Planet of Difficulty Chart' },
 
         // {type: 'text-rotate-snapGrid', x: 150, y: 200, snapDistance: {x: 35, y: 60}, snapAngle: 45, snapAngleRotateSpeed: 0.2, text: 'Evades X', fontSize: 60 /*path: [{x:350, y:200}, {x:400, y:200}, {x:450, y:250}], currentPoint: 0, speed: 1*/ },
         

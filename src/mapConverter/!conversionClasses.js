@@ -435,18 +435,36 @@ class SnapGrid {
 	}
 }
 
+class Oval {
+	constructor(x, y, rw, rh) {
+		return {
+            type: 'oval-normal-normal',
+            x,y,rw,rh
+        }
+	}
+}
+
+class LavaOval {
+	constructor(x, y, rw, rh) {
+		return {
+            type: 'oval-normal-lava',
+            x,y,rw,rh,solid: true
+        }
+	}
+}
+
 class Spawner {
     constructor(x,y,w,h,spawnData){
         const enemies = [];
         for(let i = 0; i < spawnData.amount; i++){
             switch(spawnData.type){
-                case 'normal':
+                case 'normalEnemy':
                     enemies.push({
                         type: 'circle-enemy-lava',
                         solid: false,
                         bound: {x,y,w,h},
                         enemyType: 'normal',
-                        speed: spawnData.speed,
+                        speed: spawnData.speed/60,
                         r: spawnData.radius
                     })
                     break;
@@ -456,7 +474,7 @@ class Spawner {
                         solid: false,
                         bound: {x,y,w,h},
                         enemyType: 'normal',
-                        speed: spawnData.speed,
+                        speed: spawnData.speed/60,
                         w: spawnData.size,
                         h: spawnData.size
                     });
@@ -465,12 +483,11 @@ class Spawner {
                     break;
             }
         }
-        console.log(enemies);
         return enemies;
     }
 }
 
 module.exports = {
     NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingNormal, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon,
-    PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner /*Portal*/
+    PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner, Oval, LavaOval /*Portal*/
 }

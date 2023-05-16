@@ -1,4 +1,4 @@
-const map = require('./poca.js');
+const map = require('./podc.js');
 const typeConversion = require('./!typeConversion.js')
 const obstacles = require('./!conversionClasses.js');
 // const clipboardy = require('clipboardy');
@@ -37,16 +37,16 @@ function newEvade(map, isSerialized=false){
         init: [{type: 'settings', dimensions: {x: map.arena.width, y: map.arena.height}, spawn: {x: map.playerSpawn.x, y: map.playerSpawn.y}, difficulty: map.difficulty}],
     }
 
-    // convert obstacles to classes
-    for(let i = 0; i < map.obstacles.length; i++){
-        initObstacle(map.obstacles[i], newMap.init, isSerialized);
-    }
-
     // convert enemies to classes
     for(let i = 0; i < map.spawns.length; i++){
         if(map.spawns[i].data.type === 'normal')map.spawns[i].data.type = 'normalEnemy';
         map.spawns[i].type = map.spawns[i].data.type;
         initObstacle(map.spawns[i], newMap.init, isSerialized);
+    }
+
+    // convert obstacles to classes
+    for(let i = 0; i < map.obstacles.length; i++){
+        initObstacle(map.obstacles[i], newMap.init, isSerialized);
     }
 
     // making obselete settings into obstacles
@@ -71,19 +71,17 @@ function initObstacle(o, init, isSerialized){
     if(isSerialized === false){
         if(typeConversion.supportedObjects[o.type] === undefined)return;
         o = serializeObstacle(o);
-    }
-    if(Array.isArray(o)){
-        for(let i = 0; i < o.length; i++){
-            initObstacle(o[i], init, true);
-            // console.log(o[i],typeConversion.supportedObjects[o[i].type]);
+        if(Array.isArray(o)){
+            for(let i = 0; i < o.length; i++){
+                initObstacle(o[i], init, true);
+            }
+            return;
         }
-    } else {
-        init.push(o);
     }
+    init.push(o);
 }
 
 function serializeObstacle(o){
-    console.log(o.type);
     return new typeConversion.supportedObjects[o.type](...typeConversion.mappedPara[o.type].map(parameter => o[parameter]));
 }
 
