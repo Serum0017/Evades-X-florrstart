@@ -32,7 +32,8 @@ class RotatingLava {
         // if(pivotX !== undefined && pivotY !== undefined){
         //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
         /*} else*/ if(distToPivot !== undefined){
-            pivot = {x: w/2+distToPivot, y: h/2};
+            pivot = {x: w/2-distToPivot, y: h/2};
+            x -= distToPivot;
         }
         return {
             type: 'square-rotate-lava',
@@ -56,7 +57,8 @@ class RotatingNormal{
         // if(pivotX !== undefined && pivotY !== undefined){
         //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
         /*} else*/ if(distToPivot !== undefined){
-            pivot = {x: w/2+distToPivot, y: h/2};
+            pivot = {x: w/2-distToPivot, y: h/2};
+            x -= distToPivot;
         }
         return {
             type: 'square-rotate-normal',
