@@ -1,8 +1,5 @@
 const Obstacles = require('./!conversionClasses.js');
 
-class Safe{
-    constructor(){}
-};
 class Text{
     constructor(){}
 };
@@ -18,7 +15,7 @@ const supportedObjects = {
 	
 	'normal': Obstacles.NormalObstacle,
 	'lava': Obstacles.Lava,
-	'safe': Safe,
+	'safe': Obstacles.Safe,
 	'winpad': Obstacles.Winpad,
 	'rotate-lava': Obstacles.RotatingLava,
 	'rotate-normal': Obstacles.RotatingNormal,
@@ -124,8 +121,8 @@ const mappedPara = {
 	'trans': ['x', 'y', 'w', 'h', 'collide', 'opaq'],
 	'check': ['x', 'y', 'w', 'h'],
 	'bounce': ['x', 'y', 'w', 'h', 'effect'],
-	'grav': ['x', 'y', 'w', 'h', 'direction', 'force'],
-	'push': ['x', 'y', 'w', 'h', 'direction', 'max', 'pushBack'],
+	'grav': ['x', 'y', 'w', 'h', 'dir', 'force'],
+	'push': ['x', 'y', 'w', 'h', 'direction? dir? idk', 'max', 'pushBack'],
 	'timetrap': ['x', 'y', 'w', 'h', 'maxTime'],
 	'breakable': ['x', 'y', 'w', 'h', 'maxStrength', 'time', 'regenTime'],
 	'circle-normal': ['x', 'y', 'radius'],
@@ -142,10 +139,10 @@ const mappedPara = {
 	'typing': ['x', 'y', 'w', 'h', 'text'],
 	'speed': ['x', 'y', 'w', 'h', 'speedInc'],
 	'size': ['x', 'y', 'w', 'h', 'size'],
-	'poly': ['points', 'type'],
-	'poly-lava': ['points', 'type'],
-	'poly-safe': ['points', 'type'],
-	'poly-tp': ['points', 'type', 'tpx', 'tpy'],
+	'poly': ['points', 'variant'],
+	'poly-lava': ['points', 'variant'],
+	'poly-safe': ['points', 'variant'],
+	'poly-tp': ['points', 'variant', 'tpx', 'tpy'],
 	'mark': ['x', 'y', 'w', 'h', 'time'],
 	'cure': ['x', 'y', 'w', 'h'],
 	'zone': ['x', 'y', 'w', 'h', 'data'],

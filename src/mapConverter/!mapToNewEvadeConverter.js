@@ -49,6 +49,12 @@ function newEvade(map, isSerialized=false){
         initObstacle(map.obstacles[i], newMap.init, isSerialized);
     }
 
+    // convert safes to classes
+    for(let i = 0; i < map.safes.length; i++){
+        map.safes[i].type = 'safe';
+        initObstacle(map.safes[i], newMap.init, isSerialized);
+    }
+
     // making obselete settings into obstacles
     newMap.init.push({
         type: 'square-normal-changeColor',

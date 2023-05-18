@@ -140,7 +140,7 @@ const {
     TurretSentry,
     PolygonBouncy,
     PolygonBreakable,
-    PolygonBouncyBreakable,
+    PolygonBouncyBreakable, Safe
 } = require('./!conversionClasses.js');
 // const Npc = require('../npc.js');
 // const Spawner = require('../spawner.js');
@@ -148,11 +148,6 @@ const {
 // const Text = require('../text.js');
 
 class Npc{
-    constructor(){
-  
-    }
-  };
-  class Safe{
     constructor(){
   
     }

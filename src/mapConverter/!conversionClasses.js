@@ -13,6 +13,15 @@ class NormalObstacle {
 	}
 }
 
+class Safe {
+	constructor(x, y, w, h) {
+		return {
+            type: 'square-normal-safe',
+            x:x+w/2,y:y+h/2,w,h
+        }
+	}
+}
+
 class Lava extends NormalObstacle {
 	constructor(x, y, w, h, canCollide = true, angle=0) {
         // {type: 'square-normal-lava', x: 400, y: 150, w: 50, h: 50, bounciness: 1, friction: 0.98 },
@@ -27,7 +36,6 @@ class Lava extends NormalObstacle {
 
 class RotatingLava {
 	constructor(x, y, w, h, spd, angle=0, pivotX, pivotY, distToPivot, canCollide) {
-		// rotation: 0, pivot: {x: 200, y: 200}, rotateSpeed: .5,
         let pivot = {x: w/2, y: h/2};
         // if(pivotX !== undefined && pivotY !== undefined){
         //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
@@ -37,7 +45,7 @@ class RotatingLava {
         }
         return {
             type: 'square-rotate-lava',
-            x:x+w/2,y:y+h/2,w,h,rotateSpeed: spd*Math.PI/180,rotation: angle*Math.PI/180, pivot, solid: canCollide
+            x:x,y:y,w,h,rotateSpeed: spd/77.5,rotation: angle*Math.PI/180, pivot, solid: canCollide
         }
 	}
 }
@@ -62,7 +70,7 @@ class RotatingNormal{
         }
         return {
             type: 'square-rotate-normal',
-            x:x,y,w,h,rotateSpeed: spd*Math.PI/180,rotation: angle*Math.PI/180, pivot
+            x:x,y:y,w,h,rotateSpeed: spd/77.5,rotation: angle*Math.PI/180, pivot
         }
     }
 }
@@ -118,6 +126,15 @@ class SpeedObstacle {
         return {
             type: 'square-normal-changeSpeed',
             x:x+w/2,y:y+h/2,w,h,speedMult: speedInc
+        }
+    }
+}
+
+class SizePlayer {
+    constructor(x, y, w, h, size){
+        return {
+            type: 'square-normal-changeRadius',
+            x:x+w/2,y:y+h/2,w,h,radiusMult: size/24.5
         }
     }
 }
@@ -186,7 +203,7 @@ class MovingObstacle {
         return {
             type: 'square-move-normal',
             x: points[currentPoint][0]+w/2,y: points[currentPoint][1]+h/2,w,h,
-            speed:speed/100,currentPoint,
+            speed:speed/77.5,currentPoint,
             path: points.map(p => {return {x: p[0]+w/2, y: p[1]+h/2}})
         }
     }
@@ -197,7 +214,7 @@ class MovingLavaObstacle {
         return {
             type: 'square-move-lava',
             x: points[currentPoint][0]+w/2,y: points[currentPoint][1]+h/2,w,h,
-            speed:speed/100,currentPoint,
+            speed:speed/77.5,currentPoint,
             path: points.map(p => {return {x: p[0]+w/2, y: p[1]+h/2}}),
             solid: collidable
         }
@@ -450,7 +467,7 @@ class LavaOval {
 	constructor(x, y, rw, rh) {
 		return {
             type: 'oval-normal-lava',
-            x,y,rw,rh,solid: true
+            x:x+rw/2,y:y+rh/2,rw:rw/2,rh:rh/2,solid: true
         }
 	}
 }
@@ -491,5 +508,6 @@ class Spawner {
 
 module.exports = {
     NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingNormal, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon,
-    PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner, Oval, LavaOval /*Portal*/
+    PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner, Oval, LavaOval, Safe /*Portal*/,
+    SizePlayer
 }
