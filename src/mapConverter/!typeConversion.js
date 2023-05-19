@@ -1,10 +1,10 @@
 const Obstacles = require('./!conversionClasses.js');
 
 const supportedObjects = {
-	'spawner': Obstacles.Spawner,
-	'normalEnemy': Obstacles.Spawner,
+	'enemySpawner': Obstacles.Spawner,
+	// 'normalEnemy': Obstacles.Spawner,
 	// 'turret': Obstacles.Spawner,
-	'square': Obstacles.Spawner,
+	// 'square': Obstacles.Spawner,
 	// 'switch': Obstacles.Spawner,
 	// 'flashlight': Obstacles.Spawner,
 	// 'enemymove': Obstacles.Spawner,
@@ -95,7 +95,7 @@ const supportedObjects = {
 
 const mappedPara = {
 	'normalEnemy': ['x','y','w','h','data'],
-	'spawner': ['x', 'y', 'w', 'h', 'data'],
+	'enemySpawner': ['x', 'y', 'w', 'h', 'data'],
 	'turret': ['x', 'y', 'w', 'h', 'data'],
 	'square': ['x', 'y', 'w', 'h', 'data'],
 	'switch': ['x', 'y', 'w', 'h', 'data'],
