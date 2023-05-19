@@ -1,18 +1,13 @@
 const { TransObstacle, NormalObstacle, BouncyObstacle,
 	CircularNormalObstacle, CircularBouncyObstacle, RotatingNormal,
 	Lava, RotatingLava,CircularLavaObstacle, SpeedObstacle, GravObstacle,Air, Polygon,
-	Tp, MovingObstacle, StoryDisplay, Pusher, Camera,Pushbox,Deathcure,CircularSafeObstacle, Zone, Deathmark, MovingLavaObstacle, CircularCoin, Portal, Winpad, Booster, WallBooster, WB, SpeedTrap, GrowingObstacle, GrowingLavaObstacle, GrowingCircleObstacle, GrowingCircleLavaObstacle, SizePlayer, Slip, BoostPad, Tornado, SnapGrid, VinetteIncrease, ColorChange, RotatingTp, PlatformerGrav, MovingSafe, RotatingSafe, BreakableObstacle, SwitchLava, SwitchObstacle, TimeTrap, InvincibilityPowerup, Filter, Particles, MovingSpeedTrap, RotatingSpeedTrap, DeadMove, Revive, DrawObstacle, Clone, Ship, CoinDoor, MusicChange, Redirect, CookieCheck, Typing, RevivePowerup, Raycasting, Spring, CircularSnap, IDIT, CameraChange, Gun, Mashing, Golf, Zoom, RestrictAxis, Custom, FallingArrow, CircularHollowObstacle, SwitchGrav, Door, Button, CircularDoor, ReusableButton, TimeButton, TimeTrapButton, LavaDoor, Invert, DragonPowerup, PlayerCollide, CrowdButton, Hole, GunslingerPowerup, AmogusPowerup, Demo, EnemyButton, CircularSliceObstacle, CircularHollowSlice, RoundedCorners, RoundedLava, GrapplePowerup, GrapplePoint, CircularHollowLava, CircularLavaSlice, CircularHollowLavaSlice, ResetCoins, Coin, Bezier, BoxButton, RotatingPause, RotatingLavaPause, MovingPause, MovingLavaPause, Safe }= require("./!conversionClasses.js");
+	Tp, MovingObstacle, StoryDisplay, Pusher, Camera,Pushbox,Deathcure,CircularSafeObstacle, Zone, Deathmark, Text, MovingLavaObstacle, CircularCoin, Portal, Winpad, Booster, WallBooster, WB, SpeedTrap, GrowingObstacle, GrowingLavaObstacle, GrowingCircleObstacle, GrowingCircleLavaObstacle, SizePlayer, Slip, BoostPad, Tornado, SnapGrid, VinetteIncrease, ColorChange, RotatingTp, PlatformerGrav, MovingSafe, RotatingSafe, BreakableObstacle, SwitchLava, SwitchObstacle, TimeTrap, InvincibilityPowerup, Filter, Particles, MovingSpeedTrap, RotatingSpeedTrap, DeadMove, Revive, DrawObstacle, Clone, Ship, CoinDoor, MusicChange, Redirect, CookieCheck, Typing, RevivePowerup, Raycasting, Spring, CircularSnap, IDIT, CameraChange, Gun, Mashing, Golf, Zoom, RestrictAxis, Custom, FallingArrow, CircularHollowObstacle, SwitchGrav, Door, Button, CircularDoor, ReusableButton, TimeButton, TimeTrapButton, LavaDoor, Invert, DragonPowerup, PlayerCollide, CrowdButton, Hole, GunslingerPowerup, AmogusPowerup, Demo, EnemyButton, CircularSliceObstacle, CircularHollowSlice, RoundedCorners, RoundedLava, GrapplePowerup, GrapplePoint, CircularHollowLava, CircularLavaSlice, CircularHollowLavaSlice, ResetCoins, Coin, Bezier, BoxButton, RotatingPause, RotatingLavaPause, MovingPause, MovingLavaPause, Safe }= require("./!conversionClasses.js");
 // const Npc = require('../npc.js');
 // const Spawner = require('../spawner.js');
 // const Safe = require('../safe.js');
 // const Text = require('../text.js');
 
 class Npc{
-  constructor(){
-
-  }
-};
-class Text{
   constructor(){
 
   }

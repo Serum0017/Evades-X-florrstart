@@ -22,6 +22,33 @@ class Safe {
 	}
 }
 
+class MovingSafe {
+	constructor(w, h, points = [[50, 50]], speed = 30, currentPoint=0, alongWith = false){
+        return {
+            type: 'square-move-safe',
+            x: points[currentPoint][0]+w/2,y: points[currentPoint][1]+h/2,w,h,
+            speed:speed/77.5,currentPoint,
+            path: points.map(p => {return {x: p[0]+w/2, y: p[1]+h/2}})
+        }
+    }
+}
+
+class RotatingSafe {
+	constructor(x, y, w, h, spd, angle=0, pivotX, pivotY, distToPivot) {
+        let pivot = {x: w/2, y: h/2};
+        // if(pivotX !== undefined && pivotY !== undefined){
+        //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
+        /*} else*/ if(distToPivot !== undefined){
+            pivot = {x: w/2-distToPivot, y: h/2};
+            x -= distToPivot;
+        }
+        return {
+            type: 'square-rotate-safe',
+            x:x,y:y,w,h,rotateSpeed: spd/77.5,rotation: angle*Math.PI/180, pivot
+        }
+	}
+}
+
 class Lava extends NormalObstacle {
 	constructor(x, y, w, h, canCollide = true, angle=0) {
         // {type: 'square-normal-lava', x: 400, y: 150, w: 50, h: 50, bounciness: 1, friction: 0.98 },
@@ -443,6 +470,26 @@ class Polygon {
     }
 }
 
+const { registerFont, createCanvas } = require('canvas');// TODO: load inter font manually because device might not hvae installed
+registerFont('./src/server/init/inter.ttf', { family: 'Inter' });
+const canvas = createCanvas(1,1);
+const ctx = canvas.getContext('2d');
+
+class Text {
+	constructor(x, y, text, story, size, angle) {// text: 'Evades X', fontSize: 60
+        ctx.font = `${size}px Inter`;
+        const textMeasurements = ctx.measureText(text);
+        const w = textMeasurements.width;
+        const h = textMeasurements.actualBoundingBoxAscent;
+        if(story){return [];}
+		return {
+            type: 'text-normal-coin',color: 'white',
+            x:x-w/2,y:y-h/2,text, fontSize: size
+        }
+	}
+}
+
+
 class SnapGrid {
 	constructor(x, y, w, h, snapX, snapY, snapDistance, snapWait) {
 		return {
@@ -508,6 +555,6 @@ class Spawner {
 
 module.exports = {
     NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingNormal, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon,
-    PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner, Oval, LavaOval, Safe /*Portal*/,
-    SizePlayer
+    PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner, Oval, LavaOval, Safe, /*Portal*/
+    SizePlayer, MovingSafe, RotatingSafe, Text
 }

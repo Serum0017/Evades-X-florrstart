@@ -64,7 +64,9 @@ const Effects = {
         }
     },
     changeColor: (sat, player, obstacle, { client }) => {
-        client.game.renderer.colors = obstacle.colorsToChange;
+        for(let key in obstacle.colorsToChange){
+            client.game.renderer.colors[key] = obstacle.colorsToChange[key];
+        }
     },
     changeSpeed: (sat, player, obstacle, advanced) => {
         player.axisSpeedMult.x *= obstacle.speedMult;

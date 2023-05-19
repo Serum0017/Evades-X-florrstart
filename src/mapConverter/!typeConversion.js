@@ -1,9 +1,5 @@
 const Obstacles = require('./!conversionClasses.js');
 
-class Text{
-    constructor(){}
-};
-
 const supportedObjects = {
 	// 'spawner': Obstacles.Spawner,
 	'normalEnemy': Obstacles.Spawner,
@@ -22,7 +18,7 @@ const supportedObjects = {
 	'rotate-tp': Obstacles.RotatingTp,
 	'rotatingsafe': Obstacles.RotatingSafe,
 	'tp': Obstacles.Tp,
-	'text': Text,
+	'text': Obstacles.Text,
 	'coin': Obstacles.Coin,
 	'coindoor': Obstacles.CoinDoor,
 	'trans': Obstacles.TransObstacle,

@@ -42,11 +42,16 @@ const initEffectMap = {
         obs.difficulty = 'Peaceful';
     },
     changeColor: (obs, init) => {
-        obs.colorsToChange = {
-            background: toHex(init.backgroundColor,'#000000'),
-            tile: toHex(init.tileColor,'#000000'),
-            safe: toHex(init.safeColor,'#000000')
-        };
+        obs.colorsToChange = {};
+        if(toHex(init.backgroundColor,'undef') !== 'undef'){
+            obs.colorsToChange.background = init.backgroundColor;
+        }
+        if(toHex(init.tileColor,'undef') !== 'undef'){
+            obs.colorsToChange.tile = init.tileColor;
+        }
+        if(toHex(init.safeColor,'undef') !== 'undef'){
+            obs.colorsToChange.safe = init.safeColor;
+        }
     },
     changeSpeed: (obs, init) => {
         obs.speedMult = toNumber(init.speedMult, 1.5);

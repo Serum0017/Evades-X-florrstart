@@ -55,6 +55,12 @@ function newEvade(map, isSerialized=false){
         initObstacle(map.safes[i], newMap.init, isSerialized);
     }
 
+    // convert texts to classes
+    for(let i = 0; i < map.texts.length; i++){
+        map.texts[i].type = 'text';
+        initObstacle(map.texts[i], newMap.init, isSerialized);
+    }
+
     // making obselete settings into obstacles
     newMap.init.push({
         type: 'square-normal-changeColor',
