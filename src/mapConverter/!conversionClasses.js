@@ -522,6 +522,7 @@ class LavaOval {
 class Spawner {
     constructor(x,y,w,h,spawnData){
         const enemies = [];
+        console.log(spawnData);
         for(let i = 0; i < spawnData.amount; i++){
             switch(spawnData.type){
                 case 'normalEnemy':

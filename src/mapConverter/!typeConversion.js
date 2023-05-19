@@ -1,10 +1,10 @@
 const Obstacles = require('./!conversionClasses.js');
 
 const supportedObjects = {
-	// 'spawner': Obstacles.Spawner,
+	'spawner': Obstacles.Spawner,
 	'normalEnemy': Obstacles.Spawner,
 	// 'turret': Obstacles.Spawner,
-	// 'square': Obstacles.Spawner,
+	'square': Obstacles.Spawner,
 	// 'switch': Obstacles.Spawner,
 	// 'flashlight': Obstacles.Spawner,
 	// 'enemymove': Obstacles.Spawner,

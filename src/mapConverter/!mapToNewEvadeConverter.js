@@ -40,7 +40,7 @@ function newEvade(map, isSerialized=false){
     // convert enemies to classes
     for(let i = 0; i < map.spawns.length; i++){
         if(map.spawns[i].data.type === 'normal')map.spawns[i].data.type = 'normalEnemy';
-        map.spawns[i].type = map.spawns[i].data.type;
+        map.spawns[i].type = 'spawner';
         initObstacle(map.spawns[i], newMap.init, isSerialized);
     }
 
