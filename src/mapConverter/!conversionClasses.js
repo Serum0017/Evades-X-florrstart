@@ -40,7 +40,7 @@ class RotatingSafe {
         //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
         /*} else*/ if(distToPivot !== undefined){
             pivot = {x: w/2-distToPivot, y: h/2};
-            x -= distToPivot;
+            x += distToPivot;
         }
         return {
             type: 'square-rotate-safe',
@@ -68,7 +68,7 @@ class RotatingLava {
         //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
         /*} else*/ if(distToPivot !== undefined){
             pivot = {x: w/2-distToPivot, y: h/2};
-            x -= distToPivot;
+            x += distToPivot;
         }
         return {
             type: 'square-rotate-lava',
@@ -93,7 +93,7 @@ class RotatingNormal{
         //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
         /*} else*/ if(distToPivot !== undefined){
             pivot = {x: w/2-distToPivot, y: h/2};
-            x -= distToPivot;
+            x += distToPivot;
         }
         return {
             type: 'square-rotate-normal',
