@@ -4,9 +4,9 @@ function minPack(last, v){
         for(let i = 0; i < Math.max(last.length, v.length); i++){
             if(minPack(last[i], v[i]) !== 'NOTINCLUDED'){
                 toSend[i] = minPack(last[i], v[i]);
-            }   
+            }
         }
-        return toSend;
+        return Object.keys(toSend).length === 0 ? 'NOTINCLUDED' : toSend;
     } else if(typeof v === 'object' && v !== null && typeof last === 'object' && last !== null){
         const combined = (Object.keys(v)).concat((Object.keys(last)));
         const toSend = {};

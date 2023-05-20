@@ -1,9 +1,7 @@
-const map = require('./podc.js');
+
 const typeConversion = require('./!typeConversion.js')
 const obstacles = require('./!conversionClasses.js');
 // const clipboardy = require('clipboardy');
-
-let converted = newEvade(map, false);
 
 // Copy
 // clipboardy.writeSync(converted);
@@ -53,6 +51,7 @@ function newEvade(map, isSerialized=false){
                 map.obstacles[i].data = map.obstacles[i].spawnData;
             }
         }
+        if(map.obstacles[i].direction !== undefined)map.obstacles[i].dir = map.obstacles[i].direction;
         initObstacle(map.obstacles[i], newMap.init, isSerialized);
     }
 
@@ -102,4 +101,13 @@ function serializeObstacle(o){
     return new typeConversion.supportedObjects[o.type](...typeConversion.mappedPara[o.type].map(parameter => o[parameter]));
 }
 
-module.exports = converted;// newEvade;
+function convertMap(name='podc', serialized=false){
+    try{
+        return newEvade(require(`./${name}.js`), serialized);
+    } catch(e) {
+        console.log(`./${name}.js not found or bad export. mapToNewEvadeConverter.js`);
+        return newEvade(require(`./podc.js`), serialized);
+    }
+}
+
+module.exports = convertMap;// newEvade;

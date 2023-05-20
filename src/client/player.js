@@ -104,6 +104,12 @@ export default class Player{
 
         ctx.closePath();
 
+        ctx.font = '30px Inter';
+        ctx.textAlign = 'middle';
+        ctx.textBaseline = 'center';
+        ctx.fillStyle = 'white';
+        ctx.fillText(`(${Math.round(this.x)}, ${Math.round(this.y)})`, this.renderX, this.renderY);
+
         this.updateInterpolate();
     }
     updateInterpolate(){
@@ -127,8 +133,11 @@ export default class Player{
         for(let key in this.accumPack){
             this[key] = this.accumPack[key];
         }
+        
+        // TODO: fix bug where there's a small offset (probably bc of friction updating after) of players after being square and size getting changed
         if(data.shape !== undefined || data.r !== undefined){
-            this.changeShape({shapeType: this.shape, shapePoints: this.shapePoints})
+            this.changeShape({shapeType: this.shape, shapePoints: this.shapePoints});
+            this.radiusUpdateChanged = true;
         }
     }
     updateLastState(){

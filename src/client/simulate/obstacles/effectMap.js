@@ -105,6 +105,13 @@ const Effects = {
     changeShape: (sat, player, obstacle, advanced) => {
         player.touching.changeShape.push(obstacle);
     },
+    checkpoint: (sat, player, obstacle, advanced) => {
+        if(obstacle.collected === true){
+            return;
+        }
+        obstacle.collected = true;
+        player.spawn = {x: obstacle.x + obstacle.checkpointOffset.x, y: obstacle.y + obstacle.checkpointOffset.y};
+    },
     breakable: (sat, player, obstacle, {tick}) => {
         if(obstacle.strength > 0){
             bound(sat, player, obstacle);

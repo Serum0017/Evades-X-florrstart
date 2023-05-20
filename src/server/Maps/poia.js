@@ -1,0 +1,1 @@
+module.exports = require('../../mapConverter/!mapToNewEvadeConverter.js')('poia', false);

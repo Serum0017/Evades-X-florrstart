@@ -142,7 +142,7 @@ some way to do ✅text, ❓cool effects for each obstacle
 Core Mechanics:
 - account system + usernames
 - mouse movement
-- minPack
+- ✅ minPack
 - ✅ eventSystem being able to "send" + change params dynamically (ex. changing speed obstacle to match the time of a timetrap)
 
 Maps:

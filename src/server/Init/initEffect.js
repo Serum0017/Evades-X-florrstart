@@ -132,6 +132,13 @@ const initEffectMap = {
         }
     },
     safe: (obs, init) => {},
+    checkpoint: (obs, init) => {
+        obs.collected = false;
+        obs.checkpointOffset = {
+            x: toNumber(init?.checkpointOffset?.x, 0),
+            y: toNumber(init?.checkpointOffset?.y, 0)
+        }
+    },
     breakable: (obs, init) => {
         // all timings are in frames
         obs.strength = toNumber(init.maxStrength, 5);
@@ -203,7 +210,7 @@ const initEffectMap = {
         obs.timeTrapRecoverySpeed = toNumber(init.timeTrapRecoverySpeed, 1);
         obs.timeTrapToKill = toBoolean(init.timeTrapToKill, true);
         obs.timeTrapToShowTenth = toBoolean(init.timeTrapToShowTenth, false);
-    }
+    },
 };
 
 function toBoolean(key, defaultValue=false){

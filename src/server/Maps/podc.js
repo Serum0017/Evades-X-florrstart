@@ -6,6 +6,4 @@
 //     ]
 // }
 
-const map = require('../../mapConverter/!mapToNewEvadeConverter.js');
-
-module.exports = map;
+module.exports = require('../../mapConverter/!mapToNewEvadeConverter.js')('podc', false);

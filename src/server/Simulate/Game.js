@@ -19,8 +19,8 @@ module.exports = class Game {
             angle: 0,
             magnitude: 0,
             dev: true, god: false,
-            map: this.maps.Sandbox,
-            mapName: 'Sandbox',
+            map: this.maps.Hub,
+            mapName: 'Hub',
         }
     }
     loadMap(mapName){

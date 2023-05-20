@@ -288,6 +288,29 @@ class BreakableObstacle {
     }
 }
 
+class TimeTrap {
+    // obs.timeTrapMaxTime = toNumber(init.timeTrapMaxTime, 300);
+    //     obs.timeTrapTime = obs.timeTrapMaxTime;
+    //     obs.timeTrapRecoverySpeed = toNumber(init.timeTrapRecoverySpeed, 1);
+    //     obs.timeTrapToKill = toBoolean(init.timeTrapToKill, true);
+    //     obs.timeTrapToShowTenth = toBoolean(init.timeTrapToShowTenth, false);
+    constructor(x, y, w, h, maxTime, cooldownMult=3) {
+        return {//type: 'circle-normal-timeTrap', x: 250, y: 250, r: 33, timeTrapToShowTenth: true
+            type: 'square-normal-timeTrap',
+            x: x+w/2, y: y+h/2,w,h, timeTrapToShowTenth: true, timeTrapMaxTime: maxTime*60, timeTrapRecoveryTime: cooldownMult
+        }
+    }
+}
+
+class Checkpoint {
+    constructor(x, y, w, h){
+        return {
+            type: 'square-normal-checkpoint',
+            x: x+w/2, y: y+h/2,w,h,
+        }
+    }
+}
+
 class TransObstacle {
     constructor(x, y, w, h){
         return [];//new NormalObstacle(x, y, w, h);
@@ -450,13 +473,13 @@ class RoundedLava {
 }
 
 class Polygon {
-    constructor(points = [], type = 'poly-normal', tpx = null, tpy = null){
-        if(type === 'poly-tp'){
+    constructor(points = [], type = 'poly-normal', otherType, tpx = null, tpy = null){
+        if(type === 'poly-tp' || otherType === 'poly-tp'){
             return {
                 type: 'poly-normal-tp', tp: {x: tpx, y: tpy}, x: 0, y: 0,
                 points//: points.map(p => {return {x: p[0], y: p[1]}})
             }
-        } else if(type == 'poly-lava'){
+        } else if(type == 'poly-lava' || otherType === 'poly-lava'){
             return {
                 type: 'poly-normal-lava', x: 0, y: 0,
                 points//: points.map(p => {return {x: p[0], y: p[1]}})
@@ -524,6 +547,7 @@ class Spawner {
         const enemies = [];
         for(let i = 0; i < spawnData.amount; i++){
             switch(spawnData.type){
+                case 'normalEnemy':
                 case 'normal':
                     enemies.push({
                         type: 'circle-enemy-lava',
@@ -531,7 +555,7 @@ class Spawner {
                         bound: {x,y,w,h},
                         enemyType: 'normal',
                         speed: spawnData.speed/56,
-                        r: spawnData.radius
+                        r: spawnData.radius ?? 12
                     })
                     break;
                 case 'square':
@@ -556,5 +580,5 @@ class Spawner {
 module.exports = {
     NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingNormal, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon,
     PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner, Oval, LavaOval, Safe, /*Portal*/
-    SizePlayer, MovingSafe, RotatingSafe, Text
+    SizePlayer, MovingSafe, RotatingSafe, Text, Checkpoint, TimeTrap
 }

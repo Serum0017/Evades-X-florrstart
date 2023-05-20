@@ -90,6 +90,15 @@ const renderEffectMap = {
     tp: (o, ctx, advanced) => {
         ctx.fillStyle = 'green';
     },
+    checkpoint: (o, ctx, { colors }) => {
+        if (o.collected === true) {
+            ctx.fillStyle = '#0fba09';
+            ctx.globalAlpha = 0.15;
+        } else {
+            ctx.fillStyle = '#05962b';
+            ctx.globalAlpha = 0.8;
+        }
+    },
     breakable: (o, ctx, { colors }) => {
         // ui.ctx.fillStyle = ui.colors.tile;// setting fillstyle converts it to hex
         
@@ -246,6 +255,16 @@ const renderEffectAfterShapeMap = {
         }
 
         ctx.restore();
+    },
+    checkpoint: (o, ctx, advanced) => {
+        ctx.globalAlpha /= 5;
+        ctx.grd = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, (o.difference.x + o.difference.y)/3);
+
+        ctx.grd.addColorStop(0, "rgba(255,255,255,1)");
+        ctx.grd.addColorStop(1, "rgba(255,255,255,0)");
+
+        ctx.fillStyle = ctx.grd;
+        renderShape(o, ctx, advanced);
     },
     hole: (o, ctx, advanced) => {
         ctx.setLineDash([]);
