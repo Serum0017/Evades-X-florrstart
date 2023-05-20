@@ -1,4 +1,5 @@
 import Collide from './obstacles/collisionManager.js';
+import transformBody from './obstacles/transformBody.js';
 
 // simple simulate function for simulating the p based on input
 export default function simulatePlayer(p, map) {
@@ -6,6 +7,9 @@ export default function simulatePlayer(p, map) {
 		return;
 	}
 
+	if(p.id !== map.selfId){
+		transformBody(p, {x: p.x - p.last.x, y: p.y - p.last.y, rotation: 0});
+	}
 	p.last = {x: p.x, y: p.y};
 	
 	if(p.axisSpeedMult.angle !== 0){

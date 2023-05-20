@@ -19,10 +19,10 @@ export default class Player{
             this[key] = init[key];
         }
 
-        this.body = new SAT.Circle(new SAT.Vector(this.x, this.y), this.r);
-        this.shape = 'circle';
+        this.changeShape({shapeType: this.shape, shapePoints: this.shapePoints})//new SAT.Circle(new SAT.Vector(this.x, this.y), this.r);
         this.body.angle = 0;
-        this.shapePoints = [];
+        this.shapePoints = init.shapePoints;
+        this.last = {x: this.x, y: this.y};
 
         this.isPlayer = true;
 
@@ -126,6 +126,9 @@ export default class Player{
         minPacker.reconstructMinPack(this, data, this.accumPack);
         for(let key in this.accumPack){
             this[key] = this.accumPack[key];
+        }
+        if(data.shape !== undefined || data.r !== undefined){
+            this.changeShape({shapeType: this.shape, shapePoints: this.shapePoints})
         }
     }
     updateLastState(){

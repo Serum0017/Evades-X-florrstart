@@ -30,6 +30,7 @@ module.exports = class Player{
         }
 
         this.shape = 'circle';
+        this.shapePoints = [];
         
         this.xv = init.xv;
         this.yv = init.yv;
@@ -45,7 +46,7 @@ module.exports = class Player{
 
         this.lastTick = 0;
 
-        this.packKeys = ['x','y','r','speed','friction','angle','magnitude','dev','god','input','shape','xv','yv','dead','axisSpeedMult','difference','pivot'];
+        this.packKeys = ['x','y','r','speed','friction','angle','magnitude','dev','god','input','shape','shapePoints','xv','yv','dead','axisSpeedMult','difference','pivot'];
         this.updateLastState();
     }
     initPack(){
