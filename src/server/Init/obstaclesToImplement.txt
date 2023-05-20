@@ -143,6 +143,7 @@ Core Mechanics:
 - account system + usernames
 - mouse movement
 - minPack
+- eventSystem being able to "send" + change params dynamically (ex. changing speed obstacle to match the time of a timetrap)
 
 Maps:
 PoPB (peaceful) - planet of peaceful beginnings: This is the place where the player spawns for the first time upon loading the website (even before creating an account). We want the tutorial to make a lasting impression, so it wont be in the traditional style of the old tutorial. THERE WILL BE NO TEXT (except maybe WASD to move). Players will essentially be in a linear hallway with obstacles scattered around in specific ways aiming to teach the player. Things will be quite fast to grab the player's attention as fast as possible. There will be 10 zones with 1-2 obstacles introduced in each in clever ways that makes the player figure out what the obstacles do rather than being told that by text. 

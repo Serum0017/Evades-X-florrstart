@@ -46,6 +46,13 @@ function newEvade(map, isSerialized=false){
 
     // convert obstacles to classes
     for(let i = 0; i < map.obstacles.length; i++){
+        // handling enemies in editor special case
+        if(map.obstacles[i].spawnData !== undefined){
+            map.obstacles[i].type = 'enemySpawner';
+            if(map.obstacles[i].data === undefined){
+                map.obstacles[i].data = map.obstacles[i].spawnData;
+            }
+        }
         initObstacle(map.obstacles[i], newMap.init, isSerialized);
     }
 
@@ -70,8 +77,6 @@ function newEvade(map, isSerialized=false){
         tileColor: map.bgColor,
         backgroundColor: map.tileColor
     })
-
-    // console.log(newMap);
     
     // handling other types like safes and texts
 

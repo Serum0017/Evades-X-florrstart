@@ -22,6 +22,9 @@ const interpolateMap = {
             interpolateAngleKey('snapCooldown', interpolate, last, next, time);
             interpolateAngleKey('snapAngle', interpolate, last, next, time);
         },
+        timeTrap: (interpolate, last, next, time) => {
+            interpolateAngleKey('timeTrapTime', interpolate, last, next, time);
+        },
     }
 }
 

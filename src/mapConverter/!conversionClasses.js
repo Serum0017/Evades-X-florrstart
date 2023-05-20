@@ -524,13 +524,13 @@ class Spawner {
         const enemies = [];
         for(let i = 0; i < spawnData.amount; i++){
             switch(spawnData.type){
-                case 'normalEnemy':
+                case 'normal':
                     enemies.push({
                         type: 'circle-enemy-lava',
                         solid: false,
                         bound: {x,y,w,h},
                         enemyType: 'normal',
-                        speed: spawnData.speed/60,
+                        speed: spawnData.speed/56,
                         r: spawnData.radius
                     })
                     break;
@@ -540,7 +540,7 @@ class Spawner {
                         solid: false,
                         bound: {x,y,w,h},
                         enemyType: 'normal',
-                        speed: spawnData.speed/60,
+                        speed: spawnData.speed/56,
                         w: spawnData.size,
                         h: spawnData.size
                     });

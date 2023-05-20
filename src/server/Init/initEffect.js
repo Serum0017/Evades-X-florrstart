@@ -196,6 +196,13 @@ const initEffectMap = {
         // obs.snapDistance.y = Math.max(35, obs.snapDistance.y);
         obs.snapToShowVelocity = Math.min(obs.snapDistance.x, obs.snapDistance.y) > 40;
         obs.snapMagnitude = init.snapMagnitude ?? (obs.snapDistance.x + obs.snapDistance.y)/2;
+    },
+    timeTrap: (obs, init) => {
+        obs.timeTrapMaxTime = toNumber(init.timeTrapMaxTime, 300);
+        obs.timeTrapTime = obs.timeTrapMaxTime;
+        obs.timeTrapRecoverySpeed = toNumber(init.timeTrapRecoverySpeed, 1);
+        obs.timeTrapToKill = toBoolean(init.timeTrapToKill, true);
+        obs.timeTrapToShowTenth = toBoolean(init.timeTrapToShowTenth, false);
     }
 };
 

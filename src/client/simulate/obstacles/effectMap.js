@@ -24,7 +24,7 @@ const Effects = {
         bound(sat, player, obstacle);
     },
     lava: (sat, player, obstacle) => {
-        if(sat.overlap < 0.01){
+        if(sat.overlap < 0.16){
             return;
         }
         if(obstacle.solid === true){
@@ -90,7 +90,9 @@ const Effects = {
         // } else {
         //     player.r *= obstacle.radiusMult;
         // }
-        player.touching.changeRadius.push(obstacle);
+        if(obstacle.radiusMult > 0){
+            player.touching.changeRadius.push(obstacle);
+        }
     },
     changeFriction: (sat, player, obstacle, advanced) => {
         player.friction = obstacle.frictionValue;
@@ -238,7 +240,17 @@ const Effects = {
                 player.y += Math.sign(player.yv) * obstacle.snapDistance.y*0.6;
             }
         }
-    }
+    },
+    timeTrap: (sat, player, obstacle) => {
+        obstacle.timeTrapTime--;
+        obstacle.timeTrapTime -= 2*obstacle.timeTrapRecoverySpeed;// TODO: fix weird bug where collisions are only at 30fps
+        if(obstacle.timeTrapTime < 0){
+            if(obstacle.timeTrapToKill === true){
+                player.dead = true;
+            }
+            obstacle.timeTrapTime = 0;
+        }
+    },
 };
 
 // TODO: put this in satFactory or somewhere global. Also clean up the function
@@ -325,6 +337,12 @@ const IdleEffects = {
     },
     snapGrid: (player, obstacle, advanced) => {
         obstacle.snapAngle += obstacle.snapAngleRotateSpeed;
+    },
+    timeTrap: (player, obstacle, advanced) => {
+        obstacle.timeTrapTime += obstacle.timeTrapRecoverySpeed;
+        if(obstacle.timeTrapTime > obstacle.timeTrapMaxTime){
+            obstacle.timeTrapTime = obstacle.timeTrapMaxTime;
+        }
     },
 }
 

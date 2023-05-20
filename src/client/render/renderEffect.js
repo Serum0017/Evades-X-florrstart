@@ -151,7 +151,21 @@ const renderEffectMap = {
         ctx.fillStyle = '#00008a';
         ctx.globalAlpha = 0.1;
         ctx.toClip = true;
-    }
+    },
+    timeTrap: (o, ctx, { colors }) => {
+        ctx.grd = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, Math.min(100, (o.difference.x + o.difference.y)/3));
+
+        if(o.timeTrapToKill === false){
+            ctx.grd.addColorStop(0, "rgba(199,199,199,0)");
+            ctx.grd.addColorStop(1, "rgba(199,199,199,1)");
+        } else {
+            ctx.grd.addColorStop(0, "rgba(199,0,0,0)");
+            ctx.grd.addColorStop(1, "rgba(199,0,0,1)");
+        }
+
+        ctx.fillStyle = ctx.grd;
+        ctx.globalAlpha = Math.max(0.12, 0.5 - o.render.timeTrapTime / o.timeTrapMaxTime / 2);
+    },
 }
 
 const renderEffectAfterShapeMap = {
@@ -388,7 +402,21 @@ const renderEffectAfterShapeMap = {
         ctx.closePath();
 
         ctx.restore();
-    }
+    },
+    timeTrap: (o, ctx, { colors }) => {
+        // TODO: make a touching value for timetraps and a global screenOffset system
+        // the screenOffset system takes an array of things with values and heights
+        // (ex. player.touching.timeTrap, florrioBosses) that each have a value and
+        // height prop. It then renders them at the top of the screen in order,
+        // adding an offset each time equal to the height value. This height value
+        // renders stuff like the semioldevade timetrap system but with variable heights.
+        ctx.globalAlpha = Math.max(0.3, o.render.timeTrapTime / o.timeTrapMaxTime / 3);
+        ctx.fillStyle = 'white';
+        ctx.font = `${Math.min(o.difference.x, o.difference.y)/2}px Inter`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(o.timeTrapToShowTenth === true ? Math.round(o.render.timeTrapTime / 60 * 10) / 10 : Math.round(o.render.timeTrapTime / 60), o.x, o.y);
+    },
 }
 
 function mixHex(color1, color2, t){

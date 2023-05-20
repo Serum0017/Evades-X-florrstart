@@ -94,7 +94,7 @@ const eventEmitterMap = {
 };
 
 const eventRecieverMap = {
-    changeParameter: (reciever, obstacle) => {
+    changeParameter: (reciever, obstacle, obstacleEmitter, emitter) => {
         let lastState = {x: obstacle.x, y: obstacle.y, rotation: obstacle.rotation};
         let value = keyChain(obstacle, reciever.keyChain);
 
@@ -103,6 +103,10 @@ const eventRecieverMap = {
 
         if(reciever.setValue !== undefined && typeof value === typeof reciever.setValue){
             value = reciever.setValue;
+        }
+
+        if(Array.isArray(emitter.changeParameterKeyChain) !== false){
+            value = keyChain(obstacleEmitter, emitter.changeParameterKeyChain);
         }
 
         // TODO: make sure all of the preceeding assignments are numbers as well
@@ -126,7 +130,7 @@ const eventRecieverMap = {
         // TODO: once growing is implemented implement change in w/h
         transformBody(obstacle, {x: obstacle.x - lastState.x, y: obstacle.y - lastState.y, rotation: obstacle.rotation - lastState.rotation});
     },
-    clone: (reciever, obstacle, { obstacles }) => {
+    clone: (reciever, obstacle, obstacleEmitter, emitter, { obstacles }) => {
         let clone = window.structuredClone(obstacle);
 
         delete clone.eventEmitters;
@@ -189,22 +193,23 @@ function checkEmmisions(obstacles, advanced){
         if(obstacles[i].eventEmitters === undefined){ continue; }
         for(let j = 0; j < obstacles[i].eventEmitters.length; j++){
             if(eventEmitterMap[obstacles[i].eventEmitters[j].type](obstacles[i].eventEmitters[j], obstacles[i], advanced) === true && obstacles[i].eventEmitters[j].finished !== true){
-                emitEvent(obstacles, obstacles[i].eventEmitters[j].id, advanced);
-                // if(obstacles[i].eventEmitters[j].toLoop === false){
-                //     obstacles[i].eventEmitters[j].finished = true;
-                // }
+                emitEvent(obstacles, obstacles[i].eventEmitters[j].id, obstacles[i], obstacles[i].eventEmitters[j], advanced);
+                // TODO: uncomment this bc i found it and it was commented for no reason
+                if(obstacles[i].eventEmitters[j].toLoop === false){
+                    obstacles[i].eventEmitters[j].finished = true;
+                }
             }
         }
     }
 }
 
-function emitEvent(obstacles, id, advanced){
+function emitEvent(obstacles, id, obstacleEmitter, emitter, advanced){
     for(let i = 0; i < obstacles.length; i++){
         if(obstacles[i].eventRecievers === undefined){ continue; }
         for(let j = 0; j < obstacles[i].eventRecievers.length; j++){
             if(obstacles[i].eventRecievers[j].id === id && obstacles[i].eventRecievers[j].finished !== true){
-                eventRecieverMap[obstacles[i].eventRecievers[j].type](obstacles[i].eventRecievers[j], obstacles[i], advanced);
-                if(obstacles[i].eventRecievers[j].toLoop !== true){
+                eventRecieverMap[obstacles[i].eventRecievers[j].type](obstacles[i].eventRecievers[j], obstacles[i], obstacleEmitter, emitter, advanced);
+                if(obstacles[i].eventRecievers[j].toLoop === false){
                     obstacles[i].eventRecievers[j].finished = true;
                 }
             }
