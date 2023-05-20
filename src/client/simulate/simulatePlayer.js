@@ -22,6 +22,10 @@ export default function simulatePlayer(p, map) {
 
 	p.xv *= p.friction;
 	p.yv *= p.friction;
+
+	// minPack optimization
+	if(Math.abs(p.xv) < 0.001)p.xv = 0;
+	if(Math.abs(p.yv) < 0.001)p.yv = 0;
     
     // frictions coeff: {vec of amount}
     for(let key in p.frictions){
@@ -50,16 +54,16 @@ export default function simulatePlayer(p, map) {
 		p.y = map.settings.dimensions.y - p.difference.x/2;
 	}
 
-	p.axisSpeedMult = {x: 1, y: 1, angle: 0};
-	p.friction = 0.4;
-	p.r = 24.5;
-
-	p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), p.r);
-	p.shape = 'circle';
-	p.difference = {x: p.r*2, y: p.r*2};
-
-	// simulate touching effects that need to occur at the end of the frame
 	if(p.id === map.selfId){
+		p.axisSpeedMult = {x: 1, y: 1, angle: 0};
+		p.friction = 0.4;
+		p.r = 24.5;
+
+		p.body = new SAT.Circle(new SAT.Vector(p.x,p.y), p.r);
+		p.shape = 'circle';
+		p.difference = {x: p.r*2, y: p.r*2};
+
+		// simulate touching effects that need to occur at the end of the frame
 		for(let i = 0; i < touchingSimulateMap.length; i++){
 			for(let j = 0; j < p.touching[touchingSimulateMapKeys[i]].length; j++){
 				touchingSimulateMap[i][touchingSimulateMapKeys[i]](p, p.touching[touchingSimulateMapKeys[i]][j], {map, index: j});

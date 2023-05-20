@@ -1,3 +1,5 @@
+const minPacker = require('../minPack.js');
+
 module.exports = class Player{
     constructor(id, init){
         this.id = id;
@@ -42,21 +44,39 @@ module.exports = class Player{
         this.difference = {x: this.r*2, y: this.r*2};
 
         this.lastTick = 0;
+
+        this.packKeys = ['x','y','r','speed','friction','angle','magnitude','dev','god','input','shape','xv','yv','dead','axisSpeedMult','difference','pivot'];
+        this.updateLastState();
     }
     initPack(){
         return this;
     }
     updatePack() {
-        // TODO: implement differencePack optimization
-        return this;
+        this.minPack = minPacker.minPack(this.lastUpdateState, this.getPackKeys());
+        if(typeof this.minPack === 'object'){
+            this.minPack.lastTick = this.lastTick;
+        } else {
+            // handling "NOTINCLUDED"
+            this.minPack = {lastTick: this.lastTick};
+        }
+        this.updateLastState();
+        return this.minPack;
+    }
+    updateLastState(){
+        this.lastUpdateState = minPacker.cloneObject(this.getPackKeys());
+    }
+    getPackKeys(){
+        return this.packKeys.reduce((acc, k) => {acc[k] = this[k]; return acc;}, {})
     }
     updateState(data, tick) {
         // console.log(data);
         // TODO: make sure this is safe and wont crash the server (also difference pack)
-        for(let key in data){
-            this[key] = data[key];
-        }
+        // for(let key in data){
+        //     if(key === 'lastUpdateState')continue;// TODO: remove this TEMP (this is only here when half of the sysetm is working)
+        //     this[key] = data[key];
+        // }
 
+        minPacker.reconstructMinPack(this, data);
         this.lastTick = tick;
     }
 }

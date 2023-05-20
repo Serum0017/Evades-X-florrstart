@@ -1,5 +1,6 @@
 import transformBody from './simulate/obstacles/transformBody.js';
 import simulatePlayer from './simulate/simulatePlayer.js';
+import minPacker from './minPack.js';
 
 export default class Player{
     constructor(id, init){
@@ -28,6 +29,10 @@ export default class Player{
         this.renderX = this.x;
         this.renderY = this.y;
         this.renderR = this.r/4;
+
+        this.packKeys = init.packKeys;
+        this.accumPack = this.getPackKeys();
+        this.updateLastState();
 
         this.createSimulateState(performance.now());
     }
@@ -117,13 +122,37 @@ export default class Player{
         this.updateInterpolate();
     }
     updatePack(data){
-        // TODO: implement differencePack data optimization
-        for(let key in data){
-            this[key] = data[key];
+        // lmao this is so inefficient -- just to save a few bytes of data per sec ;c
+        minPacker.reconstructMinPack(this, data, this.accumPack);
+        for(let key in this.accumPack){
+            this[key] = this.accumPack[key];
         }
     }
+    updateLastState(){
+        this.lastUpdateState = minPacker.cloneObject(this.getPackKeys());
+    }
     pack(){
-        // what we send to the server (TODO: differencepack)
-        return this;
+        this.minPack = minPacker.minPack(this.lastUpdateState, this.getPackKeys());
+        this.updateLastState();
+        return this.minPack;
+    }
+    getPackKeys(){
+        return this.packKeys.reduce((acc, k) => {acc[k] = this[k]; return acc;}, {})
     }
 }
+
+
+// this.packKeys = ['x','y','r','speed','friction','angle','magnitude','dev','god','input','shape','xv','yv','dead','axisSpeedMult','difference','pivot'];
+//         this.updateLastState();
+//     }
+//     initPack(){
+//         return this;
+//     }
+//     updatePack() {
+//         this.minPack = minPacker.minPack(this.lastUpdateState, this.packKeys.reduce((acc, k) => {acc[k] = this[k]; return acc;}, {}));
+//         this.updateLastState();
+//         return this.minPack;
+//     }
+//     updateLastState(){
+//         this.lastUpdateState = minPacker.cloneObject(this.packKeys.reduce((acc, k) => {acc[k] = this[k]; return acc;}, {}));
+//     }
