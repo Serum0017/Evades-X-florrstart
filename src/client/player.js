@@ -104,11 +104,11 @@ export default class Player{
 
         ctx.closePath();
 
-        ctx.font = '30px Inter';
-        ctx.textAlign = 'middle';
-        ctx.textBaseline = 'center';
-        ctx.fillStyle = 'white';
-        ctx.fillText(`(${Math.round(this.x)}, ${Math.round(this.y)})`, this.renderX, this.renderY);
+        // ctx.font = '30px Inter';
+        // ctx.textAlign = 'middle';
+        // ctx.textBaseline = 'center';
+        // ctx.fillStyle = 'white';
+        // ctx.fillText(`(${Math.round(this.x)}, ${Math.round(this.y)})`, this.renderX, this.renderY);
 
         this.updateInterpolate();
     }

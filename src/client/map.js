@@ -32,6 +32,9 @@ export default class Map {
 
         for(let i = 0; i < this.obstacles.length; i++){
             this.obstacles[i].body = satFactory.generateSAT(this.obstacles[i].body, this.obstacles[i]);
+            if(this.obstacles[i].parametersToReset !== undefined){
+                this.resetObstacleParameters(this.obstacles[i], this.obstacles[i].parametersToReset);
+            }
         }
 
         console.log(this.obstacles);
@@ -48,13 +51,22 @@ export default class Map {
 
         this.createRenderState(performance.now());
     }
+    resetObstacleParameters(o, parametersToReset) {
+        for(let key in parametersToReset){
+            // if(typeof parametersToReset[key] === 'object' && Array.isArray(parametersToReset[key]) === false){
+            //     this.resetObstacleParameters(o[key], parametersToReset[key]);// if this is ever needed, use applyKeychain
+            // } else {
+                o[key] = parametersToReset[key];
+            // }
+        }
+    }
     updatePack(playerData){
         for(let id in playerData){
             if(id !== this.selfId.toString()){
                 this.players[id].updatePack(playerData[id]);
 
                 // simulate extra ticks
-                for(let i = 0; i < Math.min(100,this.tick - playerData[id].lastTick); i++){
+                for(let i = 0; i < Math.min(30,this.tick - playerData[id].lastTick); i++){
                     this.players[id].simulate(this);
                 }
                 this.players[id].updateInterpolate();

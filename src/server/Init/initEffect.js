@@ -138,6 +138,9 @@ const initEffectMap = {
             x: toNumber(init?.checkpointOffset?.x, 0),
             y: toNumber(init?.checkpointOffset?.y, 0)
         }
+        obs.parametersToReset = {
+            collected: false
+        };
     },
     breakable: (obs, init) => {
         // all timings are in frames
