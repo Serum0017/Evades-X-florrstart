@@ -317,6 +317,14 @@ class TransObstacle {
     }
 }
 
+
+class Typing {
+	constructor(x, y, w, h, text) {
+		return {type: 'square-normal-rotateMovement', x: x+w/2, y: y+h/2, w, h, rotateMovementAngle: 0, rotateMovementAngleRotateSpeed: Math.random()*0.4-0.2, axisSpeedMult: 0.5 };
+	}
+}
+
+
 class PlatformerGrav {
 	constructor(x, y, w, h, dir, jumpHeight, force = 500, maxForce, variableJumpHeight = false, friction = 0.8) {
         this.dir = { x: 0, y: 0 };
@@ -580,5 +588,5 @@ class Spawner {
 module.exports = {
     NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingNormal, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon,
     PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner, Oval, LavaOval, Safe, /*Portal*/
-    SizePlayer, MovingSafe, RotatingSafe, Text, Checkpoint, TimeTrap
+    SizePlayer, MovingSafe, RotatingSafe, Text, Checkpoint, TimeTrap, Typing
 }

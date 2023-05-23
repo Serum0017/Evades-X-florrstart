@@ -13,6 +13,22 @@ const keycodes = {
     ShiftRight: 'shift',
 }
 
+const chatCommandMap = {
+    'reset': (handler, { client }) => {
+        client.send({changeMap: 'Hub'});
+        client.game.lastRequestedMapTime = performance.now();
+    },
+    'devmodeoN': (handler, { client }) => {
+        client.me().dev = !client.me().dev;
+    }
+}
+
+// adding / to all commands
+for(let key in chatCommandMap){
+    chatCommandMap['/' + key] = chatCommandMap[key];
+    delete chatCommandMap[key];
+}
+
 export default class InputHandler {
     constructor(client){
         this.client = client;
@@ -54,6 +70,17 @@ export default class InputHandler {
                 // send chat message
                 Utils.ref.chatDiv.classList.add('hidden');
                 const text = Utils.ref.chatInput.value.trim();
+                if(text[0] === '/'){
+                    for(let key in chatCommandMap){
+                        if(text.startsWith(key) === true){
+                            chatCommandMap[key](this, { client: this.client });
+                            this.chatOpen = false;
+                            Utils.ref.chatInput.value = '';
+                            Utils.ref.chatInput.blur();
+                            return;
+                        }
+                    }
+                }
                 this.client.send({chat: text});
                 
                 this.chatOpen = false;

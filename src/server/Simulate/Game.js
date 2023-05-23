@@ -18,7 +18,7 @@ module.exports = class Game {
             r: 24.5,
             angle: 0,
             magnitude: 0,
-            dev: true, god: false,
+            dev: false, god: false,
             map: this.maps.Hub,
             mapName: 'Hub',
         }

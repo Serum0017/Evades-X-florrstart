@@ -5,7 +5,7 @@ module.exports = {
         // shape, simulate, effect
 
         {type: 'square-move-changeMap', x: 50, y: 50, w: 100, h: 100, map: 'Planet of Difficulty Chart', path: [{x:50, y:50}, {x:450, y:50}, {x:450, y:450}, {x:50, y:450}], currentPoint: 0, speed: 1 },
-        {type: 'square-move-changeMap', x: 50, y: 50, w: 100, h: 100, map: 'Winroom', path: [{x:50, y:50}, {x:450, y:50}, {x:450, y:450}, {x:50, y:450}], currentPoint: 1, speed: 1 },
+        {type: 'square-move-changeMap', x: 50, y: 50, w: 100, h: 100, map: 'Planet of Extreme Dexterity', path: [{x:50, y:50}, {x:450, y:50}, {x:450, y:450}, {x:50, y:450}], currentPoint: 1, speed: 1 },
         {type: 'square-move-changeMap', x: 50, y: 50, w: 100, h: 100, map: 'Planet of Intense Agony', path: [{x:50, y:50}, {x:450, y:50}, {x:450, y:450}, {x:50, y:450}], currentPoint: 2, speed: 1 },
         {type: 'square-move-changeMap', x: 50, y: 50, w: 100, h: 100, map: 'Planet of Conveyor Abuse', path: [{x:50, y:50}, {x:450, y:50}, {x:450, y:450}, {x:50, y:450}], currentPoint: 3, speed: 1 },
 
