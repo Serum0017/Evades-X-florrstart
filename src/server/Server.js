@@ -28,7 +28,13 @@ module.exports = class Server {
         this.app.use(express.static("src/client"));
 
         this.app.get("/", function (req, res) {
-            res.sendFile("index.html");
+            res.sendFile("index.html", { root: __dirname.replace('\\server', '') + '/client'});
+        });
+
+        this.app.use(express.static("src"));
+
+        this.app.get("/editor", function (req, res) {
+            res.sendFile('index.html', { root: __dirname.replace('\\server', '') + '/editor'});
         });
         
         const srvr = this.app.listen(3000);

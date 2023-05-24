@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Editor</title>
+        <link href="style.css" rel="stylesheet" type="text/css" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/sat/0.9.0/SAT.min.js"
+            integrity="sha512-I/Whsg25W/NpxpNL5dXAySa7JMz/r0ibfrqaTUTT97m2ggJAYbiioXaqL5hfoXmZ1CsvXaPyLKrwe3sSem20/A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+    </head>
+
+    <body>
+        <canvas class="canvas"></canvas>
+        <div class="all-gui">
+            <div class="leftgui-top">
+                <!--<button class="file">Evades X - Editor</button> -->
+                <button class="file">Edit</button>
+                <button class="file">View</button>
+                <button class="file">Insert</button>
+                <button class="file">Tools</button>
+            </div>
+            <div class="leftgui">
+                <div class="create-submenu hidden"></div>
+                <div class="create-div" id="create-button" title="c">
+                    <button class="create"></button>
+                    <span class="create-text">Create</span>
+                </div>
+                <div
+                    class="menu-button-div"
+                    id="delete-button"
+                    title="Backspace"
+                >
+                    <button class="menu-button">X</button>
+                    <span class="menu-button-text">Delete</span>
+                </div>
+                <div class="create-div" id="duplicate-button" title="Ctrl+D">
+                    <div class="dupl-container">
+                        <button class="dupl-1"></button>
+                        <button class="dupl-2"></button>
+                    </div>
+                    <span class="create-text">Duplicate</span>
+                </div>
+                <div class="submenu">
+                    <span class="submenu-title">Transforms</span>
+                    <div class="menu-button-div" id="select" title="Ctrl+1">
+                        <button
+                            class="menu-button"
+                            style="
+                                font-size: 1.5rem !important;
+                                transform: rotate(180deg);
+                            "
+                        >
+                            &lt;&gt;
+                        </button>
+                        <span class="menu-button-text red" id="select-text"
+                            >Select</span
+                        >
+                    </div>
+                    <div class="menu-button-div" id="rotate" title="Ctrl+2">
+                        <button
+                            class="menu-button"
+                            style="font-size: 1.5rem !important"
+                        >
+                            ⟳
+                        </button>
+                        <span class="menu-button-text" id="rotate-text"
+                            >Rotate</span
+                        >
+                    </div>
+                    <!-- 				<div class="menu-button-div" id="move" title="Ctrl+2"> 
+	                    <button class="menu-button" style="font-size: 1.3rem !important;"><span style="margin: 2px;">M</span></button>
+	                    <span class="menu-button-text" id="move-text">Move</span>
+	                </div> -->
+                    <div class="menu-button-div" id="resize" title="Ctrl+3">
+                        <button
+                            class="menu-button"
+                            style="font-size: 1.5rem !important"
+                        >
+                            🗚
+                        </button>
+                        <span class="menu-button-text" id="resize-text"
+                            >Resize</span
+                        >
+                    </div>
+                </div>
+                <div class="submenu">
+                    <span class="submenu-title">Manage State</span>
+                    <div class="menu-button-div" id="undo" title="Ctrl+Z">
+                        <button class="menu-button">&lt;</button>
+                        <span class="menu-button-text">Undo</span>
+                    </div>
+                    <div class="menu-button-div" id="redo" title="Ctrl+Y">
+                        <button class="menu-button">&gt;</button>
+                        <span class="menu-button-text">Redo</span>
+                    </div>
+                    <div
+                        class="menu-button-div"
+                        id="clear"
+                        title="Ctrl+Backspace"
+                    >
+                        <button class="menu-button">—</button>
+                        <span class="menu-button-text">Clear</span>
+                    </div>
+                    <div class="menu-button-div" id="save" title="Ctrl+S">
+                        <button class="menu-button">+</button>
+                        <span class="menu-button-text">Save</span>
+                    </div>
+                </div>
+                <div class="submenu" style="border-right: 1px solid black">
+                    <span class="submenu-title">Game</span>
+                    <div class="menu-button-div">
+                        <button
+                            class="menu-button"
+                            style="font-size: 1.5rem !important"
+                        >
+                            ▶
+                        </button>
+                        <span class="menu-button-text">Play</span>
+                    </div>
+                    <div class="menu-button-div gui-disable">
+                        <button
+                            class="menu-button"
+                            style="font-size: 1.3rem !important"
+                        >
+                            <span style="margin: 2px">|</span
+                            ><span style="margin: 2px">|</span>
+                        </button>
+                        <span class="menu-button-text">Stop</span>
+                    </div>
+                    <div class="menu-button-div">
+                        <button
+                            class="menu-button"
+                            style="font-size: 1.5rem !important"
+                            id="test"
+                            title="T"
+                        >
+                            ▷
+                        </button>
+                        <span class="menu-button-text">Test</span>
+                    </div>
+                </div>
+                <div class="menu-button-div" id="import-button">
+                    <button class="menu-button">v</button>
+                    <span class="menu-button-text">Import</span>
+                </div>
+                <div class="menu-button-div" id="export">
+                    <button class="menu-button">^</button>
+                    <span class="menu-button-text">Export</span>
+                </div>
+                <div class="menu-button-div" id="resync">
+                    <button class="menu-button">#</button>
+                    <span class="menu-button-text">Resync</span>
+                </div>
+                <div class="menu-button-div" id="settings">
+                    <button class="menu-button" style="top: -5px">...</button>
+                    <span class="menu-button-text">Settings</span>
+                </div>
+            </div>
+            <!--<div class="shortcut-gui">
+                <div class="shortcut" id="obstacle-shortcut" title="Obstacle">
+                    <span class="shortcut-text">1</span>
+                </div>
+                <div class="shortcut" id="lava-shortcut" title="Lava">
+                    <span class="shortcut-text">2</span>
+                </div>
+                <div class="shortcut" id="tp-shortcut" title="Teleporter">
+                    <span class="shortcut-text">3</span>
+                </div>
+            </div>-->
+            <div class="gui">
+                <div class="data-gui hidden"></div>
+                <button class="toggle-gui" data-usage="off">Open Menu</button>
+            </div>
+        </div>
+        <script src="index.js" type="module"></script>
+    </body>
+</html>

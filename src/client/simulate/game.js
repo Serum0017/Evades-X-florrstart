@@ -13,7 +13,7 @@ export default class Game {
         this.lastTime = performance.now();
         this.accum = 0;
 
-        this.lastRequestedMapTime = 0//performance.now();
+        this.lastRequestedMapTime = 0;
     }
     start() {
         this.gameLoop = requestAnimationFrame(this.run.bind(this));

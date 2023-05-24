@@ -1,0 +1,577 @@
+:root {
+    --gui-bg: rgb(9, 9, 9);
+    --gui-alt: rgb(21, 21, 21);
+    --gui-light: rgb(31, 31, 31);
+    --bg: rgba(27, 27, 27, 0.8);
+    --bg-hover: rgba(50, 50, 50, 0.7);
+    --submenu-bg: rgba(12, 12, 12, 0.7);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+body {
+    font-size: 17px;
+    font-family: Inter, sans-serif;
+    overflow: hidden;
+}
+
+.canvas {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+.gui {
+    position: absolute;
+    left: calc(100vw - 300px);
+    top: 0px;
+    min-width: 300px;
+    max-height: 100vh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    overflow: hidden auto;
+    z-index: 1;
+}
+
+/*.or, .ro {
+    font-size: 1.4rem;
+    position: relative;
+    transform-origin: center center;
+    left: -2px;
+}
+
+.ro {
+    transform: rotate(90deg);
+    animation: 0s linear 0s 1 normal none running animR;
+    left: -4px;
+}
+
+.or {
+    transform: rotate(0deg);
+    animation: 0s linear 0s 1 normal none running animO;
+    top: 2px;
+}
+
+@keyframes animO {
+    0% {
+        transform: rotate(90deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes animR {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(90deg);
+    }
+}*/
+
+.data-gui {
+    width: 300px;
+    z-index: 1000;
+}
+
+.folder-content {
+    width: 300px;
+    margin-left: 10px;
+}
+
+.folder-button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background: var(--gui-alt);
+    color: white;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 300px;
+    height: 30px;
+    font-size: 0.9rem;
+    padding: 10px;
+    user-select: none;
+}
+
+.property {
+    width: 300px;
+    height: 30px;
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-image: initial;
+    border-bottom: 1px solid var(--gui-alt);
+    padding: 5px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: var(--gui-bg);
+}
+
+.property-name {
+    color: white;
+    font-size: 0.8em;
+}
+
+.property-checkbox-input {
+    outline: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    left: 150px;
+}
+
+.switch {
+    position: absolute;
+    left: 212.5px;
+    display: inline-block;
+    width: calc(45px);
+    height: calc(25.5px);
+}
+
+.switch input {
+    opacity: 0;
+    width: 0px;
+    height: 0px;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0px;
+    background-color: rgb(38, 38, 38);
+    border-radius: 34px;
+    transform: scale(0.8);
+}
+
+.slider::before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: rgb(176, 176, 176);
+}
+
+input:focus + .slider {
+    box-shadow: rgb(33, 33, 33) 0px 0px 1px;
+}
+
+input:checked + .slider::before {
+    transform: translateX(calc(19.5px));
+}
+
+.property-text-input {
+    border: none;
+    outline: none;
+    width: 125px;
+    background: var(--gui-light);
+    color: white;
+    font-size: 0.8rem;
+    height: 20px;
+    position: absolute;
+    right: 5px;
+    padding: 5px;
+}
+
+.property-option-input {
+    border: none;
+    outline: none;
+    width: 125px;
+    background: var(--gui-light);
+    color: white;
+    font-size: 0.8rem;
+    height: 20px;
+    position: absolute;
+    right: 5px;
+    margin: 0px;
+    cursor: pointer;
+}
+
+.select-items {
+    border: none;
+    outline: none;
+    background: var(--gui-bg);
+    font-size: 1rem;
+}
+
+.directional-button-container {
+    border: none;
+    outline: none;
+    right: 5px;
+    width: 125px;
+    background: var(--gui-light);
+    height: 20px;
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dir-btn {
+    outline: none;
+    border: none;
+    border-radius: 2px;
+    width: 30px;
+    height: 20px;
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background: white;
+    transition: background 0.2s linear 0s;
+}
+
+.dir-btn:hover {
+    background: lightgray;
+}
+
+.dir-btn span {
+    position: relative;
+    color: black;
+}
+
+.dir-selected {
+    background: gray !important;
+}
+
+.dir-btn .up {
+    transform: rotate(-90deg);
+}
+
+.dir-btn .down {
+    transform: rotate(90deg);
+}
+
+.dir-btn .left {
+    transform: rotate(180deg);
+}
+
+.dir-prop {
+    width: 50px;
+    right: 175px;
+    background: transparent;
+    font-size: 1.2rem;
+}
+
+.color-label {
+    color: white;
+    border: none;
+    outline: none;
+    width: 125px;
+    cursor: pointer;
+    height: 20px;
+    position: absolute;
+    right: 5px;
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+
+.property-color-input {
+    border: none;
+    outline: none;
+    width: 125px;
+    user-select: none;
+    pointer-events: none;
+    opacity: 0;
+    height: 20px;
+    position: absolute;
+    right: 5px;
+}
+
+.toggle-gui {
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background: var(--gui-bg);
+    color: white;
+    width: 300px;
+    height: 30px;
+    font-size: 0.9rem;
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0px;
+}
+
+input[type="number"] {
+}
+
+.leftgui {
+    position: absolute;
+    top: 30px;
+    left: 0px;
+    width: 100vw;
+    height: 61px;
+    padding: 5px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: var(--bg);
+    user-select: none;
+    border-bottom: 1px solid black;
+}
+
+.create-submenu {
+    position: absolute;
+    top: 100px;
+    left: 0px;
+    width: 125px;
+    min-height: 25px;
+    background: var(--submenu-bg);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.sub-property {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.1s linear 0s;
+    background: rgba(40, 40, 40, 0.8) !important;
+}
+
+.sub-property:hover {
+    background: rgba(80, 80, 80, 0.8) !important;
+}
+
+.sub-folder-data {
+    width: 125px;
+    min-height: 25px;
+    background: var(--submenu-bg);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+    position: relative !important;
+}
+
+.direction-property {
+    background: blue;
+    outline: blue solid 5px;
+    width: 100px;
+    height: 100px;
+}
+
+.sub-folder {
+    padding: 5px;
+    width: 100%;
+    height: 27.5px;
+    color: white;
+    font-size: 0.8rem;
+    background: var(--bg);
+    cursor: pointer;
+    border-left: 1px solid red;
+    transition: opacity 0.1s linear 0s;
+}
+
+.sub-folder-data {
+    position: absolute;
+}
+
+.sub-folder:hover {
+    background: var(--bg-hover);
+}
+
+.leftgui .create, .dupl-1, .dupl-2, .leftgui .menu-button {
+    background: transparent;
+    outline: none;
+    border: 3px solid red;
+    position: relative;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+}
+
+.leftgui .create {
+    background: rgb(27, 27, 27);
+}
+
+.dupl-container {
+    position: relative;
+    width: 35px;
+    height: 35px;
+    display: flex;
+}
+
+.dupl-1, .dupl-2 {
+    position: absolute;
+    left: -5px;
+    top: 5px;
+    width: 30px;
+    height: 30px;
+    background: rgb(27, 27, 27);
+}
+
+.dupl-2 {
+    left: 5px;
+    top: -4px;
+}
+
+.leftgui .create {
+    width: 30px;
+    height: 30px;
+    margin-top: 5px;
+}
+
+.menu-button {
+    top: 3px;
+    z-index: 500;
+}
+
+.leftgui .menu-button {
+    color: red;
+    border: none;
+    font-size: 2rem;
+}
+
+.red {
+    color: rgb(0, 179, 255);
+}
+
+.gui-disable {
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+.gt {
+    position: absolute;
+    right: 10px;
+}
+
+.create-div, .menu-button-div {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin: 15px;
+}
+
+/*.shortcut-gui {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: column;
+    width: 50px;
+    padding: 5px;
+    background: var(--bg);
+    outline: red solid 3px;
+}
+
+#lava-shortcut {
+    background: rgb(199, 0, 0);
+}
+
+.shortcut-gui .shortcut {
+    width: 30px;
+    height: 30px;
+    margin: 8px 2px;
+    color: white;
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}*/
+
+.leftgui .submenu {
+    top: 30px;
+    height: 60px;
+    min-width: 50px;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-left: 1px solid black;
+}
+
+.leftgui .submenu .submenu-title {
+    position: absolute;
+    top: -2px;
+    color: white;
+    font-size: 0.75rem;
+}
+
+.leftgui-top {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 30px;
+    padding: 5px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: var(--bg);
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-image: initial;
+    border-bottom: 1px solid rgb(5, 5, 5);
+    user-select: none;
+}
+
+.leftgui-top button {
+    color: white;
+    font-size: 1rem;
+    border: none;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    background: transparent;
+    padding: 5px;
+    margin: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.1s linear 0s;
+}
+
+.leftgui-top button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.hover-div {
+    color: white;
+    background-color: var(--bg);
+    outline: none;
+    border: 1px solid red;
+    width: 25px;
+    height: 25px;
+    font-size: 0.8rem;
+    position: absolute;
+}
