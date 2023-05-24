@@ -22,16 +22,15 @@ const difficultyImages = {};
 for(let i = 0; i < difficultyFileNames.length; i++){
   const key = difficultyFileNames[i];
   difficultyImages[key] = new Image();
-  difficultyImages[key].src = `./gfx/difficultyimages/${difficultyFileNames[i]}.png`;
+  difficultyImages[key].src = `../client/gfx/difficultyimages/${difficultyFileNames[i]}.png`;
 }
 
 const arrowImg = new Image();
-arrowImg.src = './gfx/arrow.png';
+arrowImg.src = '../client/gfx/arrow.png';
 
 // fallback for performance.now on older browsers
 window.performance = window.performance || {}; performance.now = (function() {return performance.now || performance.mozNow || performance.msNow || performance.oNow || performance.webkitNow || function() { return new Date().getTime();};})();
 
-// for player hp so you don't die at 20%
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
   if (w < 2 * r) r = w / 2;
   if (h < 2 * r) r = h / 2;

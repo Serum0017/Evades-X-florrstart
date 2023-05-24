@@ -26,7 +26,6 @@ export default class Client {
         this.map = this.game.map;
     }
     start() {
-        // TODO: fix map sync in hub (should be easy when we switch to sending init messages instead of connection because of the account/ login screen)
         this.ws.addEventListener("open", (e) => {
             this.game.lastRequestedMapTime = performance.now()//+this.extraPing;//performance.now()+this.extraPing;
         });
