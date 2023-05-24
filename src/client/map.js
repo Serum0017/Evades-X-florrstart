@@ -38,6 +38,7 @@ export default class Map {
         }
 
         console.log(this.obstacles);
+        console.log(this.players);
 
         this.settings = data.settings;
         this.name = data.name;

@@ -77,8 +77,6 @@ export default class Renderer {
         const { map } = this.client.game;
         const me = this.client.me();
 
-        console.log(me);
-
         // filling bg
         ctx.fillStyle = this.colors.background;
         ctx.fillRect(0,0,canvas.w,canvas.h);

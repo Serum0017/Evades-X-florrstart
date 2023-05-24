@@ -19,7 +19,7 @@ export default class EditorClient {
         this.inputHandler.start();
     }
     reset() {
-        this.inputHandler.applyInputs(this.game.map.self.input);
+        // this.inputHandler.applyInputs(this.game.map.self.input);
         this.game.reset();
     }
     send (){}
