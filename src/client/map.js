@@ -8,7 +8,7 @@ export default class Map {
         this.client = client;
 
         this.players = {};
-        this.obstacles = {};
+        this.obstacles = [];
 
         this.settings = {dimensions: {x: 1000, y: 1000}, spawn: {x: 50, y: 50}, difficulty: 'Peaceful'};
         this.name = "Planet of Unnamed";
@@ -31,15 +31,12 @@ export default class Map {
         // console.log(data.obstacles);
 
         for(let i = 0; i < this.obstacles.length; i++){
-            this.obstacles[i].body = satFactory.generateSAT(this.obstacles[i].body, this.obstacles[i]);
-            if(this.obstacles[i].parametersToReset !== undefined){
-                this.resetObstacleParameters(this.obstacles[i], this.obstacles[i].parametersToReset);
-            }
+            this.initObstacle(this.obstacles[i]);
         }
 
         console.log(this.obstacles);
 
-        this.settings = data.settings;
+        this.settings = data.settings ?? this.settings;
         this.name = data.name;
 
         this.selfId = data.selfId;
@@ -103,6 +100,19 @@ export default class Map {
         // - simulate other players in player's screen with small movement simulation function (although follow the <2x last update state's distance covered rule - see arrow)
         // -- refer to !simulateObstacles.js for how we simulate obstacles --
         // -- refer to !simulateObstacles.js for how we collide with obstacles --
+    }
+    addObstacle(o){
+        this.initObstacle(o);
+        this.obstacles.push(o);
+    }
+    initObstacle(o){
+        o.body = satFactory.generateSAT(o.body, o);
+        if(o.parametersToReset !== undefined){
+            this.resetObstacleParameters(o, o.parametersToReset);
+        }
+    }
+    removeObstacle(index){
+        this.obstacles.splice(index, 1);
     }
     addPlayer(id, init){
         this.players[id] = new Player(id, init);
