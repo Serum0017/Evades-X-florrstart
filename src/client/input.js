@@ -32,9 +32,6 @@ for(let key in chatCommandMap){
 export default class InputHandler {
     constructor(client){
         this.client = client;
-        this.game = this.client.game;
-        this.map = this.game.map;
-        this.renderer = this.game.renderer;
 
         this.chatOpen = false;
 
@@ -49,6 +46,10 @@ export default class InputHandler {
         this.mouse = {x: window.innerWidth / 2, y: window.innerHeight / 2};
     }
     start() {
+        this.game = this.client.game;
+        this.map = this.client.game.map;
+        this.renderer = this.client.game.renderer;
+        
         window.onkeydown = (e) => this.handleKey(e);
         window.onkeyup = (e) => this.handleKey(e);
         window.onmousemove = (e) => this.handleMouse(e);
