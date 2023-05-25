@@ -1,6 +1,8 @@
-const minPacker = require('../minPack.js');
+if(require !== undefined){
+    const minPacker = require('./minPack.js');
+}
 
-module.exports = class Player{
+class Player{
     constructor(id, init){
         this.id = id;
         this.x = init.x;
@@ -80,4 +82,8 @@ module.exports = class Player{
         minPacker.reconstructMinPack(this, data);
         this.lastTick = tick;
     }
+}
+
+if(module !== undefined){
+    module.exports = Player;
 }
