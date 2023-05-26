@@ -35,7 +35,6 @@ export default class Map {
         }
 
         console.log(this.obstacles);
-        console.log(this.players);
 
         this.settings = data.settings ?? this.settings;
         this.name = data.name;
@@ -111,6 +110,7 @@ export default class Map {
         if(o.parametersToReset !== undefined){
             this.resetObstacleParameters(o, o.parametersToReset);
         }
+        interpolateManager.createInterpolateState(o);
     }
     removeObstacle(index){
         this.obstacles.splice(index, 1);

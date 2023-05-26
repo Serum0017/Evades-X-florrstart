@@ -1,10 +1,10 @@
-const satFactory = require('./satFactory.js');
-const initEffect = require('./initEffect.js');
-const initShape = require('./initShape.js');
-const initSimulate = require('./initSimulate.js');
+var satFactory = satFactory ?? require('./satFactory.js');
+var initEffect = initEffect ?? require('./initEffect.js');
+var initShape = initShape ?? require('./initShape.js');
+var initSimulate = initSimulate ?? require('./initSimulate.js');
 
 // combination of other modules that are required to intialize obstacles
-module.exports = function intializeObstacle(init, advanced) {
+function initObstacle(init, advanced) {
     // TODO: check miro for order, idk if this is right
     const type = init.type.split('-');
     const obstacle = {
@@ -49,4 +49,10 @@ function initGlobal(init){
         obs.eventRecievers = init.eventRecievers;
     }
     return obs;
+}
+
+if(typeof module !== 'undefined'){
+    module.exports = initObstacle;
+} else {
+    window.initObstacle = initObstacle;
 }

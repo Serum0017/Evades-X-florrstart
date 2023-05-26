@@ -38,4 +38,8 @@
 // as we are migrating to using sats and only sats as collision detec, rendering, etc.
 // we don't need to define relevant parameters. Stuff that is just passed in to init will suffice
 // TODO: revamp this once safety checks are a thing (probably wont need to bring this file back, do it in satFactory)
-module.exports = () => {return {};}
+if(typeof module !== 'undefined'){
+    module.exports = () => {};
+} else {
+    window.initShape = () => {};
+}

@@ -1,6 +1,4 @@
-if(require !== undefined){
-    const minPacker = require('./minPack.js');
-}
+var minPacker = minPacker ?? require('./minPack.js');
 
 class Player{
     constructor(id, init){
@@ -84,6 +82,8 @@ class Player{
     }
 }
 
-if(module !== undefined){
+if(typeof module !== 'undefined'){
     module.exports = Player;
+} else {
+    window.Player = Player;
 }

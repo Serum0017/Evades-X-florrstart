@@ -502,7 +502,7 @@ class Polygon {
 }
 
 const { registerFont, createCanvas } = require('canvas');// TODO: load inter font manually because device might not hvae installed
-registerFont('./src/server/init/inter.ttf', { family: 'Inter' });
+registerFont('./src/shared/init/inter.ttf', { family: 'Inter' });
 const canvas = createCanvas(1,1);
 const ctx = canvas.getContext('2d');
 

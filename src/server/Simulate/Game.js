@@ -1,5 +1,6 @@
-const Player = require('./Player.js');
-const Map = require('./Map.js');
+const generateDefaultState = require('../../shared/defaultState.js');
+const Player = require('../../shared/ServerPlayer.js');
+const Map = require('../../shared/ServerMap.js');
 const mapData = require('../mapData.js');
 // run all maps basically
 
@@ -12,16 +13,7 @@ module.exports = class Game {
         for(let key in this.mapData){
             this.maps[key] = new Map();
         }
-        this.defaultState = {
-            xv: 0, x: 0,
-            yv: 0, y: 0,
-            r: 24.5,
-            angle: 0,
-            magnitude: 0,
-            dev: false, god: false,
-            map: this.maps.Hub,
-            mapName: 'Hub',
-        }
+        this.defaultState = generateDefaultState(this.maps.Hub, 'Hub');
     }
     loadMap(mapName){
         this.maps[mapName] = this.maps[mapName].load(this.mapData[mapName], this);

@@ -74,7 +74,7 @@ function cloneObject(v){
     return newObj;
 }
 
-if(module !== undefined){
+if(typeof module !== 'undefined'){
     module.exports = {minPack, reconstructMinPack, cloneObject};
 } else {
     window.minPacker = {minPack, reconstructMinPack, cloneObject};

@@ -1,4 +1,4 @@
-const initEnemy = require('./initEnemy.js');
+var initEnemy = initEnemy ?? require('./initEnemy.js');
 
 const initSimulateMap = {
     normal: () => {},
@@ -65,7 +65,7 @@ function assignIfUndefined(v1, v2){
     if(v1 === undefined){ v1 = v2; }
 }
 
-module.exports = function initSimulate(params, advanced) {
+function initSimulate(params, advanced) {
     let init = {};// TODO: rethink if we should actually be assigning things twice or if we can just directly assign to obstacle once
     if(Array.isArray(params.simulate) === false) {
         console.error("Obstacle simulate is not an array! " + JSON.stringify(params)); return;
@@ -77,4 +77,10 @@ module.exports = function initSimulate(params, advanced) {
     }
 
     return init;
+}
+
+if(typeof module !== 'undefined'){
+    module.exports = initSimulate;
+} else {
+    window.initSimulate = initSimulate;
 }

@@ -1,6 +1,6 @@
-const initObstacle = require('../Init/!initObstacle.js');
+var initObstacle = initObstacle ?? require('./Init/!initObstacle.js');
 
-module.exports = class Map {
+class Map {
     constructor(){
         this.players = {};
         this.obstacles = [];
@@ -86,4 +86,10 @@ function toHex(hex, defaultHex="#ff0000"){
 
 function mapObject(obj, fn){
     Object.fromEntries(Object.entries(obj).map(([k, v], i) => [k, fn(v, k, i)]))
+}
+
+if(typeof module !== 'undefined'){
+    module.exports = Map;
+} else {
+    window.Map = Map;
 }

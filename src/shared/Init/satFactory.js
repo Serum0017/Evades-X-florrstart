@@ -1,10 +1,16 @@
-const { registerFont, createCanvas } = require('canvas');// TODO: load inter font manually because device might not hvae installed
-registerFont('./src/server/init/inter.ttf', { family: 'Inter' });
-const canvas = createCanvas(1,1);
+let canvas;
+if(typeof window === 'undefined'){
+    var { registerFont, createCanvas } = require('canvas');
+    registerFont('./src/shared/init/inter.ttf', { family: 'Inter' });
+    canvas = createCanvas(1,1);
+} else {
+    canvas = document.getElementById('canvas');
+}
+
 const ctx = canvas.getContext('2d');
 
 // SATFactory.generateSAT.circle(x,y,r);
-const SAT = require('sat');//require('sat');
+var SAT = SAT ?? require('sat');
 
 const SATMap = {
     square: ({ x,y,w,h }) => {
@@ -135,4 +141,8 @@ function generateDimensions(obstacle){
     return DimensionsMap[obstacle.shape](obstacle);
 }
 
-module.exports = {generateBody, generateDimensions};
+if(typeof module !== 'undefined'){
+    module.exports = {generateBody, generateDimensions};
+} else {
+    window.satFactory = {generateBody, generateDimensions};
+}

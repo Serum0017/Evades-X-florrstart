@@ -37,7 +37,7 @@ function initPosition(e, init){
     }
 }
 
-module.exports = function initEnemy(params, advanced) {
+function initEnemy(params, advanced) {
     let init = {};
     if(Array.isArray(params.enemyType) === false) {
         console.error("Obstacle enemyType undefined! " + JSON.stringify(params)); return;
@@ -50,4 +50,10 @@ module.exports = function initEnemy(params, advanced) {
     }
     
     return init;
+}
+
+if(typeof module !== 'undefined'){
+    module.exports = initEnemy;
+} else {
+    window.initEnemy = initEnemy;
 }

@@ -19,6 +19,7 @@ body {
     font-size: 17px;
     font-family: Inter, sans-serif;
     overflow: hidden;
+    background:rgb(5, 5, 5);
 }
 
 #canvas {
@@ -332,11 +333,11 @@ input[type="number"] {
     height: 61px;
     padding: 5px;
     display: flex;
-    justify-content: flex-start;
     align-items: center;
     background: var(--bg);
     user-select: none;
     border-bottom: 1px solid black;
+    justify-content: center;
 }
 
 .create-submenu {
@@ -478,6 +479,14 @@ input[type="number"] {
     cursor: pointer;
     margin: 15px;
 }
+
+/*Cool experiment: TODO implement in the future if i remember!*/
+/*.menu-button-div :hover {
+    background-size: cover;
+    background-position: center bottom;
+    background-image: url('../client/gfx/favicon.png');
+    background-clip: text;-webkit-background-clip: text;color: transparent;
+}*/
 
 /*.shortcut-gui {
     position: absolute;

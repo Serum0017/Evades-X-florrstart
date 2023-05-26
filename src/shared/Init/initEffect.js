@@ -1,4 +1,4 @@
-const SATFactory = require('./satFactory.js');
+var satFactory = satFactory ?? require('./satFactory.js');
 
 const initEffectMap = {
     lava: (obs, init) => {
@@ -240,7 +240,7 @@ function toHex(hex, defaultHex="#ff0000"){
     return hex;
 }
 
-module.exports = function initEffect(params, advanced) {
+function initEffect(params, advanced) {
     let init = {};
     if(params.effect === undefined){
         console.error("Obstacle effects undefined! " + JSON.stringify(params)); return;
@@ -249,4 +249,10 @@ module.exports = function initEffect(params, advanced) {
         initEffectMap[params.effect](init, params, advanced);
     }
     return init;
+}
+
+if(typeof module !== 'undefined'){
+    module.exports = initEffect;
+} else {
+    window.initEffect = initEffect;
 }
