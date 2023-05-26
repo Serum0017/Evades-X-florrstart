@@ -1,3 +1,9 @@
+if(typeof require !== 'undefined'){
+    var {toBoolean, toNumber, toString, toHex} = require('./convertType.js');
+} else {
+    var {toBoolean, toNumber, toString, toHex} = window.typeConverter;
+}
+
 // // here we just define relevant parameters. We DO NOT define x or y
 // function defineSquare(obs, init) {
 //     obs.w = init.w;
@@ -8,23 +14,26 @@
 //     obs.r = init.r;
 // }
 
-// const initShapeMap = {
-//     square: (obs, init) => {
-//         defineSquare(obs, init);
-//     },
-//     circle: (obs, init) => {
-//         defineCircle(obs, init);
-//     },
-//     poly: (obs, init) => {
-//         obs.points = init.points;
-//     },
-//     circleHollowSlice: (obs, init) => {
-//         defineCircle(obs, init);
-//         obs.innerRadius = init.innerRadius;
-//         obs.startAngle = init.startAngle;
-//         obs.endAngle = init.endAngle;
-//     }
-// };
+const initShapeMap = {
+    square: (obs, init) => {
+        obs.x = toNumber(init.x);
+        obs.y = toNumber(init.y);
+        obs.w = toNumber(init.w,50);
+        obs.h = toNumber(init.h,50);
+    },
+    circle: (obs, init) => {
+        defineCircle(obs, init);
+    },
+    poly: (obs, init) => {
+        obs.points = init.points;
+    },
+    circleHollowSlice: (obs, init) => {
+        defineCircle(obs, init);
+        obs.innerRadius = init.innerRadius;
+        obs.startAngle = init.startAngle;
+        obs.endAngle = init.endAngle;
+    }
+};
 
 // module.exports = function initShape(params, advanced) {
 //     let init = {};

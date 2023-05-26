@@ -1,4 +1,9 @@
 var initObstacle = initObstacle ?? require('./Init/!initObstacle.js');
+if(typeof require !== 'undefined'){
+    var {toBoolean, toNumber, toString, toHex} = require('./Init/convertType.js');
+} else {
+    var {toBoolean, toNumber, toString, toHex} = window.typeConverter;
+}
 
 class Map {
     constructor(){
@@ -56,32 +61,6 @@ class Map {
     removePlayer(p){
         delete this.players[p.id];
     }
-}
-
-function toNumber(num, defaultNumber=0){
-    // try {
-    //     let n = Number(num);
-    //     if(isNaN(n)){
-    //         return defaultNumber;
-    //     } else {
-    //         return n;
-    //     }
-    // } catch(e) {
-    //     return defaultNumber;
-    // }
-    return Number.isFinite(num) ? num : defaultNumber;
-}
-
-function toHex(hex, defaultHex="#ff0000"){
-    if(typeof hex !== 'string'){
-        return defaultHex;
-    }
-    for(let i = 0; i < hex.length; i++){
-        if(i === 0 && hex[i] === '#')continue;
-        if(Number.isFinite(hex[i]) === true)continue;
-        return defaultHex;
-    }
-    return hex;
 }
 
 function mapObject(obj, fn){

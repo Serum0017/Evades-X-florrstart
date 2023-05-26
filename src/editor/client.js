@@ -1,7 +1,7 @@
 import Game from "../client/simulate/game.js";
 import InputHandler from "../client/input.js";
 import initDefaultMap from "./initDefaultMap.js";
-import UIManager from "./uiManager.js";
+import UIManager from "./ui/!uiManager.js";
 
 export default class EditorClient {
     constructor(){
