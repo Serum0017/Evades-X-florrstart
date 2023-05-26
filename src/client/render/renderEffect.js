@@ -90,6 +90,20 @@ const renderEffectMap = {
     tp: (o, ctx, advanced) => {
         ctx.fillStyle = 'green';
     },
+    customRender: (o, ctx, { colors }) => {
+        if(o.color !== 'tileColor'){
+            ctx.fillStyle = o.color;
+        } else {
+            ctx.fillStyle = colors.tile;
+        }
+
+        ctx.globalAlpha = o.opacity;
+
+        if(o.toDrawImage === true){
+            ctx.toClip = true;
+            ctx.toFill = false;
+        }
+    },
     checkpoint: (o, ctx, { colors }) => {
         if (o.collected === true) {
             ctx.fillStyle = '#0fba09';
@@ -190,6 +204,21 @@ const renderEffectAfterShapeMap = {
             const markingY = o.y - o.difference.y/2 + (o.difference.y - 5) * (1 - o.difficultyNumber);
             ctx.fillRect(o.x - o.difference.x/2, markingY, o.difference.x / 5, 5);
         }
+        
+        ctx.restore();
+    },
+    customRender: (o, ctx, advanced) => {
+        if(o.toDrawImage !== true){
+            return;
+        }
+        if(o.image === undefined){
+            o.image = new Image();
+            o.image.src = o.imageUrl;
+        }
+        
+        try {
+            ctx.drawImage(o.image, o.x - o.difference.x/2, o.y - o.difference.x/2, o.difference.x, o.difference.y);
+        } catch(e){}
         
         ctx.restore();
     },

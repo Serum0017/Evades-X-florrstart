@@ -311,9 +311,12 @@ class Checkpoint {
     }
 }
 
-class TransObstacle {
-    constructor(x, y, w, h){
-        return [];//new NormalObstacle(x, y, w, h);
+class TransObstacle extends NormalObstacle {
+	constructor(x, y, w, h, collide = true, opaq = 0.25) {
+    return {
+            type: 'square-normal-customRender',
+            x:x+w/2,y:y+h/2,w,h, collidable:collide, opacity: opaq/*,isGround: canJump*/
+        }
     }
 }
 
@@ -588,5 +591,5 @@ class Spawner {
 module.exports = {
     NormalObstacle, BouncyObstacle, CircularNormalObstacle, CircularBouncyObstacle, Lava, RotatingNormal, RotatingLava, SpeedObstacle, GravObstacle, Tp, MovingObstacle, Coin, BreakableObstacle, TransObstacle, Polygon,
     PlatformerGrav, RestrictAxis, CircularCoin, CoinDoor, ColorChange, MovingLavaObstacle, CircularLavaObstacle, RoundedCorners, RoundedLava, SnapGrid, Winpad, CircularTpObstacle, Spawner, Oval, LavaOval, Safe, /*Portal*/
-    SizePlayer, MovingSafe, RotatingSafe, Text, Checkpoint, TimeTrap, Typing
+    SizePlayer, MovingSafe, RotatingSafe, Text, Checkpoint, TimeTrap, Typing, TransObstacle
 }

@@ -159,6 +159,13 @@ const initEffectMap = {
     tp: (obs, init) => {
         obs.tp = {x: toNumber(init.tp.x, 0), y: toNumber(init.tp.y, 0)};
     },
+    customRender: (obs, init) => {
+        obs.opacity = toNumber(init.opacity, 1);
+        obs.collidable = toBoolean(init.collidable, 1);
+        obs.color = toHex(init.color, 'tileColor');
+        obs.toDrawImage = toBoolean(init.toDrawImage, false);
+        obs.imageUrl = toString(init.imageUrl, 'https://i1.sndcdn.com/artworks-Uii8SMJvNPxy8ePA-romBoQ-t500x500.jpg');// TODO: research if letting user pick arbitrary url is safe
+    },
     // TODO: make the rest of these toNumber/ toHex/ toWhatever
     platformer: (obs, init) => {
         obs.platformerForce = init.platformerForce ?? 1;

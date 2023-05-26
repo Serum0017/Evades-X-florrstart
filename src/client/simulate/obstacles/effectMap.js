@@ -258,6 +258,11 @@ const Effects = {
             obstacle.timeTrapTime = 0;
         }
     },
+    customRender: (sat, player, obstacle) =>{
+        if(obstacle.collidable === true){
+            bound(sat, player, obstacle);
+        }
+    },
 };
 
 // TODO: put this in satFactory or somewhere global. Also clean up the function
