@@ -58,6 +58,16 @@ export default function simulatePlayer(p, map) {
 		p.y = map.settings.dimensions.y - p.difference.x/2;
 	}
 
+	// making sure player doesn't violate predictionLimit
+	if(p.id !== map.selfId){
+		if(Math.abs(p.x - p.predictionLimit.origin.x) > Math.abs(p.predictionLimit.delta.x)){
+			p.x = p.predictionLimit.origin.x + Math.sign(p.x - p.predictionLimit.origin.x) * p.predictionLimit.delta.x;
+		}
+		if(Math.abs(p.y - p.predictionLimit.origin.y) > Math.abs(p.predictionLimit.delta.y)){
+			p.y = p.predictionLimit.origin.y + Math.sign(p.y - p.predictionLimit.origin.y) * p.predictionLimit.delta.y;
+		}
+	}
+
 	if(p.id === map.selfId){
 		p.axisSpeedMult = {x: 1, y: 1, angle: 0};
 		p.friction = 0.4;

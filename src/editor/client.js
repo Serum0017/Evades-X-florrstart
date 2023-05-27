@@ -7,6 +7,7 @@ import SelectionManager from "./selectionManager.js";
 export default class EditorClient {
     constructor(){
         this.clientType = 'editor';
+        this.playerActive = false;
         
         this.defineModules();
 

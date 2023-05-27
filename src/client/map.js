@@ -63,10 +63,10 @@ export default class Map {
                 this.players[id].updatePack(playerData[id]);
 
                 // simulate extra ticks
-                for(let i = 0; i < Math.min(30,this.tick - playerData[id].lastTick); i++){
-                    this.players[id].simulate(this);
-                }
-                this.players[id].updateInterpolate();
+                // for(let i = 0; i < Math.min(30,this.tick - playerData[id].lastTick); i++){
+                //     this.players[id].simulate(this);
+                // }
+                // this.players[id].createSimulateState();
             }
         }
 
@@ -83,7 +83,10 @@ export default class Map {
         }
 
         ObstacleManager.simulateObstacles(this.self, this.players, this.obstacles, this.tick, this.client);
-        ObstacleManager.runObstacleCollisions(this.self, this.players, this.obstacles, this.tick, this.client);
+
+        if(this.client.clientType !== 'editor' || this.client.playerActive === true){
+            ObstacleManager.runObstacleCollisions(this.self, this.players, this.obstacles, this.tick, this.client);
+        }
 
         this.tick++;
 

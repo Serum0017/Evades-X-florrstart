@@ -119,6 +119,9 @@ export default class Renderer {
         ctx.fillText('R to respawn', canvas.w / 2, canvas.h - 85);
     }
     renderPlayers(players){
+        if(this.client.clientType === 'editor' && this.client.playerActive === false){
+            return;
+        }
         for(let id in players){
             players[id].render(ctx, canvas, this.camera);
         }

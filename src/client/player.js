@@ -30,6 +30,7 @@ export default class Player{
         this.renderY = this.y;
         this.renderR = this.r/4;
 
+        this.predictionLimit = {delta: {x: 100, y: 100}, origin: {x: this.x, y: this.y}, lastPos: {x: this.x, y: this.y}};
         this.packKeys = init.packKeys;
         this.accumPack = this.getPackKeys();
         this.updateLastState();
@@ -104,13 +105,13 @@ export default class Player{
 
         ctx.closePath();
 
+        this.updateInterpolate();
+
         // ctx.font = '30px Inter';
         // ctx.textAlign = 'middle';
         // ctx.textBaseline = 'center';
         // ctx.fillStyle = 'white';
         // ctx.fillText(`(${Math.round(this.x)}, ${Math.round(this.y)})`, this.renderX, this.renderY);
-
-        this.updateInterpolate();
     }
     updateInterpolate(){
         this.renderR = this.renderR * 0.917 + this.r * 0.083;
@@ -125,9 +126,10 @@ export default class Player{
             y: this.y,
             time
         }
-        this.updateInterpolate();
     }
     updatePack(data){
+        this.predictionLimit.origin = {x: this.x, y: this.y};
+
         // lmao this is so inefficient -- just to save a few bytes of data per sec ;c
         minPacker.reconstructMinPack(this, data, this.accumPack);
         for(let key in this.accumPack){
@@ -139,6 +141,13 @@ export default class Player{
             this.changeShape({shapeType: this.shape, shapePoints: this.shapePoints});
             this.radiusUpdateChanged = true;
         }
+
+        // create a "limit" on prediction -> see miro for implementation details
+        this.predictionLimit.delta = {
+            x: Math.abs(this.predictionLimit.lastPos.x - this.x),
+            y: Math.abs(this.predictionLimit.lastPos.y - this.y)
+        }
+        this.predictionLimit.lastPos = {x: this.x, y: this.y};
     }
     updateLastState(){
         this.lastUpdateState = minPacker.cloneObject(this.getPackKeys());
