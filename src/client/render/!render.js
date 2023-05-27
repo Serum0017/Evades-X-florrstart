@@ -84,7 +84,7 @@ export default class Renderer {
         this.renderTiles({x: (-me.renderX + canvas.w / 2) % 50, y: (-me.renderY + canvas.h / 2) % 50});
         
         this.camera.setTranslate({x: -me.renderX + canvas.w / 2, y: -me.renderY + canvas.h / 2});
-    
+
         this.renderBounds(map);
 
         // render obstacles with interpolation
@@ -97,6 +97,8 @@ export default class Renderer {
         this.renderObstacles(map.obstacles.filter(o => o.toRender !== false), map.players, map.self);
 
         this.renderPlayers(map.players);
+
+        this.renderEditor();
 
         this.camera.resetTranslate();
 
@@ -178,6 +180,16 @@ export default class Renderer {
         ctx.lineWidth = 10000//Math.max(canvas.w, canvas.h);
         ctx.strokeRect(-ctx.lineWidth/2, -ctx.lineWidth/2, map.settings.dimensions.x + ctx.lineWidth, map.settings.dimensions.y + ctx.lineWidth);
         ctx.lineWidth = 3;
+    }
+    renderEditor(){
+        if(this.client.clientType !== 'editor'){
+            return;
+        }
+        if(this.client.selectionManager.previewObstacle !== null){
+            ctx.globalAlpha = 0.5;
+            this.client.selectionManager.previewObstacle.render = this.client.selectionManager.previewObstacle;
+            this.renderObstacles([this.client.selectionManager.previewObstacle], this.client.game.players, this.client.map.self);
+        }
     }
     renderDisconnectedText(){
         ctx.fillStyle = 'white';

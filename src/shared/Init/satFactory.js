@@ -6,6 +6,11 @@ if(typeof window === 'undefined'){
 } else {
     canvas = document.getElementById('canvas');
 }
+if(typeof require !== 'undefined'){
+    var {toBoolean, toNumber, toString, toHex, toStructure} = require('./convertType.js');
+} else {
+    var {toBoolean, toNumber, toString, toHex, toStructure} = window.typeConverter;
+}
 
 const ctx = canvas.getContext('2d');
 
@@ -24,8 +29,15 @@ const SATMap = {
     },
     oval: ({ x,y,rw,rh }) => {
         const points = [];
-        for(let a = 0; a < Math.PI*2; a += Math.PI*2/(Math.max(3,rw/25)*Math.max(3,rh/25))){
+        const angleIncrement = Math.PI*2/(Math.max(3,rw/25)*Math.max(3,rh/25));
+        const cornerAngles = [Math.PI/2, Math.PI, Math.PI*3/2];
+        points.push([rw, 0]);// top
+        for(let a = 0; a < Math.PI*2; a += angleIncrement){// TODO: enable poly debug rendering to test if this actually works
             points.push([Math.cos(a) * rw, Math.sin(a) * rh]);
+            if(cornerAngles[0] && a < cornerAngles[0] && a+angleIncrement > cornerAngles[0]){
+                points.push([Math.cos(cornerAngles[0]) * rw, Math.sin(cornerAngles[0]) * rh])
+                points.shift();
+            }
         }
         return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
     },
@@ -97,12 +109,19 @@ function generateBody(obstacle) {
 
 const DimensionsMap = {
     square: ({w, h}) => {
+        w = toNumber(w, 50);
+        h = toNumber(h, 50);
+
         return {difference: {x: w, y: h}};
     },
     circle: ({ r }) => {
+        r = toNumber(r, 25);
+
         return {difference: {x: r*2, y: r*2}};
     },
     poly: ({ points }) => {
+        points = toStructure({type: "array", minLength: 2, sub: {type: "array", sub: {type: "number"}}}, points, [[100, 0], [200, 0], [150, 75]]);
+
         var top, right, bottom, left;
         top = right = bottom = left = null;
         for(let [x, y] of points){
@@ -127,9 +146,15 @@ const DimensionsMap = {
         };
     },
     oval: ({ rw, rh }) => {
+        rw = toNumber(rw, 50);
+        rh = toNumber(rh, 25);
+
         return {difference: {x: rw*2, y: rh*2}};
     },
     text: ({ text,fontSize }) => {
+        text = toString(text, `Evades ${Math.ceil(Math.random()*10) === 10 ? 'X' : Math.random()*10}`);
+        fontSize = toNumber(fontSize, 32);
+
         ctx.font = `${fontSize}px Inter`;
         const textMeasurements = ctx.measureText(text);
         return {difference: {x: textMeasurements.width, y: textMeasurements.actualBoundingBoxAscent}};
@@ -137,6 +162,8 @@ const DimensionsMap = {
 }
 
 function generateDimensions(obstacle){
+    obstacle.x = toNumber(obstacle.x);
+    obstacle.y = toNumber(obstacle.y);
     if(!DimensionsMap[obstacle.shape])console.log('dimensionMap not defined for: ' + JSON.stringify(obstacle.shape));
     return DimensionsMap[obstacle.shape](obstacle);
 }

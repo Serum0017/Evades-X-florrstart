@@ -27,23 +27,31 @@ const initShapeMap = {
         obs.r = toNumber(init.r, 25);
     },
     poly: (obs, init) => {
-        obs.points = init.points;// TODO: toStructured this
+        obs.points = toStructure({type: "array", minLength: 2, sub: {type: "array", sub: {type: "number"}}}, init.points, [[100, 0], [200, 0], [150, 75]]);
     },
-    circleHollowSlice: (obs, init) => {
-        obs.x = toNumber(init.x);
-        obs.y = toNumber(init.y);
-        obs.r = toNumber(init.r, 25);
-        obs.innerR = toNumber(init.innerR, 15);
-        obs.startAngle = toNumber(init.startAngle, 0);
-        obs.startAngle *= Math.PI/180;
-        obs.endAngle = toNumber(init.endAngle, Math.PI);
-        obs.endAngle *= Math.PI/180;
+    // circleHollowSlice: (obs, init) => {
+    //     obs.x = toNumber(init.x);
+    //     obs.y = toNumber(init.y);
+    //     obs.r = toNumber(init.r, 25);
+    //     obs.innerR = toNumber(init.innerR, 15);
+    //     obs.startAngle = toNumber(init.startAngle, 0);
+    //     obs.startAngle *= Math.PI/180;
+    //     obs.endAngle = toNumber(init.endAngle, Math.PI);
+    //     obs.endAngle *= Math.PI/180;
+    // }
+    text: (obs, init) => {
+        obs.text = toString(init.text, `Evades ${Math.ceil(Math.random()*10) === 10 ? 'X' : Math.ceil(Math.random()*10)}`);
+        obs.fontSize = toNumber(init.fontSize, 32);
+    },
+    oval: (obs, init) => {
+        obs.rw = toNumber(init.rw, 50);
+        obs.rh = toNumber(init.rh, 25);
     }
 };
 
 function initShape(params, advanced) {
     let init = {};
-    if(params.shape === undefined || !initShapeMap[params.shape] === undefined){
+    if(params.shape === undefined || initShapeMap[params.shape] === undefined){
         console.error("Obstacle shape undefined! " + JSON.stringify(params)); return;
     }
     initShapeMap[params.shape](init, params, advanced);

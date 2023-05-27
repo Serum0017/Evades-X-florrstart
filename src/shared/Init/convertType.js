@@ -48,6 +48,7 @@ function toHex(hex, defaultHex="#ff0000"){
 // actually i could just make everything an advanced object {type: "array", }
 
 function toType(val){
+    if(val === 'null')return 'null';
     return Array.isArray(val) ? 'array' : typeof val;
 }
 
@@ -65,7 +66,7 @@ function toStructure(structure, init, defaultValue){
             const subType = Array.isArray(structure.sub.type) ? structure.sub.type[Math.min(structure.sub.type.length-1,i)] : structure.sub.type;
             if(toType(init[i]) !== subType){
                 return defaultValue;
-            } else if(toStructure({type: subType}, init[i], 'INVALIDSTRUCTURE') === 'INVALIDSTRUCTURE'){
+            } else if(toStructure({...structure.sub, type: subType}, init[i], 'INVALIDSTRUCTURE') === 'INVALIDSTRUCTURE'){
                 return defaultValue;
             }
         }
@@ -86,13 +87,17 @@ function toStructure(structure, init, defaultValue){
             }
             structure.excludedKeys = newExcludedKeys;
         }
-        for(let key in init){
-            if(structure.excludedKeys[key] === true){
+        // check that all keys are there
+        for(let key in structure.keys){
+            if(init[key] === undefined){
                 return defaultValue;
-            } else if(structure.keys[key] !== undefined){
-                if(toStructure(structure.keys[key], init[key], 'INVALIDSTRUCTURE') === 'INVALIDSTRUCTURE'){
-                    return defaultValue;
-                }
+            } else if(toStructure(structure.keys[key], init[key], 'INVALIDSTRUCTURE') === 'INVALIDSTRUCTURE'){
+                return defaultValue;
+            }
+        }
+        for(let key in structure.excludedKeys){
+            if(init[key] !== undefined){
+                return defaultValue;
             }
         }
         return init;

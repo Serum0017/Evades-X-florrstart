@@ -212,8 +212,12 @@ const renderEffectAfterShapeMap = {
             return;
         }
         if(o.image === undefined){
-            o.image = new Image();
-            o.image.src = o.imageUrl;
+            try {
+                o.image = new Image();
+                o.image.src = o.imageUrl;
+            }catch(e){
+                o.image = undefined;
+            }
         }
         
         try {

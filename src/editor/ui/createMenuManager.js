@@ -1,4 +1,3 @@
-import addObstacle from '../addObstacle.js';
 import Ref from '../editorRef.js';
 
 export default class CreateMenuManager {
@@ -124,13 +123,9 @@ export default class CreateMenuManager {
             simulate: property.parentElement.parentElement.name,
             effect: property.name
         }
-
-        console.log({obsTypes});
     
         // we shouldn't have to add any more properties because that would mean that it was unsafe to begin with
-        addObstacle({
-            type: `${obsTypes.shape}-${obsTypes.simulate}-${obsTypes.effect}`, x: 0, y: 0//, r: 20, coins: 2, currentPoint: 2, path: [{x: 10, y: 10}, {x: 490, y: 10}, {x: 490, y: 490}, {x: 0, y: 490}], bounciness: 180, speed: 1
-        }, this.map)
+        this.client.selectionManager.addPreviewObstacle({type: `${obsTypes.shape}-${obsTypes.simulate}-${obsTypes.effect}`});
     }
     formatObstacleName(name){
         name = name[0].toUpperCase() + name.slice(1);

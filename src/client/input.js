@@ -66,7 +66,7 @@ export default class InputHandler {
         }
 
         // handling enter inputs
-        if (e.code === 'Enter') {
+        if (e.code === 'Enter' && this.client.clientType !== 'editor') {
             if (this.chatOpen === true && e.type === 'keydown') {
                 // send chat message
                 Utils.ref.chatDiv.classList.add('hidden');

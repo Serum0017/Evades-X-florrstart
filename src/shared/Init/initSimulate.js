@@ -11,7 +11,10 @@ const initSimulateMap = {
         // init: {currentPoint, path, speed, alongWith }
 		obs.currentPoint = Math.floor(toNumber(init.currentPoint));
 		obs.path = toStructure({type: 'array', sub: {type: "object", keys: {x: {type: 'number'}, y: {type: 'number'}}}}, init.path, [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 100}, {x: 0, y: 100}]);
-		obs.speed = toNumber(init.speed, 1);
+        if(obs.currentPoint >= obs.path.length){
+            obs.currentPoint = 0;
+        }
+		obs.speed = toNumber(init.speed, 1);// TODO: variable speed at each point, can be specified in the object or else defaults to the obs.speed instead of obs.point[i].speed
 		// obs.top.x = obs.path[init.currentPoint][0];
 		// obs.top.y = obs.path[init.currentPoint][1];
         // will fix later? idk
@@ -30,7 +33,7 @@ const initSimulateMap = {
 
         obs.timeRemain = Math.sqrt((obs.pointOn.x - obs.pointTo.x)**2 + (obs.pointOn.y - obs.pointTo.y)**2) / obs.speed;
 
-        const fractionalPointOffset = init.currentPoint % 1;
+        const fractionalPointOffset = obs.currentPoint % 1;
         if(fractionalPointOffset !== 0){
             obs.timeRemain *= 1 - fractionalPointOffset;// 0.8 of the way there means timeRemain should be divided by 5
             obs.x = obs.pointOn.x * (1 - fractionalPointOffset) + fractionalPointOffset * obs.pointTo.x;
@@ -42,20 +45,14 @@ const initSimulateMap = {
     },
     rotate: (obs, init) => {
         // init.x and y are the midpoint
-		obs.rotateSpeed = init.rotateSpeed ?? 0;
+		obs.rotateSpeed = toNumber(init.rotateSpeed, 1);
         obs.rotateSpeed *= Math.PI/180;
     },
     enemy: (obs, init) => {
         //{type: 'circle-enemy-normal', bound: {x: 0, y: 0, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/}
-        init.enemyType = init.enemyType.split(',');
-        obs.enemyType = init.enemyType;
+        init.enemyType = toString(init.enemyType,"normal").split(',');
+        obs.enemyType = init.enemyType;// TODO: check if invalid enemy types can be inputted
         
-        obs.bound = {
-            x: init.bound.x,
-            y: init.bound.y,
-            w: init.bound.w,
-            h: init.bound.h
-        };
         assign(obs, initEnemy(init));
     }
 };

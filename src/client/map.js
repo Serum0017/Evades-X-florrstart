@@ -102,7 +102,6 @@ export default class Map {
         // -- refer to !simulateObstacles.js for how we collide with obstacles --
     }
     addObstacle(o){
-        console.log(o);
         this.initObstacle(o);
         this.obstacles.push(o);
     }

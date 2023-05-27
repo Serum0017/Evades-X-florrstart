@@ -3,7 +3,7 @@ function el(select){
 }
 
 export default {
-    canvas: el('.canvas'),
+    canvas: document.getElementById('canvas'),
     toggleGui: el('.toggle-gui'),
     gui: el('.data-gui'),
     allGui: el('.all-gui'),

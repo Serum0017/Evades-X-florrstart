@@ -32,10 +32,10 @@ const initEnemyMap = {
 
 function initPosition(e, init){
     init.bound = {
-        x: toNumber(init.bound.x),
-        y: toNumber(init.bound.y),
-        w: toNumber(init.bound.w, 100),
-        h: toNumber(init.bound.h, 100),
+        x: toNumber(init?.bound?.x),
+        y: toNumber(init?.bound?.y),
+        w: toNumber(init?.bound?.w, 250),
+        h: toNumber(init?.bound?.h, 250),
     };
     if(toNumber(init.x, 'undef') !== 'undef'){
         e.x = init.x;
