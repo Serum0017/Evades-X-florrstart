@@ -1,8 +1,8 @@
 var satFactory = satFactory ?? require('./satFactory.js');
 if(typeof require !== 'undefined'){
-    var {toBoolean, toNumber, toString, toHex} = require('./convertType.js');
+    var {toBoolean, toNumber, toString, toHex, toStructure} = require('./convertType.js');
 } else {
-    var {toBoolean, toNumber, toString, toHex} = window.typeConverter;
+    var {toBoolean, toNumber, toString, toHex, toStructure} = window.typeConverter;
 }
 
 
@@ -244,4 +244,5 @@ if(typeof module !== 'undefined'){
     module.exports = initEffect;
 } else {
     window.initEffect = initEffect;
+    window.initEffectMap = initEffectMap;
 }

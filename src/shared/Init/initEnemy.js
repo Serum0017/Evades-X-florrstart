@@ -1,7 +1,7 @@
 if(typeof require !== 'undefined'){
-    var {toBoolean, toNumber, toString, toHex} = require('./convertType.js');
+    var {toBoolean, toNumber, toString, toHex, toStructure} = require('./convertType.js');
 } else {
-    var {toBoolean, toNumber, toString, toHex} = window.typeConverter;
+    var {toBoolean, toNumber, toString, toHex, toStructure} = window.typeConverter;
 }
 
 function defineNormal(e, init){

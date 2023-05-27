@@ -4,7 +4,6 @@
     --gui-light: rgb(31, 31, 31);
     --bg: rgba(27, 27, 27, 0.8);
     --bg-hover: rgba(50, 50, 50, 0.7);
-    --submenu-bg: rgba(12, 12, 12, 0.7);
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
@@ -41,45 +40,6 @@ body {
     overflow: hidden auto;
     z-index: 1;
 }
-
-/*.or, .ro {
-    font-size: 1.4rem;
-    position: relative;
-    transform-origin: center center;
-    left: -2px;
-}
-
-.ro {
-    transform: rotate(90deg);
-    animation: 0s linear 0s 1 normal none running animR;
-    left: -4px;
-}
-
-.or {
-    transform: rotate(0deg);
-    animation: 0s linear 0s 1 normal none running animO;
-    top: 2px;
-}
-
-@keyframes animO {
-    0% {
-        transform: rotate(90deg);
-    }
-
-    100% {
-        transform: rotate(0deg);
-    }
-}
-
-@keyframes animR {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(90deg);
-    }
-}*/
 
 .data-gui {
     width: 300px;
@@ -346,14 +306,14 @@ input[type="number"] {
     left: 0px;
     width: 125px;
     min-height: 25px;
-    background: var(--submenu-bg);
+    background: var(--bg-hover);
     display: flex;
     justify-content: center;
     align-items: flex-start;
     flex-direction: column;
 }
 
-.sub-property {
+.property {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -361,14 +321,14 @@ input[type="number"] {
     background: rgba(40, 40, 40, 0.8) !important;
 }
 
-.sub-property:hover {
+.property:hover {
     background: rgba(80, 80, 80, 0.8) !important;
 }
 
-.sub-folder-data {
+.folder-data {
     width: 125px;
     min-height: 25px;
-    background: var(--submenu-bg);
+    background: var(--bg-hover);
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -383,7 +343,7 @@ input[type="number"] {
     height: 100px;
 }
 
-.sub-folder {
+.folder {
     padding: 5px;
     width: 100%;
     height: 27.5px;

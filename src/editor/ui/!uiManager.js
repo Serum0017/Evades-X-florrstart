@@ -1,6 +1,5 @@
 import Ref from '../editorRef.js';
-import generateId from '../generateId.js';
-import folderManager from './folderManager.js';
+import createMenuManager from './createMenuManager.js';
 
 // TODO: decide if any format is needed. Idk if this needs to be a class.
 
@@ -11,39 +10,27 @@ export default class UIManager {
     start(){
         this.game = this.client.game;
         this.map = this.client.game.map;
-        this.obstacleTypes = {
-            shape: ['square','circle','poly'],
-            simulate: ['normal','move','rotate'],
-            effect: ['normal','bounce','breakable']
-        };// defined manually for now, TODO: will eventually get ref
-        this.simulateTypes = []
-        this.defineEventListeners();
+
+        this.createMenuManager = new createMenuManager(this.client);
+        this.createMenuManager.start();
+
+        // this.defineEventListeners();
     }
-    defineEventListeners(){
-        // TODO: proper obstacle init. The idea is that we have shared init? <- if not we can define a format using some functions like vv
-        /*
-            map for effects for example: (effect, simulate, and shape will all be concatenated/ separated in 3 diff headings)
-            grav: someFunctionThatOptimizesOrHomoginizesTheDataIntoAStandardFormat({
-                force: {x: "number", y: "number", optional: [forceMult: {...}]},
-                direction: "number",
-                otherDirectionOption: {type: "number", minValue: 5, maxValue: 200, isRequired: true},
-                directionKeyFrames: {isArray: true, data: ["number", "number"], minLength: 1, maxLength: Infinity, isRequired: false}
-            })
-        */
-       // this should be the same as map init or very similar so making the directory shared will be challenging but rewarding if possible
-       // PRO IDEA FOR SHARED DIRECTORY (adi pro ideas) if(module !== undefined){module.exports = data} else {window.data = data} <- for ss we just require and for cs we just use window!
-        Ref.createButton.onclick = () => {
-            // create the folders
-            for(let shapeType of this.obstacleTypes.shape){
-                Ref.createSubmenu.appendChild(folderManager.createSubFolder(
-                    shapeType, this.obstacleTypes.simulate.map(t => folderManager.createSubFolder(
-                        t, this.obstacleTypes.effect.map(t => folderManager.createSubProperty(t))
-                    ))
-                ));
-            }
-            //<div class="sub-folder" id="1" data-toplevel="true"><span>Main</span><span class="gt">&gt;</span><div class="sub-folder-data" style="left: 120px; top: -20.75px;">
-        }
-    }
+    // defineEventListeners(){
+    //     // TODO: proper obstacle init. The idea is that we have shared init? <- if not we can define a format using some functions like vv
+    //     /*
+    //         map for effects for example: (effect, simulate, and shape will all be concatenated/ separated in 3 diff headings)
+    //         grav: someFunctionThatOptimizesOrHomoginizesTheDataIntoAStandardFormat({
+    //             force: {x: "number", y: "number", optional: [forceMult: {...}]},
+    //             direction: "number",
+    //             otherDirectionOption: {type: "number", minValue: 5, maxValue: 200, isRequired: true},
+    //             directionKeyFrames: {isArray: true, data: ["number", "number"], minLength: 1, maxLength: Infinity, isRequired: false}
+    //         })
+    //     */
+    //    // this should be the same as map init or very similar so making the directory shared will be challenging but rewarding if possible
+    //    // PRO IDEA FOR SHARED DIRECTORY (adi pro ideas) if(module !== undefined){module.exports = data} else {window.data = data} <- for ss we just require and for cs we just use window!
+        
+    // }
 }
 
 // function createFolder(name = 'folder name', props = [], show = 'true') {

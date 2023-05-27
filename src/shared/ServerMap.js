@@ -1,8 +1,8 @@
 var initObstacle = initObstacle ?? require('./Init/!initObstacle.js');
 if(typeof require !== 'undefined'){
-    var {toBoolean, toNumber, toString, toHex} = require('./Init/convertType.js');
+    var {toBoolean, toNumber, toString, toHex, toStructure} = require('./Init/convertType.js');
 } else {
-    var {toBoolean, toNumber, toString, toHex} = window.typeConverter;
+    var {toBoolean, toNumber, toString, toHex, toStructure} = window.typeConverter;
 }
 
 class Map {

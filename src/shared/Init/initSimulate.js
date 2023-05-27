@@ -1,12 +1,17 @@
 var initEnemy = initEnemy ?? require('./initEnemy.js');
+if(typeof require !== 'undefined'){
+    var {toBoolean, toNumber, toString, toHex, toStructure} = require('./convertType.js');
+} else {
+    var {toBoolean, toNumber, toString, toHex, toStructure} = window.typeConverter;
+}
 
 const initSimulateMap = {
     normal: () => {},
     move: (obs, init) => {
         // init: {currentPoint, path, speed, alongWith }
-		obs.currentPoint = Math.floor(init.currentPoint);
-		obs.path = init.path;
-		obs.speed = init.speed;
+		obs.currentPoint = Math.floor(toNumber(init.currentPoint));
+		obs.path = toStructure({type: 'array', sub: {type: "object", keys: {x: {type: 'number'}, y: {type: 'number'}}}}, init.path, [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 100}, {x: 0, y: 100}]);
+		obs.speed = toNumber(init.speed, 1);
 		// obs.top.x = obs.path[init.currentPoint][0];
 		// obs.top.y = obs.path[init.currentPoint][1];
         // will fix later? idk
@@ -83,4 +88,5 @@ if(typeof module !== 'undefined'){
     module.exports = initSimulate;
 } else {
     window.initSimulate = initSimulate;
+    window.initSimulateMap = initSimulateMap;
 }
