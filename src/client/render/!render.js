@@ -197,15 +197,15 @@ export default class Renderer {
             this.renderObstacles([this.client.selectionManager.previewObstacle], this.client.game.players, this.client.map.self);
         }
 
-        // rendering blue outline around selected objects 
-        for(let i = 0; i < this.client.selectionManager.selectedObjects.length; i++){
+        // rendering blue outline around selected obstacles
+        for(let i = 0; i < this.client.selectionManager.selectedObstacles.length; i++){
             ctx.toStroke = true;
             ctx.toFill = false;
             ctx.toClip = false;
             ctx.strokeStyle = 'blue';
             ctx.lineWidth = 4;
 
-            renderShape(this.client.selectionManager.selectedObjects[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
+            renderShape(this.client.selectionManager.selectedObstacles[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
 
             ctx.globalAlpha = 1;
         }

@@ -13,8 +13,10 @@ export default class SelectionManager {
     constructor(client){
         this.client = client;
         this.previewObstacle = null;
-        this.selectedObjects = [];
+        this.selectedObstacles = [];
         this.selectionRect = null;
+        this.transformMode = 'select';
+        this.transformActive = false;
     }
     start(){
         this.game = this.client.game;
@@ -26,20 +28,34 @@ export default class SelectionManager {
         setInterval(this.run.bind(this), 1000/60);
     }
     run(){
+        const stw = this.screenToWorld(this.mouse.pos);
+        this.mouse.delta = {
+            x: stw.x - this.mouse.last.x,
+            y: stw.y - this.mouse.last.y
+        }
         if(this.previewObstacle !== null){
-            let stw = this.screenToWorld(this.mouse)
             this.transformPreviewObstacle({
                 x: stw.x - this.previewObstacle.x,
                 y: stw.y - this.previewObstacle.y
             })
         }
+        if(this.transformActive === true){
+            for(let i = 0; i < this.selectedObstacles.length; i++){
+                transformBody(this.selectedObstacles[i], {
+                    x: this.mouse.delta.x,
+                    y: this.mouse.delta.y,//this.mouse.y - this.selectedObstacles[i].y,
+                    rotation: 0
+                })
+            }
+        }
+        this.mouse.last = {x: stw.x, y: stw.y};
     }
     addEventListeners(){
-        this.mouse = {x: 0, y: 0};
+        this.mouse = {pos: {x: 0, y: 0}, last: {x: 0, y: 0}, delta: {x: 0, y: 0}};
         Ref.canvas.onmouseup = (event) => {
-            this.mouse = {x: event.pageX, y: event.pageY};
+            this.mouse.pos = {x: event.pageX, y: event.pageY};
             if(this.selectionRect !== null){
-                this.selectObjects({
+                this.selectObstacles({
                     x: (this.selectionRect.end.x + this.selectionRect.start.x)/2,
                     y: (this.selectionRect.end.y + this.selectionRect.start.y)/2,
                     w: Math.max(0.1, Math.abs(this.selectionRect.end.x - this.selectionRect.start.x)),
@@ -47,21 +63,32 @@ export default class SelectionManager {
                 });
                 this.selectionRect = null;
             }
+            this.transformActive = false;
         }
         window.onmousemove = (event) => {
-            this.mouse = {x: event.pageX, y: event.pageY};
+            this.mouse.pos = {x: event.pageX, y: event.pageY};
             if(this.selectionRect !== null){
-                this.selectionRect.end = this.screenToWorld(this.mouse);
+                this.selectionRect.end = this.screenToWorld(this.mouse.pos);
             }
         }
         Ref.canvas.onmousedown = (event) => {
-            this.mouse = {x: event.pageX, y: event.pageY};
+            this.mouse.pos = {x: event.pageX, y: event.pageY};
             if(this.previewObstacle !== null){
                 this.placePreviewObstacle();
                 return;
             } else if(this.client.playerActive === false){
-                // start a drag
-                this.selectionRect = {start: this.screenToWorld(this.mouse), end: this.screenToWorld(this.mouse)};
+                const collidingObstacle = this.collidingWithObstacle(this.screenToWorld(this.mouse.pos));
+                if(this.collidingWithSelectedObstacle(this.screenToWorld(this.mouse.pos)) !== false){
+                    // if we already have a selection, drag those
+                    this.transformActive = true;
+                } else if(collidingObstacle !== false){
+                    // if we're immediately intersecting something, start the drag
+                    this.selectedObstacles = [collidingObstacle];
+                    this.transformActive = true;
+                } else {
+                    // otherwise, start multi select
+                    this.startSelectionDrag(this.mouse.pos);
+                }
             }
         }
         document.onvisibilitychange = (event) => {
@@ -83,14 +110,36 @@ export default class SelectionManager {
         this.previewObstacle = null;
     }
 
-    selectObjects({x,y,w,h}){
+    startSelectionDrag({x,y}){
+        this.selectionRect = {start: this.screenToWorld({x,y}), end: this.screenToWorld({x,y})};
+    }
+
+    selectObstacles({x,y,w,h}){
         const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w, h});
-        this.selectedObjects = [];
+        this.selectedObstacles = [];
         for(let i = 0; i < this.map.obstacles.length; i++){
             if(Collide(this.map.obstacles[i], selectionObstacle) !== false){
-                this.selectedObjects.push(this.map.obstacles[i]);
+                this.selectedObstacles.push(this.map.obstacles[i]);
             }
         }
+    }
+    collidingWithSelectedObstacle({x,y}){
+        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w: 0.1, h: 0.1});
+        for(let i = 0; i < this.selectedObstacles.length; i++){
+            if(Collide(this.selectedObstacles[i], selectionObstacle) !== false){
+                return this.selectedObstacles[i];
+            }
+        }
+        return false;
+    }
+    collidingWithObstacle({x,y}){
+        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w: 0.1, h: 0.1});
+        for(let i = 0; i < this.map.obstacles.length; i++){
+            if(Collide(this.map.obstacles[i], selectionObstacle) !== false){
+                return this.map.obstacles[i];
+            }
+        }
+        return false;
     }
 
     screenToWorld({x,y}){
