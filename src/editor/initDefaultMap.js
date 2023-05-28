@@ -15,6 +15,7 @@ export default function initDefaultMap(client){
         ]
     })
 
+    console.log(ssMap.initPack());
     client.game.map.init(ssMap.initPack());
     
     client.game.map.selfId = 0;

@@ -15,6 +15,7 @@ export default {
     deleteButton: el('#delete-button'),
     exportButton: el('#export'),
     importButton: el('#import-button'),
+    playButton: el('#play'),
     resyncButton: el('#resync'),
     testButton: el('#test'),
     duplicateButton: el('#duplicate-button'),

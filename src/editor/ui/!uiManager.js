@@ -14,7 +14,32 @@ export default class UIManager {
         this.createMenuManager = new createMenuManager(this.client);
         this.createMenuManager.start();
 
-        // this.defineEventListeners();
+        this.defineEventListeners();
+    }
+    defineEventListeners(){
+        Ref.playButton.onclick = () => {
+            this.client.playerActive = !this.client.playerActive;
+            Ref.playButton.isPaused = !Ref.playButton.isPaused ?? true;
+            const button = Ref.playButton.querySelector('.menu-button');
+            const buttonText = Ref.playButton.querySelector('.menu-button-text');
+            if(Ref.playButton.isPaused === true){
+                button.innerText = '';
+                buttonText.innerText = 'Stop';
+                for(let i = 0; i < 2; i++){
+                    const span = document.createElement('span');
+                    span.style.margin = '2px';
+                    span.style.fontSize = '1.3rem';
+                    span.innerText = '|';
+                    button.appendChild(span);
+                }
+            } else {
+                buttonText.innerText = 'Play';
+                while (button.firstChild) {
+                    button.removeChild(button.firstChild);
+                }
+                button.innerText = '▶';
+            }
+        }
     }
     // defineEventListeners(){
     //     // TODO: proper obstacle init. The idea is that we have shared init? <- if not we can define a format using some functions like vv

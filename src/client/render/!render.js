@@ -120,6 +120,7 @@ export default class Renderer {
     }
     renderPlayers(players){
         if(this.client.clientType === 'editor' && this.client.playerActive === false){
+            this.client.me().updateInterpolate();
             return;
         }
         for(let id in players){
@@ -192,6 +193,18 @@ export default class Renderer {
             ctx.globalAlpha = 0.5;
             this.client.selectionManager.previewObstacle.render = this.client.selectionManager.previewObstacle;
             this.renderObstacles([this.client.selectionManager.previewObstacle], this.client.game.players, this.client.map.self);
+        }
+        const selectionRect = this.client.selectionManager.selectionRect
+        if(selectionRect !== null){
+            ctx.beginPath();
+            ctx.fillStyle = '#272727';// TODO: find right colors
+            ctx.strokeStyle = '#070707';
+            ctx.globalAlpha = 0.6;
+            ctx.rect(selectionRect.start.x, selectionRect.start.y, selectionRect.end.x - selectionRect.start.x, selectionRect.end.y - selectionRect.start.y);
+            ctx.fill();
+            ctx.stroke();
+            ctx.closePath();
+            ctx.globalAlpha = 1;
         }
     }
     renderDisconnectedText(){

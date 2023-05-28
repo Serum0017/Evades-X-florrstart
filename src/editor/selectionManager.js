@@ -13,6 +13,7 @@ export default class SelectionManager {
         this.client = client;
         this.previewObstacle = null;
         this.sectedObjects = [];
+        this.selectionRect = null;
     }
     start(){
         this.game = this.client.game;
@@ -25,9 +26,10 @@ export default class SelectionManager {
     }
     run(){
         if(this.previewObstacle !== null){
+            let stw = this.screenToWorld(this.mouse)
             this.transformPreviewObstacle({
-                x: this.client.me().renderX - Ref.canvas.w / 2 + this.mouse.x * Ref.canvas.w / Ref.canvas.width - this.previewObstacle.x,
-                y: this.client.me().renderY - Ref.canvas.h / 2 + this.mouse.y * Ref.canvas.h / Ref.canvas.height - this.previewObstacle.y
+                x: stw.x - this.previewObstacle.x,
+                y: stw.y - this.previewObstacle.y
             })
         }
     }
@@ -35,15 +37,25 @@ export default class SelectionManager {
         this.mouse = {x: 0, y: 0};
         window.onmouseup = (event) => {
             this.mouse = {x: event.pageX, y: event.pageY};
+            if(this.selectionRect !== null){
+                this.selectionRect = null;
+                // select objs
+            }
         }
         window.onmousemove = (event) => {
             this.mouse = {x: event.pageX, y: event.pageY};
+            if(this.selectionRect !== null){
+                this.selectionRect.end = this.screenToWorld(this.mouse);
+            }
         }
         window.onmousedown = (event) => {
             this.mouse = {x: event.pageX, y: event.pageY};
             if(this.previewObstacle !== null){
                 this.placePreviewObstacle();
                 return;
+            } else {
+                // start a drag
+                this.selectionRect = {start: this.screenToWorld(this.mouse), end: this.screenToWorld(this.mouse)};
             }
         }
     }
@@ -60,6 +72,12 @@ export default class SelectionManager {
     placePreviewObstacle(){
         this.map.addObstacle(this.previewObstacle);
         this.previewObstacle = null;
+    }
+    screenToWorld({x,y}){
+        return {
+            x: this.client.me().renderX - Ref.canvas.w / 2 + x * Ref.canvas.w / Ref.canvas.width,
+            y: this.client.me().renderY - Ref.canvas.h / 2 + y * Ref.canvas.w / Ref.canvas.width
+        }
     }
     // ok so this can do 2 things
     // a) manage click and drag selection box (like in the old editor)

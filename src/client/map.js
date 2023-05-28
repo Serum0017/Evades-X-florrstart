@@ -22,7 +22,7 @@ export default class Map {
         }
 
         for(let id in data.players){
-            this.players[id] = new Player(id, data.players[id]);
+            this.addPlayer(id, data.players[id]);
         }
 
         this.obstacles = data.obstacles;
@@ -41,7 +41,9 @@ export default class Map {
 
         this.selfId = data.selfId;
         this.self = this.players[this.selfId];
-        this.self.isSelf = true;
+        if(this.self !== undefined){
+            this.self.isSelf = true;
+        }
         
         this.client.reset();
 
