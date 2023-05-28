@@ -41,10 +41,12 @@ export default class Map {
 
         this.selfId = data.selfId;
         this.self = this.players[this.selfId];
+        this.self.isSelf = true;
         
         this.client.reset();
 
-        this.tick = data.tick;
+        // idk why this works but it does
+        this.tick = data.tick + Math.round((data.requestTime ?? 0) / 2 * 60 / 1000);
 
         this.createRenderState(performance.now());
     }
@@ -63,9 +65,10 @@ export default class Map {
                 this.players[id].updatePack(playerData[id]);
 
                 // simulate extra ticks
-                // for(let i = 0; i < Math.min(30,this.tick - playerData[id].lastTick); i++){
-                //     this.players[id].simulate(this);
-                // }
+                this.players[id].predictionLimit.ticksBehind = Math.min(30,Math.max(0,this.tick - playerData[id].lastTick));
+                for(let i = 0; i < this.players[id].predictionLimit.ticksBehind; i++){
+                    this.players[id].simulate(this);
+                }
                 // this.players[id].createSimulateState();
             }
         }
@@ -78,6 +81,8 @@ export default class Map {
         // Full simulation structure with player prediction and server sided objects:
 
         // TODO: implement simulation culling (only simulate other players that are inside the client's screen)
+        // TODO: make sure players look realistic by simulating them against obstacles. This can only be done when spatial hashing is a thing, otherwise it'll be hella inefficient
+        // thus, TODO: spatial hashing!
         for(let id in this.players){
             this.players[id].simulate(this);
         }

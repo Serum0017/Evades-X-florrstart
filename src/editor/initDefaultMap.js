@@ -19,5 +19,6 @@ export default function initDefaultMap(client){
     
     client.game.map.selfId = 0;
     client.game.map.self = client.game.map.players[client.game.map.selfId];
+    client.game.map.self.isSelf = true;
     client.map = client.game.map;
 }

@@ -25,12 +25,13 @@ export default class Player{
         this.last = {x: this.x, y: this.y};
 
         this.isPlayer = true;
+        this.isSelf = false;
 
         this.renderX = this.x;
         this.renderY = this.y;
         this.renderR = this.r/4;
 
-        this.predictionLimit = {delta: {x: 100, y: 100}, origin: {x: this.x, y: this.y}, lastPos: {x: this.x, y: this.y}};
+        this.predictionLimit = {delta: {x: 100, y: 100}, origin: {x: this.x, y: this.y}, lastPos: {x: this.x, y: this.y}, ticksBehind: 1};
         this.packKeys = init.packKeys;
         this.accumPack = this.getPackKeys();
         this.updateLastState();
@@ -68,7 +69,6 @@ export default class Player{
         return body;
     }
     respawn(){
-        // TODO
         this.renderR = 0;
         const last = {x: this.x, y: this.y};
         this.x = this.spawn.x;
@@ -117,8 +117,13 @@ export default class Player{
         this.renderR = this.renderR * 0.917 + this.r * 0.083;
         if(this.dead === true)return;
         const time = (performance.now() - this.lastSimulateState.time) * (60/1000);
-        this.renderX = this.lastSimulateState.x * (1-time) + this.x * time;
-        this.renderY = this.lastSimulateState.y * (1-time) + this.y * time;
+        if(this.isSelf === true){
+            this.renderX = this.lastSimulateState.x * (1-time) + this.x * time;
+            this.renderY = this.lastSimulateState.y * (1-time) + this.y * time;
+        } else {
+            this.renderX = this.renderX * 0.62 + this.x * 0.38;
+            this.renderY = this.renderY * 0.62 + this.y * 0.38;
+        }
     }
     createSimulateState(time){
         this.lastSimulateState = {
@@ -144,8 +149,8 @@ export default class Player{
 
         // create a "limit" on prediction -> see miro for implementation details
         this.predictionLimit.delta = {
-            x: Math.abs(this.predictionLimit.lastPos.x - this.x),
-            y: Math.abs(this.predictionLimit.lastPos.y - this.y)
+            x: Math.abs(this.predictionLimit.lastPos.x - this.x) * this.predictionLimit.ticksBehind,
+            y: Math.abs(this.predictionLimit.lastPos.y - this.y) * this.predictionLimit.ticksBehind
         }
         this.predictionLimit.lastPos = {x: this.x, y: this.y};
     }
@@ -153,7 +158,7 @@ export default class Player{
         this.lastUpdateState = minPacker.cloneObject(this.getPackKeys());
     }
     pack(){
-        this.minPack = minPacker.minPack(this.lastUpdateState, this.getPackKeys());
+        this.minPack = minPacker.minPack(this.lastUpdateState, this.getPackKeys());// todo: make sure we never send notIncluded as a pack
         this.updateLastState();
         return this.minPack;
     }

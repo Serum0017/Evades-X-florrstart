@@ -18,11 +18,17 @@ const initEffectMap = {
         obs.collected = false;
         obs.color = init.color ?? '#d6d611';
         obs.coinAmount = toNumber(init.coinAmount, 1);
+        obs.parametersToReset = {
+            collected: false
+        };
     },
     coindoor: (obs, init) => {
         obs.maxCoins = toNumber(init.coins, 1);
         obs.coins = toNumber(init.coins, 1);
         obs.color = init.color ?? '#d6d611';
+        obs.parametersToReset = {
+            coins: obs.maxCoins
+        };
     },
     // TODO: make sure all of these are safe for any input (same for other files)
     changeMap: (obs, init, advanced) => {

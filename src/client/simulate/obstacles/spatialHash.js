@@ -20,7 +20,7 @@ export default class SpatialHash {
                 y: entity.top.y - (entity.top.y % hashDistance) - hashDistance
             }
             const bottomSpatial = {
-                x: entity.bottom.x - (entity.bottom.x % hashDistance) + 2*hashDistance,
+                x: entity.bottom.x - (entity.bottom.x % hashDistance) + 2*hashDistance,// also dont do sus stuff like 2* hashDistance, we don't know the player's radius so we can't just have a fixed expansion...
                 y: entity.bottom.y - (entity.bottom.y % hashDistance) + 2*hashDistance
             }
             for(let x = topSpatial.x; x < bottomSpatial.x; x += hashDistance){

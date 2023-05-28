@@ -12,7 +12,7 @@ export default class Client {
         this.connected = false;
         this.disconnected = false;
 
-        // this.extraPing = Math.random()*2000;
+        this.extraPing = Math.random()*150;
     }
     setupWS() {
         this.ws = new WebSocket(location.origin.replace(/^http/, 'ws'));
@@ -27,14 +27,14 @@ export default class Client {
     }
     start() {
         this.ws.addEventListener("open", (e) => {
-            this.game.lastRequestedMapTime = performance.now()//+this.extraPing;//performance.now()+this.extraPing;
+            this.game.lastRequestedMapTime = performance.now();//performance.now()+this.extraPing;
         });
 
         this.ws.addEventListener("message", ( datas ) => {
-            // setTimeout(() => {
-            //     this.messageHandler.processMsg(msgpack.decode(new Uint8Array(datas.data)));
-            // }, this.extraPing)
-            this.messageHandler.processMsg(msgpack.decode(new Uint8Array(datas.data)));
+            setTimeout(() => {
+                this.messageHandler.processMsg(msgpack.decode(new Uint8Array(datas.data)));
+            }, this.extraPing)
+            // this.messageHandler.processMsg(msgpack.decode(new Uint8Array(datas.data)));
         });
 
         this.ws.addEventListener('close', (event) => {
@@ -47,10 +47,10 @@ export default class Client {
         this.game.reset();
     }
     send(msg){
-        // setTimeout(() => {
-        //     this.ws.send(msgpack.encode(msg));
-        // }, this.extraPing)
-        this.ws.send(msgpack.encode(msg));
+        setTimeout(() => {
+            this.ws.send(msgpack.encode(msg));
+        }, this.extraPing)
+        // this.ws.send(msgpack.encode(msg));
     }
     me(){
         return this.map.self;
