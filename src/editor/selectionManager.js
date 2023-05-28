@@ -1,5 +1,6 @@
 import Ref from './editorRef.js';
 import transformBody from '../client/simulate/obstacles/transformBody.js';
+import Collide from '../client/simulate/obstacles/collisionManager.js';
 // TODO:
 // basically in order to move obstacles, we want to be able to select things. Now how do we do this? 
 // we treat the mouse like an object in the environment. When it's intersecting with an obstacle and
@@ -12,7 +13,7 @@ export default class SelectionManager {
     constructor(client){
         this.client = client;
         this.previewObstacle = null;
-        this.sectedObjects = [];
+        this.selectedObjects = [];
         this.selectionRect = null;
     }
     start(){
@@ -35,11 +36,16 @@ export default class SelectionManager {
     }
     addEventListeners(){
         this.mouse = {x: 0, y: 0};
-        window.onmouseup = (event) => {
+        Ref.canvas.onmouseup = (event) => {
             this.mouse = {x: event.pageX, y: event.pageY};
             if(this.selectionRect !== null){
+                this.selectObjects({
+                    x: (this.selectionRect.end.x + this.selectionRect.start.x)/2,
+                    y: (this.selectionRect.end.y + this.selectionRect.start.y)/2,
+                    w: Math.max(0.1, Math.abs(this.selectionRect.end.x - this.selectionRect.start.x)),
+                    h: Math.max(0.1, Math.abs(this.selectionRect.end.y - this.selectionRect.start.y))
+                });
                 this.selectionRect = null;
-                // select objs
             }
         }
         window.onmousemove = (event) => {
@@ -48,15 +54,18 @@ export default class SelectionManager {
                 this.selectionRect.end = this.screenToWorld(this.mouse);
             }
         }
-        window.onmousedown = (event) => {
+        Ref.canvas.onmousedown = (event) => {
             this.mouse = {x: event.pageX, y: event.pageY};
             if(this.previewObstacle !== null){
                 this.placePreviewObstacle();
                 return;
-            } else {
+            } else if(this.client.playerActive === false){
                 // start a drag
                 this.selectionRect = {start: this.screenToWorld(this.mouse), end: this.screenToWorld(this.mouse)};
             }
+        }
+        document.onvisibilitychange = (event) => {
+            this.selectionRect = null;
         }
     }
     addPreviewObstacle(obj){
@@ -73,6 +82,17 @@ export default class SelectionManager {
         this.map.addObstacle(this.previewObstacle);
         this.previewObstacle = null;
     }
+
+    selectObjects({x,y,w,h}){
+        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w, h});
+        this.selectedObjects = [];
+        for(let i = 0; i < this.map.obstacles.length; i++){
+            if(Collide(this.map.obstacles[i], selectionObstacle) !== false){
+                this.selectedObjects.push(this.map.obstacles[i]);
+            }
+        }
+    }
+
     screenToWorld({x,y}){
         return {
             x: this.client.me().renderX - Ref.canvas.w / 2 + x * Ref.canvas.w / Ref.canvas.width,

@@ -23,13 +23,14 @@ export default class UIManager {
             const button = Ref.playButton.querySelector('.menu-button');
             const buttonText = Ref.playButton.querySelector('.menu-button-text');
             if(Ref.playButton.isPaused === true){
+                this.client.me().respawn();// TODO: reset camera also when we get zooming working
                 button.innerText = '';
-                buttonText.innerText = 'Stop';
+                buttonText.innerText = 'Pause';
                 for(let i = 0; i < 2; i++){
                     const span = document.createElement('span');
                     span.style.margin = '2px';
-                    span.style.fontSize = '1.3rem';
-                    span.innerText = '|';
+                    span.style.fontSize = '1.4rem';
+                    span.innerText = 'l';
                     button.appendChild(span);
                 }
             } else {
@@ -39,6 +40,13 @@ export default class UIManager {
                 }
                 button.innerText = '▶';
             }
+        }
+
+        Ref.deleteButton.onclick = (event) => {
+            // this.selectionManager.deleteSelected();
+            this.client.selectionManager.previewObstacle = null;
+            event.stopPropagation();
+            return event.preventDefault();
         }
     }
     // defineEventListeners(){

@@ -189,22 +189,40 @@ export default class Renderer {
         if(this.client.clientType !== 'editor'){
             return;
         }
+
+        // rendering tranparent preview obs
         if(this.client.selectionManager.previewObstacle !== null){
             ctx.globalAlpha = 0.5;
             this.client.selectionManager.previewObstacle.render = this.client.selectionManager.previewObstacle;
             this.renderObstacles([this.client.selectionManager.previewObstacle], this.client.game.players, this.client.map.self);
         }
-        const selectionRect = this.client.selectionManager.selectionRect
+
+        // rendering blue outline around selected objects 
+        for(let i = 0; i < this.client.selectionManager.selectedObjects.length; i++){
+            ctx.toStroke = true;
+            ctx.toFill = false;
+            ctx.toClip = false;
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 4;
+
+            renderShape(this.client.selectionManager.selectedObjects[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
+
+            ctx.globalAlpha = 1;
+        }
+
+        // rendering selection rect
+        const selectionRect = this.client.selectionManager.selectionRect;
         if(selectionRect !== null){
             ctx.beginPath();
-            ctx.fillStyle = '#272727';// TODO: find right colors
-            ctx.strokeStyle = '#070707';
-            ctx.globalAlpha = 0.6;
+            ctx.fillStyle = 'black';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
             ctx.rect(selectionRect.start.x, selectionRect.start.y, selectionRect.end.x - selectionRect.start.x, selectionRect.end.y - selectionRect.start.y);
+            ctx.globalAlpha = 0.3;
             ctx.fill();
+            ctx.globalAlpha = 1;
             ctx.stroke();
             ctx.closePath();
-            ctx.globalAlpha = 1;
         }
     }
     renderDisconnectedText(){

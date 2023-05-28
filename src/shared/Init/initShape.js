@@ -27,7 +27,7 @@ const initShapeMap = {
         obs.r = toNumber(init.r, 25);
     },
     poly: (obs, init) => {
-        obs.points = toStructure({type: "array", minLength: 2, sub: {type: "array", sub: {type: "number"}}}, init.points, [[100, 0], [200, 0], [150, 75]]);
+        obs.points = toStructure({type: "array", minLength: 2, sub: {type: "array", sub: {type: "number"}}}, init.points, [[-50, -37.5], [50, -37.5], [0, 37.5]]);
     },
     // circleHollowSlice: (obs, init) => {
     //     obs.x = toNumber(init.x);
