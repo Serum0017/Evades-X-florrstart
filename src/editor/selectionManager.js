@@ -141,12 +141,34 @@ export default class SelectionManager {
         }
         return false;
     }
+    deleteSelectedObstacles(){
+        for(let i = 0; i < this.selectedObstacles.length; i++){
+            this.selectedObstacles[i].toRemoveSelector = true;
+        }
+        
+        this.map.obstacles = this.map.obstacles.filter(o => o.toRemoveSelector !== true);
+        this.selectedObstacles = [];
+    }
 
     screenToWorld({x,y}){
         return {
             x: this.client.me().renderX - Ref.canvas.w / 2 + x * Ref.canvas.w / Ref.canvas.width,
             y: this.client.me().renderY - Ref.canvas.h / 2 + y * Ref.canvas.w / Ref.canvas.width
         }
+    }
+
+    enterPlayMode(){
+        // reset params
+        // previewObstacle excluded because we want ppl to be able to create stuff while playing :D
+        // this.previewObstacle = null;
+        this.selectedObstacles = [];
+        this.selectionRect = null;
+        this.transformActive = false;
+        this.client.game.renderer.lastRenderScale = this.client.game.renderer.renderScale;
+        this.client.game.renderer.renderScale = 1;
+    }
+    exitPlayMode(){
+        this.client.game.renderer.renderScale = this.client.game.renderer.lastRenderScale;
     }
     // ok so this can do 2 things
     // a) manage click and drag selection box (like in the old editor)

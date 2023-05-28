@@ -21,6 +21,9 @@ export default class CreateMenuManager {
                 for(let shapeType of this.obstacleTypes.shape){
                     this.createFolder(Ref.createSubmenu, shapeType, 'shape');
                 }
+                const createButtonBound = Ref.createButton.getBoundingClientRect();
+                Ref.createSubmenu.style.left = (createButtonBound.left - Ref.createSubmenu.getBoundingClientRect().width/3) + 'px';
+                Ref.createSubmenu.style.top = (createButtonBound.bottom - 25) + 'px';
             } else {
                 Ref.createSubmenu.classList.remove('hidden');
                 // its already open, close the folder

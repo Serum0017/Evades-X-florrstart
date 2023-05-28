@@ -181,7 +181,7 @@ export default class Renderer {
     renderBounds(map){
         // out of bounds borders
         ctx.strokeStyle = this.colors.tile;
-        ctx.lineWidth = 10000//Math.max(canvas.w, canvas.h);
+        ctx.lineWidth = Math.max(canvas.w, canvas.h);
         ctx.strokeRect(-ctx.lineWidth/2, -ctx.lineWidth/2, map.settings.dimensions.x + ctx.lineWidth, map.settings.dimensions.y + ctx.lineWidth);
         ctx.lineWidth = 3;
     }
@@ -189,6 +189,18 @@ export default class Renderer {
         if(this.client.clientType !== 'editor'){
             return;
         }
+
+        // TODO
+        // if(this.client.inputHandler.input.zoomin === true){
+        //     ctx.translate(canvas.width/2, canvas.height/2);
+        //     ctx.scale(1.01, 1.01);
+        //     ctx.translate(-canvas.width/2, -canvas.height/2);
+        // }
+        // if(this.client.inputHandler.input.zoomout === true){
+        //     ctx.translate(canvas.width/2, canvas.height/2);
+        //     ctx.scale(1 / 1.01, 1 / 1.01);
+        //     ctx.translate(-canvas.width/2, -canvas.height/2);
+        // }
 
         // rendering tranparent preview obs
         if(this.client.selectionManager.previewObstacle !== null){
@@ -204,10 +216,12 @@ export default class Renderer {
             ctx.toClip = false;
             ctx.strokeStyle = 'blue';
             ctx.lineWidth = 4;
+            ctx.lineCap = 'square';
 
             renderShape(this.client.selectionManager.selectedObstacles[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
 
             ctx.globalAlpha = 1;
+            ctx.lineCap = 'butt';
         }
 
         // rendering selection rect
@@ -331,7 +345,6 @@ class Camera {
     constructor(){
         this.x = 0;
         this.y = 0;
-        this.scale = 1;
         this.angle = 0;// in radians
 
         this.fullscreen = {
@@ -372,22 +385,6 @@ class Camera {
     resetRotate(){
         this.setRotate(0);
     }
-    // // TODO: i forgot the ctx scale method lol, do once i get off plane
-    // scale(a){
-    //     ctx.translate({x: canvas.w/2, y: canvas.h/2})
-    //     ctx.scale(a);
-    //     this.angle = a;
-    //     ctx.translate({x: -canvas.w/2, y: -canvas.h/2})
-    // }
-    // setScale(a){
-    //     ctx.translate({x: canvas.w/2, y: canvas.h/2})
-    //     ctx.rotate(a - this.angle);
-    //     this.angle = a;
-    //     ctx.translate({x: -canvasz.width/2, y: -canvas.h/2})
-    // }
-    // resetScale(){
-    //     this.setRotate(0);
-    // }
     resize(){
         const dpi = window.devicePixelRatio;
         canvas.style.width = Math.ceil(window.innerWidth) + 'px';
@@ -402,7 +399,6 @@ class Camera {
         ctx.scale(canvas.zoom, canvas.zoom);
         // ctx.translate(-canvas.width/2, -canvas.height/2);
         this.angle = 0;
-        this.scale = 1;
     }
     isInsideView(obstacle){
         if(obstacle.x - obstacle.difference.x/2 > -this.x + canvas.w || obstacle.x + obstacle.difference.x/2 < -this.x) return false;

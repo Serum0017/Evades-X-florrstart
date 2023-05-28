@@ -90,10 +90,7 @@ export default class Map {
         }
 
         ObstacleManager.simulateObstacles(this.self, this.players, this.obstacles, this.tick, this.client);
-
-        if(this.client.clientType !== 'editor' || this.client.playerActive === true){
-            ObstacleManager.runObstacleCollisions(this.self, this.players, this.obstacles, this.tick, this.client);
-        }
+        ObstacleManager.runObstacleCollisions(this.self, this.players, this.obstacles, this.tick, this.client);
 
         this.tick++;
 

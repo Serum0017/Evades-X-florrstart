@@ -17,6 +17,7 @@ export default class UIManager {
         this.defineEventListeners();
     }
     defineEventListeners(){
+        this.client.me().god = true;
         Ref.playButton.onclick = () => {
             this.client.playerActive = !this.client.playerActive;
             Ref.playButton.isPaused = !Ref.playButton.isPaused ?? true;
@@ -24,6 +25,8 @@ export default class UIManager {
             const buttonText = Ref.playButton.querySelector('.menu-button-text');
             if(Ref.playButton.isPaused === true){
                 this.client.me().respawn();// TODO: reset camera also when we get zooming working
+                this.client.me().god = false;
+                this.client.selectionManager.enterPlayMode();
                 button.innerText = '';
                 buttonText.innerText = 'Pause';
                 for(let i = 0; i < 2; i++){
@@ -33,21 +36,49 @@ export default class UIManager {
                     span.innerText = 'l';
                     button.appendChild(span);
                 }
+                this.hideMenuUnlessHover();
             } else {
+                this.client.me().god = true;
+                this.client.selectionManager.exitPlayMode();
                 buttonText.innerText = 'Play';
                 while (button.firstChild) {
                     button.removeChild(button.firstChild);
                 }
                 button.innerText = '▶';
+                this.showMenu();
             }
         }
 
         Ref.deleteButton.onclick = (event) => {
-            // this.selectionManager.deleteSelected();
+            this.client.selectionManager.deleteSelectedObstacles();
             this.client.selectionManager.previewObstacle = null;
             event.stopPropagation();
             return event.preventDefault();
         }
+    }
+    hideMenuUnlessHover(){
+        // Ref.allGui.classList.add('hidden');
+        // window.addEventListener("mousemove", this.hideMenuUnlessHoverEventListener);
+        Ref.allGui.addEventListener("mouseenter", this.hideMenuMouseEnter);
+        Ref.allGui.addEventListener("mouseleave", this.hideMenuMouseLeave);
+    }
+    hideMenuMouseLeave(event) {
+        Ref.allGui.style.opacity = "0";
+        Ref.allGui.animate([
+            { opacity: "1" },
+            { opacity: "0" },
+        ], {duration: 120})
+    }
+    hideMenuMouseEnter(event) {
+        Ref.allGui.style.opacity = "1";
+        Ref.allGui.animate([
+            { opacity: "0" },
+            { opacity: "1" },
+        ], {duration: 120})
+    }
+    showMenu(){
+        Ref.allGui.removeEventListener("mouseenter", this.hideMenuMouseEnter);
+        Ref.allGui.removeEventListener("mouseleave", this.hideMenuMouseLeave);
     }
     // defineEventListeners(){
     //     // TODO: proper obstacle init. The idea is that we have shared init? <- if not we can define a format using some functions like vv

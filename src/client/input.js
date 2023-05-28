@@ -13,6 +13,12 @@ const keycodes = {
     ShiftRight: 'shift',
 }
 
+const editorKeyCodes = {
+    KeyI: 'zoomin',
+    KeyO: 'zoomout',
+    Backspace: 'delete',
+}
+
 const chatCommandMap = {
     'reset': (handler, { client }) => {
         client.send({changeMap: 'Hub'});
@@ -49,6 +55,10 @@ export default class InputHandler {
         this.game = this.client.game;
         this.map = this.client.game.map;
         this.renderer = this.client.game.renderer;
+
+        if(this.client.clientType === 'editor'){
+            this.startEditor();
+        }
         
         window.onkeydown = (e) => this.handleKey(e);
         window.onkeyup = (e) => this.handleKey(e);
@@ -56,6 +66,15 @@ export default class InputHandler {
 
         // prevent right click
         window.addEventListener("contextmenu", e => e.preventDefault());
+    }
+    startEditor(){
+        for(let key in editorKeyCodes){
+            keycodes[key] = editorKeyCodes[key];
+            if(this.input[keycodes[key]] === undefined){
+                this.input[keycodes[key]] = false;
+            }
+        }
+        console.log({input: this.input, keycodes});
     }
     handleKey(e){
         // make sure the user hasn't selected / deselected the chat between inputs
@@ -120,6 +139,11 @@ export default class InputHandler {
             return e.preventDefault();
         }
 
+        // if we're in editor, handle editor key presses as well
+        if (this.client.clientType === 'editor'){
+            this.handleEditorKey(e);
+        }
+
         // otherwise, set inputs in this.inputs as they're mapped by keycodes
         this.input[keycodes[e.code]] = e.type === 'keydown';
 
@@ -127,6 +151,11 @@ export default class InputHandler {
         this.client.send({input: this.input});// TODO: optimize with bitwise conversion
 
         this.map.self.input = this.input;
+    }
+    handleEditorKey(e){
+        if(keycodes[e.code] === 'delete'){
+            this.client.selectionManager.deleteSelectedObstacles();
+        }
     }
     handleMouse(e) {
         this.mouse.x = e.x;

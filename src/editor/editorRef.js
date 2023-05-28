@@ -8,6 +8,7 @@ export default {
     gui: el('.data-gui'),
     allGui: el('.all-gui'),
     guiContainer: el('.gui'),
+    leftGui: el('.leftgui'),
     folderButtons: document.querySelectorAll('.folder-button'),
     createButton: el('#create-button'),
     settingsDiv: el('#settings'),
