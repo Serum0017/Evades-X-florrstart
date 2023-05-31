@@ -54,7 +54,7 @@ export default class CreateMenuManager {
     }
     createFolder(parent, name, layerType='simulate') {
         const folder = document.createElement('div');
-        folder.classList.add('folder');
+        folder.classList.add('sub-folder');
         folder.onmousedown = (e) => this.clickFolder(e, folder);
         folder.layerType = layerType;
         folder.name = name;
@@ -71,7 +71,8 @@ export default class CreateMenuManager {
         const folderData = document.createElement('div');
         folderData.classList.add('folder-data');
         folderData.classList.add('hidden');
-        folderData.style.left = '120px';
+        // const layerNumber = layerType === 'shape' ? 0 : layerType === 'simulate' ? 1 : 2; 
+        folderData.style.left = `${120 /*- layerNumber * 50*/}px`;
         folderData.style.top = '-20.75px';
         folder.appendChild(folderData);
         folder.folderData = folderData;
