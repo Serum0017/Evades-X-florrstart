@@ -7,10 +7,7 @@
     --submenu-bg: rgba(12, 12, 12, 0.7);
 }
 
-@font-face {
-    font-family: 'Inter';
-    src: url('fonts/Inter-Medium.ttf');
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 
 * {
     margin: 0;
@@ -453,6 +450,14 @@ input[type='number'] {
     height: 35px;
     cursor: pointer;
 }
+
+/*Cool experiment: TODO implement in the future if i remember!*/
+/*.menu-button-div :hover {
+    background-size: cover;
+    background-position: center bottom;
+    background-image: url('../client/gfx/favicon.png');
+    background-clip: text;-webkit-background-clip: text;color: transparent;
+}*/
 
 .leftgui .create {
     background: rgba(27, 27, 27, 1);

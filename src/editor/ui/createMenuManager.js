@@ -42,8 +42,8 @@ export default class CreateMenuManager {
     }
     createProperty(parent, name) {
         const property = document.createElement('div');
-        property.classList.add('folder');
-        property.classList.add('property');
+        property.classList.add('sub-folder');
+        property.classList.add('sub-property');
         property.innerText = this.formatObstacleName(name);
         property.name = name;
         property.onmousedown = (e) => this.clickProperty(e, property);
@@ -69,10 +69,9 @@ export default class CreateMenuManager {
         folder.appendChild(gtSpan);
         
         const folderData = document.createElement('div');
-        folderData.classList.add('folder-data');
+        folderData.classList.add('sub-folder-data');
         folderData.classList.add('hidden');
-        // const layerNumber = layerType === 'shape' ? 0 : layerType === 'simulate' ? 1 : 2; 
-        folderData.style.left = `${120 /*- layerNumber * 50*/}px`;
+        folderData.style.left = '120px';
         folderData.style.top = '-20.75px';
         folder.appendChild(folderData);
         folder.folderData = folderData;

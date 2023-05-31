@@ -152,8 +152,8 @@ export default class SelectionManager {
 
     screenToWorld({x,y}){
         return {
-            x: this.client.me().renderX - Ref.canvas.w / 2 + x * Ref.canvas.w / Ref.canvas.width,
-            y: this.client.me().renderY - Ref.canvas.h / 2 + y * Ref.canvas.w / Ref.canvas.width
+            x: this.client.me().renderX - Ref.canvas.w / 2 + x * 2 / Ref.canvas.zoom,
+            y: this.client.me().renderY - Ref.canvas.h / 2 + y * 2 / Ref.canvas.zoom
         }
     }
 
