@@ -16,7 +16,7 @@ const keycodes = {
 const editorKeyCodes = {
     KeyI: 'zoomin',
     KeyO: 'zoomout',
-    Backspace: 'delete',
+    Delete: 'delete',
 }
 
 const chatCommandMap = {
@@ -74,7 +74,6 @@ export default class InputHandler {
                 this.input[keycodes[key]] = false;
             }
         }
-        console.log({input: this.input, keycodes});
     }
     handleKey(e){
         // make sure the user hasn't selected / deselected the chat between inputs

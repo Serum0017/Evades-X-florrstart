@@ -44,7 +44,7 @@ export default class CreateMenuManager {
         const property = document.createElement('div');
         property.classList.add('sub-folder');
         property.classList.add('sub-property');
-        property.innerText = this.formatObstacleName(name);
+        property.innerText = this.formatName(name);
         property.name = name;
         property.onmousedown = (e) => this.clickProperty(e, property);
 
@@ -60,7 +60,7 @@ export default class CreateMenuManager {
         folder.name = name;
 
         const nameSpan = document.createElement('span');
-        nameSpan.innerText = this.formatObstacleName(name);
+        nameSpan.innerText = this.formatName(name);
         folder.appendChild(nameSpan);
 
         const gtSpan = document.createElement('span');
@@ -130,8 +130,11 @@ export default class CreateMenuManager {
         // we shouldn't have to add any more properties because that would mean that it was unsafe to begin with
         this.client.selectionManager.addPreviewObstacle({type: `${obsTypes.shape}-${obsTypes.simulate}-${obsTypes.effect}`});
     }
-    formatObstacleName(name){
-        name = name[0].toUpperCase() + name.slice(1);
+    formatName(name){
+        if(name.length > 1){
+            name = name[0].toUpperCase() + name.slice(1);
+        }
+        
         for(let i = 0; i < name.length; i++){
             if(name[i].toUpperCase() === name[i]){
                 name = name.slice(0, i) + ' ' + name[i] + name.slice(i+1);

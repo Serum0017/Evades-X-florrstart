@@ -81,10 +81,13 @@ function generateBody(obstacle) {
 
     if(obstacle.shape === 'square'){
         init.shape = 'poly';
+        init.renderFlag = 'square';// TODO: actually do this render optimization
     } else if(obstacle.shape === 'oval'){
         init.shape = 'poly';
         init.renderFlag = 'oval';
     }
+
+    console.log(obstacle, init.body);
 
     return init;
 }

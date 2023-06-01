@@ -13,7 +13,6 @@ export default class SelectionManager {
     constructor(client){
         this.client = client;
         this.previewObstacle = null;
-        this.selectedObstacles = [];
         this.selectionRect = null;
         this.transformMode = 'select';
         this.transformActive = false;
@@ -22,6 +21,21 @@ export default class SelectionManager {
         this.game = this.client.game;
         this.map = this.client.game.map;
         this.renderer = this.client.game.renderer;
+
+        this._selectedObstacles = [];
+        Object.defineProperty(this, "selectedObstacles", {
+            set(value) {
+                this._selectedObstacles = value;
+                if(Ref.toggleGui.isOpen === true){
+                    this.client.uiManager?.editMenuManager?.reloadMenu();
+                }
+            },
+            get() {
+                return this._selectedObstacles;
+            },
+            enumerable: true,
+            configurable: true,
+        });
 
         this.addEventListeners();
 
@@ -122,6 +136,8 @@ export default class SelectionManager {
                 this.selectedObstacles.push(this.map.obstacles[i]);
             }
         }
+        // in order to trigger the "set"
+        this.selectedObstacles = this.selectedObstacles;
     }
     collidingWithSelectedObstacle({x,y}){
         const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w: 0.1, h: 0.1});
@@ -152,8 +168,8 @@ export default class SelectionManager {
 
     screenToWorld({x,y}){
         return {
-            x: this.client.me().renderX - Ref.canvas.w / 2 + x * 2 / Ref.canvas.zoom,
-            y: this.client.me().renderY - Ref.canvas.h / 2 + y * 2 / Ref.canvas.zoom
+            x: this.client.me().renderX - Ref.canvas.w / 2 + x / Ref.canvas.zoom,
+            y: this.client.me().renderY - Ref.canvas.h / 2 + y / Ref.canvas.zoom
         }
     }
 

@@ -56,6 +56,9 @@ export default class editMenuManager {
 
                 property.appendChild(label);
             },
+            // object: (key, value, {input, property}) => {
+            // TODO:
+            // },
             color: (key, value, {input, property}) => {
                 input.classList.add('property-color-input');
                 
@@ -99,6 +102,13 @@ export default class editMenuManager {
                 property.appendChild(input);
             }
         }
+
+        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties'];
+        this.excludedProperties = {};
+        for(let i = 0; i < this.excludedProps.length; i++){
+            this.excludedProperties[this.excludedProps[i]] = true;
+        }
+        delete this.excludedProps;
     }
     reloadMenu(){
         // Ref.gui.appendChild(this.createMapProperties());
@@ -130,7 +140,10 @@ export default class editMenuManager {
         folderContent.classList.add('folder-content');
 
         for(let key in obstacle){
-            folderContent.appendChild(this.createObstacleProperty(key, obstacle[key]));
+            if(this.excludedProperties[key] === true){
+                continue;
+            }
+            folderContent.appendChild(this.createObstacleProperty(obstacle, key, obstacle[key]));
         }
 
         for(let i = 0; i < folderContent.children.length; i++){
@@ -141,20 +154,45 @@ export default class editMenuManager {
         
         return folder;
     }
-    createObstacleProperty(key, value){
+    createObstacleProperty(obstacle, key, value){
         const property = document.createElement('div');
         property.classList.add('property');
         property.classList.add('text');
 
         const propName = document.createElement('span');
         propName.classList.add('property-name');
-        propName.innerText = key;
+        propName.innerText = this.formatName(key);
         property.appendChild(propName);
 
         const input = document.createElement('input');
         input.maxLength = 500;
         input.spellcheck = 'false';
         input.value = value;
+
+        // if(obstacle._properties === undefined){
+        //     obstacle._properties = {};
+        // }
+        // obstacle._properties[key] = value;
+        // Object.defineProperty(obstacle, key, {
+        //     set(value) {
+        //         obstacle._properties[key] = value;
+        //         input.value = value;
+        //     },
+        //     get() {
+        //         return obstacle._properties[key];
+        //     },
+        //     enumerable: true,
+        //     configurable: true,
+        // });
+
+        input.oninput = ((event) => {
+            obstacle[key] = parseInt(event.target.value);
+            
+            // regenerate the obstacle
+            obstacle.shape = obstacle.renderFlag ?? obstacle.shape;
+            window.initObstacle(obstacle);
+            // console.log(key, obstacle[key]);
+        }).bind(this);
 
         // running the configuration function hashmap
         if(this.obstaclePropertyMap[typeof value] !== undefined){
@@ -347,4 +385,17 @@ export default class editMenuManager {
     //     }
     //     return property;
     // }
+    formatName(name){
+        if(name.length > 1){
+            name = name[0].toUpperCase() + name.slice(1);
+        }
+        
+        for(let i = 0; i < name.length; i++){
+            if(name[i].toUpperCase() === name[i]){
+                name = name.slice(0, i) + ' ' + name[i].toLowerCase() + name.slice(i+1);
+                i += 2;
+            }
+        }
+        return name;
+    }
 } 

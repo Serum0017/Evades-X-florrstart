@@ -14,8 +14,7 @@ export default function initDefaultMap(client){
             {type: 'settings', dimensions: {x: 500, y: 500}, spawn: {x: 25, y: 25}, difficulty: 'Peaceful'},
         ]
     })
-
-    console.log(ssMap.initPack());
+    
     client.game.map.init(ssMap.initPack());
     
     client.game.map.selfId = 0;
