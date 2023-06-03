@@ -3,7 +3,10 @@ const interpolateMap = {
         
     },
     simulate: {
-
+        move: (interpolate, last, next, time) => {
+            interpolateKey('x', interpolate, last, next, time);
+            interpolateKey('y', interpolate, last, next, time);
+        },
     }, 
     effect: {
         breakable: (interpolate, last, next, time) => {

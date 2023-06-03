@@ -77,13 +77,15 @@ export default class Renderer {
         const { map } = this.client.game;
         const me = this.client.me();
 
+        me.updateInterpolate();
+
         // filling bg
         ctx.fillStyle = this.colors.background;
         ctx.fillRect(0,0,canvas.w,canvas.h);
 
-        this.renderTiles({x: (-me.renderX + canvas.w / 2) % 50, y: (-me.renderY + canvas.h / 2) % 50});
+        this.renderTiles({x: (-me.render.x + canvas.w / 2) % 50, y: (-me.render.y + canvas.h / 2) % 50});
         
-        this.camera.setTranslate({x: -me.renderX + canvas.w / 2, y: -me.renderY + canvas.h / 2});
+        this.camera.setTranslate({x: -me.render.x + canvas.w / 2, y: -me.render.y + canvas.h / 2});
 
         this.renderBounds(map);
 
@@ -91,7 +93,7 @@ export default class Renderer {
         for(let i = 0; i < map.obstacles.length; i++){
             map.obstacles[i].toRender = this.camera.isInsideView(map.obstacles[i]);
             if(map.obstacles[i].toRender === false)continue;
-            map.obstacles[i].render = interpolateManager.interpolateObstacle(map.obstacles[i].lastState, map.obstacles[i], (performance.now() - map.lastInterpolateTime) * (60/1000), { map });
+            map.obstacles[i].render = interpolateManager.interpolateObstacle(map.obstacles[i].lastState, map.obstacles[i], (performance.now() - map.lastInterpolateTime) * (10/1000), { map });
         }
         
         this.renderObstacles(map.obstacles.filter(o => o.toRender !== false), map.players, map.self);
@@ -124,7 +126,7 @@ export default class Renderer {
             return;
         }
         for(let id in players){
-            players[id].render(ctx, canvas, this.camera);
+            players[id].renderBody(ctx, canvas, this.camera);
         }
     }
     renderObstacles(obstacles, players, player){

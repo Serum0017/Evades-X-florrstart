@@ -27,9 +27,7 @@ export default class Player{
         this.isPlayer = true;
         this.isSelf = false;
 
-        this.renderX = this.x;
-        this.renderY = this.y;
-        this.renderR = this.r/4;
+        this.render = {x: this.x, y: this.y, r: this.r/4};
 
         this.predictionLimit = {delta: {x: 100, y: 100}, origin: {x: this.x, y: this.y}, lastPos: {x: this.x, y: this.y}, ticksBehind: 1};
         this.packKeys = init.packKeys;
@@ -45,7 +43,7 @@ export default class Player{
     changeShape({shapeType, shapePoints}){
         // TODO
         // if(shapeType !== this.lastSimulateShape){
-        //     this.renderR = 0;
+        //     this.render.r = 0;
         // }
         this.shape = shapeType;
         this.body = this.getShape({shapeType, shapePoints});
@@ -69,14 +67,16 @@ export default class Player{
         return body;
     }
     respawn(){
-        this.renderR = 0;
+        this.render.r = 0;
         const last = {x: this.x, y: this.y};
         this.x = this.spawn.x;
         this.y = this.spawn.y;
         this.dead = false;
         transformBody(this, {x: this.x - last.x, y: this.y-last.y, rotation: 0});
     }
-    render(ctx, canvas, camera) {
+    renderBody(ctx, canvas, camera) {
+        // this.updateInterpolate();
+        
         ctx.fillStyle = 'black';
         if(this.dead === true){
             ctx.fillStyle = 'red';
@@ -84,15 +84,15 @@ export default class Player{
         
         ctx.beginPath();
         if(this.shape === 'circle'){
-            ctx.arc(this.renderX, this.renderY, this.renderR, 0, Math.PI*2);
+            ctx.arc(this.render.x, this.render.y, this.render.r, 0, Math.PI*2);
         } else if(this.shape === 'poly') {
-            ctx.translate(this.renderX - this.x, this.renderY - this.y);
-            ctx.moveTo(this.body.calcPoints[0].x*this.renderR/this.r + this.body.pos.x, this.body.calcPoints[0].y*this.renderR/this.r + this.body.pos.y);
+            ctx.translate(this.render.x - this.x, this.render.y - this.y);
+            ctx.moveTo(this.body.calcPoints[0].x*this.render.r/this.r + this.body.pos.x, this.body.calcPoints[0].y*this.render.r/this.r + this.body.pos.y);
             for(let i = 1; i < this.body.calcPoints.length; i++){
-                ctx.lineTo(this.body.calcPoints[i].x*this.renderR/this.r + this.body.pos.x, this.body.calcPoints[i].y*this.renderR/this.r + this.body.pos.y);
+                ctx.lineTo(this.body.calcPoints[i].x*this.render.r/this.r + this.body.pos.x, this.body.calcPoints[i].y*this.render.r/this.r + this.body.pos.y);
             }
-            ctx.lineTo(this.body.calcPoints[0].x*this.renderR/this.r + this.body.pos.x, this.body.calcPoints[0].y*this.renderR/this.r + this.body.pos.y);
-            ctx.translate(this.x - this.renderX, this.y - this.renderY);
+            ctx.lineTo(this.body.calcPoints[0].x*this.render.r/this.r + this.body.pos.x, this.body.calcPoints[0].y*this.render.r/this.r + this.body.pos.y);
+            ctx.translate(this.x - this.render.x, this.y - this.render.y);
         }
         this.lastRenderShape = this.shape;
         ctx.fill();
@@ -105,24 +105,22 @@ export default class Player{
 
         ctx.closePath();
 
-        this.updateInterpolate();
-
         // ctx.font = '30px Inter';
         // ctx.textAlign = 'middle';
         // ctx.textBaseline = 'center';
         // ctx.fillStyle = 'white';
-        // ctx.fillText(`(${Math.round(this.x)}, ${Math.round(this.y)})`, this.renderX, this.renderY);
+        // ctx.fillText(`(${Math.round(this.x)}, ${Math.round(this.y)})`, this.render.x, this.render.y);
     }
     updateInterpolate(){
-        this.renderR = this.renderR * 0.917 + this.r * 0.083;
+        this.render.r = this.render.r * 0.917 + this.r * 0.083;
         if(this.dead === true)return;
         const time = (performance.now() - this.lastSimulateState.time) * (60/1000);
         if(this.isSelf === true){
-            this.renderX = this.lastSimulateState.x * (1-time) + this.x * time;
-            this.renderY = this.lastSimulateState.y * (1-time) + this.y * time;
+            this.render.x = this.lastSimulateState.x * (1-time) + this.x * time;
+            this.render.y = this.lastSimulateState.y * (1-time) + this.y * time;
         } else {
-            this.renderX = this.renderX * 0.62 + this.x * 0.38;
-            this.renderY = this.renderY * 0.62 + this.y * 0.38;
+            this.render.x = this.render.x * 0.62 + this.x * 0.38;
+            this.render.y = this.render.y * 0.62 + this.y * 0.38;
         }
     }
     createSimulateState(time){

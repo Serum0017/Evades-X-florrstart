@@ -44,7 +44,7 @@ const renderEffectMap = {
             ctx.fillStyle = 'white';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(o.acronym, o.x, o.y - o.difference.y * 3 / 4);
+            ctx.fillText(o.acronym, o.render.x, o.render.y - o.difference.y * 3 / 4);
 
             ctx.toClip = true;
             ctx.toFill = false;
@@ -176,7 +176,7 @@ const renderEffectMap = {
         ctx.toClip = true;
     },
     timeTrap: (o, ctx, { colors }) => {
-        ctx.grd = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, Math.min(100, (o.difference.x + o.difference.y)/3));
+        ctx.grd = ctx.createRadialGradient(o.render.x, o.render.y, 0, o.render.x, o.render.y, Math.min(100, (o.difference.x + o.difference.y)/3));
 
         if(o.timeTrapToKill === false){
             ctx.grd.addColorStop(0, "rgba(199,199,199,0)");
@@ -196,13 +196,13 @@ const renderEffectAfterShapeMap = {
         if(o.map === 'Winroom'){ ctx.shadowBlur = 0; return };
 
         // Note: if ctx.toClip is specified then a renderEffectAfterShape is required to restore ctx.
-        ctx.drawImage(Utils.difficultyImages[o.difficulty], o.x - o.difference.x/2, o.y - o.difference.x/2, o.difference.x, o.difference.y);
+        ctx.drawImage(Utils.difficultyImages[o.difficulty], o.render.x - o.difference.x/2, o.render.y - o.difference.x/2, o.difference.x, o.difference.y);
 
         // rendering difficulty number
         if (o.difficultyNumber !== undefined) {
             ctx.fillStyle = 'black';
-            const markingY = o.y - o.difference.y/2 + (o.difference.y - 5) * (1 - o.difficultyNumber);
-            ctx.fillRect(o.x - o.difference.x/2, markingY, o.difference.x / 5, 5);
+            const markingY = o.render.y - o.difference.y/2 + (o.difference.y - 5) * (1 - o.difficultyNumber);
+            ctx.fillRect(o.render.x - o.difference.x/2, markingY, o.difference.x / 5, 5);
         }
         
         ctx.restore();
@@ -221,7 +221,7 @@ const renderEffectAfterShapeMap = {
         }
         
         try {
-            ctx.drawImage(o.image, o.x - o.difference.x/2, o.y - o.difference.x/2, o.difference.x, o.difference.y);
+            ctx.drawImage(o.image, o.render.x - o.difference.x/2, o.render.y - o.difference.x/2, o.difference.x, o.difference.y);
         } catch(e){}
         
         ctx.restore();
@@ -236,8 +236,8 @@ const renderEffectAfterShapeMap = {
         ctx.textBaseline = 'middle';
         ctx.fillText(
             Math.max(0, o.coinAmount),
-            o.x,
-            o.y
+            o.render.x,
+            o.render.y
         );
     },
     coindoor: (o, ctx, { colors }) => {
@@ -245,7 +245,7 @@ const renderEffectAfterShapeMap = {
         ctx.fillStyle = o.color;
 
         ctx.beginPath();
-        ctx.roundRect(o.x-o.difference.x/4, o.y-o.difference.y/4, o.difference.x/2, o.difference.y/2, Math.min(o.difference.x,o.difference.y)/20);
+        ctx.roundRect(o.render.x-o.difference.x/4, o.render.y-o.difference.y/4, o.difference.x/2, o.difference.y/2, Math.min(o.difference.x,o.difference.y)/20);
         ctx.fill();
         ctx.closePath();
 
@@ -255,15 +255,15 @@ const renderEffectAfterShapeMap = {
         ctx.textBaseline = 'middle';
         ctx.fillText(
             Math.max(0, o.coins),
-            o.x,
-            o.y
+            o.render.x,
+            o.render.y
         );
     },
     platformer: (o, ctx, advanced) => {
         // TODO: optimize with pregeneration
         ctx.globalAlpha = 1;
-        for(let x = o.x - o.difference.x/2 + (o.platformerForce/*/(1-o.platformerFriction)*0.6*/ * Math.cos(o.platformerAngle) * performance.now()/18) % 50 - 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
-            for(let y = o.y - o.difference.y/2 + (o.platformerForce/*/(1-o.platformerFriction)*0.6*/ * Math.sin(o.platformerAngle) * performance.now()/18) % 50 - 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
+        for(let x = o.render.x - o.difference.x/2 + (o.platformerForce/*/(1-o.platformerFriction)*0.6*/ * Math.cos(o.platformerAngle) * performance.now()/18) % 50 - 25; x <= o.render.x - o.render.x%50 + 50 + o.difference.x/2 + 25; x += 50){
+            for(let y = o.render.y - o.difference.y/2 + (o.platformerForce/*/(1-o.platformerFriction)*0.6*/ * Math.sin(o.platformerAngle) * performance.now()/18) % 50 - 25; y <= o.render.y - o.render.y%50 + 50 + o.difference.y/2 + 25; y += 50){
                 ctx.translate(x,y);
                 ctx.rotate(o.render.platformerAngle+Math.PI/2);
                 ctx.drawImage(Utils.arrowImg, -25, -25, 50, 50);
@@ -277,8 +277,8 @@ const renderEffectAfterShapeMap = {
     conveyor: (o, ctx, advanced) => {
         // TODO: optimize with pregeneration
         ctx.globalAlpha = 1;
-        for(let x = o.x - o.difference.x/2 + 25; x <= o.x - o.x%50 + 50 + o.difference.x/2 + 25; x += 50){
-            for(let y = o.y - o.difference.y/2 + 25; y <= o.y - o.y%50 + 50 + o.difference.y/2 + 25; y += 50){
+        for(let x = o.render.x - o.difference.x/2 + 25; x <= o.render.x - o.render.x%50 + 50 + o.difference.x/2 + 25; x += 50){
+            for(let y = o.render.y - o.difference.y/2 + 25; y <= o.render.y - o.render.y%50 + 50 + o.difference.y/2 + 25; y += 50){
                 ctx.translate(x,y);
                 ctx.rotate(o.render.conveyorAngle+Math.PI/2);
                 ctx.drawImage(Utils.arrowImg, -25, -25, 50, 50);
@@ -291,7 +291,7 @@ const renderEffectAfterShapeMap = {
     },
     checkpoint: (o, ctx, advanced) => {
         ctx.globalAlpha /= 5;
-        ctx.grd = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, (o.difference.x + o.difference.y)/3);
+        ctx.grd = ctx.createRadialGradient(o.render.x, o.render.y, 0, o.render.x, o.render.y, (o.difference.x + o.difference.y)/3);
 
         ctx.grd.addColorStop(0, "rgba(255,255,255,1)");
         ctx.grd.addColorStop(1, "rgba(255,255,255,0)");
@@ -306,7 +306,7 @@ const renderEffectAfterShapeMap = {
         // render grid lines showing axis
         ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.translate(o.x,o.y);
+        ctx.translate(o.render.x,o.render.y);
         ctx.rotate(o.render.rotateMovementAngle);
         o.rotateMovementExpansion = Math.ceil((Math.max(o.difference.x,o.difference.y)**2/Math.sqrt(o.difference.x**2+o.difference.y**2))/50+1)*50;
 
@@ -325,7 +325,7 @@ const renderEffectAfterShapeMap = {
         ctx.stroke();
         ctx.closePath();
         ctx.rotate(-o.render.rotateMovementAngle);
-        ctx.translate(-o.x,-o.y);
+        ctx.translate(-o.render.x,-o.render.y);
 
         ctx.globalAlpha = 1;
 
@@ -340,14 +340,14 @@ const renderEffectAfterShapeMap = {
             o.renderCircleSize *= 2;
         }
 
-        ctx.moveTo(o.x, o.y);
-        ctx.lineTo(o.x + o.renderCircleSize, o.y);
-        ctx.arc(o.x, o.y, o.renderCircleSize, 0, o.rotateMovementAngle);
+        ctx.moveTo(o.render.x, o.render.y);
+        ctx.lineTo(o.render.x + o.renderCircleSize, o.render.y);
+        ctx.arc(o.render.x, o.render.y, o.renderCircleSize, 0, o.rotateMovementAngle);
         
-        ctx.lineTo(o.x, o.y);
+        ctx.lineTo(o.render.x, o.render.y);
 
         ctx.stroke();
-        ctx.grd = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.renderCircleSize);
+        ctx.grd = ctx.createRadialGradient(o.render.x, o.render.y, 0, o.render.x, o.render.y, o.renderCircleSize);
 
         ctx.grd.addColorStop(0, "rgba(255,255,255,0)");
         ctx.grd.addColorStop(1, "rgba(255,255,255,0.12)");
@@ -363,7 +363,7 @@ const renderEffectAfterShapeMap = {
     restrictAxis: (o, ctx, advanced) => {
         // TODO: check if angle is 0 and if so draw an optimized ver
         
-        ctx.translate(o.x, o.y);
+        ctx.translate(o.render.x, o.render.y);
 
         ctx.globalAlpha = o.axisSpeedMults.x > 1 ? 0.8 : (Math.max(0.3,o.axisSpeedMults.x < 0 ? -o.axisSpeedMults.x : 1-o.axisSpeedMults.x));
         ctx.strokeStyle = o.axisSpeedMults.x < 0 ? 'red' : (o.axisSpeedMults.x > 1 ? '#c5c500' : 'white');
@@ -393,7 +393,7 @@ const renderEffectAfterShapeMap = {
         ctx.strokeStyle = mixHex('#0f0000', '#000000', Math.max(0,o.render.snapCooldown) / o.maxSnapCooldown);
         ctx.lineWidth = 2;
         ctx.globalAlpha = 0.25;
-        ctx.translate(o.x, o.y);
+        ctx.translate(o.render.x, o.render.y);
 
         o.snapRotateMovementExpansion = {
             base: (Math.max(o.difference.x,o.difference.y)**2/Math.sqrt(o.difference.x**2+o.difference.y**2))
@@ -403,7 +403,7 @@ const renderEffectAfterShapeMap = {
 
         ctx.rotate(o.render.snapAngle);
 
-        ctx.translate(o.x%50,o.y%50);
+        ctx.translate(o.render.x%50,o.render.y%50);
 
         let renderPath = new Path2D();
         if(o.toSnap.x === true){
@@ -423,17 +423,9 @@ const renderEffectAfterShapeMap = {
         }
         ctx.stroke(renderPath);
         ctx.closePath();
-
-        // ctx.translate(-o.x%50,-o.y%50);
-        // ctx.rotate(-o.render.snapAngle);
-        // ctx.translate(-o.x, -o.y);
-
-        // ctx.translate(o.x,o.y);
-        // ctx.rotate(o.render.snapAngle);
-        // ctx.translate(o.x%50,o.y%50);
         
         // drawing snapMagnitude indicator
-        if(player.x + o.snapMagnitude < o.x - o.difference.x/2 || player.x - o.snapMagnitude > o.x + o.difference.x/2 || player.y + o.snapMagnitude < o.y - o.difference.y/2 || player.y - o.snapMagnitude > o.y + o.difference.y/2){
+        if(player.render.x + o.snapMagnitude < o.render.x - o.difference.x/2 || player.render.x - o.snapMagnitude > o.render.x + o.difference.x/2 || player.render.y + o.snapMagnitude < o.render.y - o.difference.y/2 || player.render.y - o.snapMagnitude > o.render.y + o.difference.y/2){
             ctx.restore();
             return;
         }
@@ -444,11 +436,11 @@ const renderEffectAfterShapeMap = {
 
         ctx.clip(renderPath);
 
-        ctx.translate(-o.x%50,-o.y%50);
+        ctx.translate(-o.render.x%50,-o.render.y%50);
         ctx.rotate(-o.render.snapAngle);
-        ctx.translate(-o.x,-o.y);
+        ctx.translate(-o.render.x,-o.render.y);
 
-        ctx.arc(player.x, player.y, o.snapMagnitude, 0, Math.PI*2);
+        ctx.arc(player.render.x, player.render.y, o.snapMagnitude, 0, Math.PI*2);
         ctx.stroke();
         ctx.fill();
         ctx.closePath();
@@ -467,7 +459,7 @@ const renderEffectAfterShapeMap = {
         ctx.font = `${Math.min(o.difference.x, o.difference.y)/2}px Inter`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(o.timeTrapToShowTenth === true ? Math.round(o.render.timeTrapTime / 60 * 10) / 10 : Math.round(o.render.timeTrapTime / 60), o.x, o.y);
+        ctx.fillText(o.timeTrapToShowTenth === true ? Math.round(o.render.timeTrapTime / 60 * 10) / 10 : Math.round(o.render.timeTrapTime / 60), o.render.x, o.render.y);
     },
 }
 

@@ -127,7 +127,7 @@ export default class SelectionManager {
     }
     addPreviewObstacle(obj){
         this.previewObstacle = window.initObstacle(obj);
-        this.transformPreviewObstacle({x: this.map.self.renderX - Ref.canvas.w/2, y: this.map.self.renderY - Ref.canvas.h/2});
+        this.transformPreviewObstacle({x: this.map.self.render.x - Ref.canvas.w/2, y: this.map.self.render.y - Ref.canvas.h/2});
     }
     transformPreviewObstacle({x,y}){
         if(this.toSnap === true){
@@ -198,8 +198,8 @@ export default class SelectionManager {
 
     screenToWorld({x,y}){
         return {
-            x: this.client.me().renderX - Ref.canvas.w / 2 + x / Ref.canvas.zoom,
-            y: this.client.me().renderY - Ref.canvas.h / 2 + y / Ref.canvas.zoom
+            x: this.client.me().render.x - Ref.canvas.w / 2 + x / Ref.canvas.zoom,
+            y: this.client.me().render.y - Ref.canvas.h / 2 + y / Ref.canvas.zoom
         }
     }
 

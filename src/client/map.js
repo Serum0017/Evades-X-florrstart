@@ -50,7 +50,7 @@ export default class Map {
         // idk why this works but it does
         this.tick = data.tick + Math.round((data.requestTime ?? 0) / 2 * 60 / 1000);
 
-        this.createRenderState(performance.now());
+        this.createSimulateState(performance.now());
     }
     resetObstacleParameters(o, parametersToReset) {
         for(let key in parametersToReset){
@@ -82,6 +82,8 @@ export default class Map {
         // simulate everything
         // Full simulation structure with player prediction and server sided objects:
 
+        this.updateInterpolateState();
+
         // TODO: implement simulation culling (only simulate other players that are inside the client's screen)
         // TODO: make sure players look realistic by simulating them against obstacles. This can only be done when spatial hashing is a thing, otherwise it'll be hella inefficient
         // thus, TODO: spatial hashing!
@@ -94,19 +96,20 @@ export default class Map {
 
         this.tick++;
 
+        // - simulate player
+        // - update the player's sat
+        // - simulate other players in player's screen with small movement simulation function (although follow the <2x last update state's distance covered rule - see arrow)
+        // -- refer to !simulateObstacles.js for how we simulate obstacles --
+        // -- refer to !simulateObstacles.js for how we collide with obstacles --
+    }
+    updateInterpolateState(){
         const time = performance.now();
 
         for(let id in this.players){
             this.players[id].createSimulateState(time);
         }
 
-        this.createRenderState(time);
-
-        // - simulate player
-        // - update the player's sat
-        // - simulate other players in player's screen with small movement simulation function (although follow the <2x last update state's distance covered rule - see arrow)
-        // -- refer to !simulateObstacles.js for how we simulate obstacles --
-        // -- refer to !simulateObstacles.js for how we collide with obstacles --
+        this.createSimulateState(time);
     }
     addObstacle(o){
         this.initObstacle(o);
@@ -137,7 +140,7 @@ export default class Map {
             tick: this.tick
         };
     }
-    createRenderState(time){
+    createSimulateState(time){
         for(let i = 0; i < this.obstacles.length; i++){
             interpolateManager.createInterpolateState(this.obstacles[i]);
         }
