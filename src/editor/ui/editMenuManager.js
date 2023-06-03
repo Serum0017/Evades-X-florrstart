@@ -33,16 +33,16 @@ export default class editMenuManager {
     }
     defineObstaclePropertyMap(){
         this.obstaclePropertyMap = {
-            string: (key, value, {input, property}) => {
+            string: (key, value, {input, property, obstacle}) => {
                 if(typeConverter.toHex(value, 'notahex') !== 'notahex'){
-                    this.obstaclePropertyMap.color(key, value, {input, property});
+                    this.obstaclePropertyMap.color(key, value, {input, property, obstacle});
                     return;
                 }
 
                 input.classList.add('property-text-input');
                 property.appendChild(input);
             },
-            boolean: (key, value, {input, property}) => {
+            boolean: (key, value, {input, property, obstacle}) => {
                 input.checked = value;
 
                 const label = document.createElement('label');
@@ -54,12 +54,22 @@ export default class editMenuManager {
                 span.classList.add('slider');
                 label.appendChild(span);
 
+                property.addEventListener('mousedown', (event) => {
+                    event.preventDefault();
+                    input.checked = !input.checked;
+                    obstacle[key] = input.checked;
+                    this.regenerateObstacle(obstacle);
+                });
+
                 property.appendChild(label);
             },
-            // object: (key, value, {input, property}) => {
-            // TODO:
+            // object: (key, value, {input, property, obstacle}) => {
+            //     // this isnt gonna work but ill do it for now
+            //     for(let subProperty in value){
+            //         property.appendChild(this.createObstacleProperty(value, subProperty, value[subProperty]));
+            //     }
             // },
-            color: (key, value, {input, property}) => {
+            color: (key, value, {input, property, obstacle}) => {
                 input.classList.add('property-color-input');
                 
                 const text = document.createTextNode(input.value);
@@ -79,7 +89,7 @@ export default class editMenuManager {
                 
                 property.appendChild(label);
             },
-            options: (key, value, {input, property}) => {
+            options: (key, value, {input, property, obstacle}) => {
                 // unused ... for now
                 input.classList.add('property-option-input');
                 
@@ -103,26 +113,32 @@ export default class editMenuManager {
             }
         }
 
-        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties'];
+        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences'];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
             this.excludedProperties[this.excludedProps[i]] = true;
         }
         delete this.excludedProps;
+        this.editorProperties = [{object: this.client.selectionManager, key: 'snapDistance'}, {object: this.client.selectionManager, key: 'toSnap'}];
     }
     reloadMenu(){
-        // Ref.gui.appendChild(this.createMapProperties());
         while(Ref.gui.firstChild){
             Ref.gui.removeChild(Ref.gui.firstChild);
         }
+        Ref.gui.appendChild(this.createEditorProperties());
         for(let i = 0; i < this.selectionManager.selectedObstacles.length; i++){
             Ref.gui.appendChild(this.createObstacleProperties(this.selectionManager.selectedObstacles[i]));
         }
     }
-    createMapProperties(){
-        // get map settings and turn them into parameters
+    createEditorProperties(){
+        const obstacle = {editorPropertyReferences: {}};
+        for(let i = 0; i < this.editorProperties.length; i++){
+            obstacle[this.editorProperties[i].key] = this.editorProperties[i].object[this.editorProperties[i].key];
+            obstacle.editorPropertyReferences[this.editorProperties[i].key] = this.editorProperties[i].object;
+        }
+        return this.createObstacleProperties(obstacle, 'Editor Settings');
     }
-    createObstacleProperties(obstacle) {
+    createFolder(folderName){
         const folder = document.createElement('div');
         folder.classList.add('folder');
 
@@ -132,12 +148,20 @@ export default class editMenuManager {
             this.clickFolder(event, folderButton.parentElement)
         );
         folderButton.isOpen = false;
-        folder.folderName = [obstacle.shape, obstacle.simulate, obstacle.effect].join('-');
+        
+        folder.folderName = folderName;
         folderButton.innerHTML = '<span class="or">▸</span>&nbsp;' + folder.folderName;
         folder.appendChild(folderButton);
 
         const folderContent = document.createElement('div');
         folderContent.classList.add('folder-content');
+        folder.appendChild(folderContent);
+
+        return folder;
+    }
+    createObstacleProperties(obstacle, folderName=[obstacle.shape, obstacle.simulate, obstacle.effect].map(s => s[0].toUpperCase() + s.slice(1)).join(' ')) {
+        const folder = this.createFolder(folderName);
+        const folderContent = folder.getElementsByClassName('folder-content')[0];
 
         for(let key in obstacle){
             if(this.excludedProperties[key] === true){
@@ -149,8 +173,6 @@ export default class editMenuManager {
         for(let i = 0; i < folderContent.children.length; i++){
             folderContent.children[i].classList.add('hidden');
         }
-
-        folder.appendChild(folderContent);
         
         return folder;
     }
@@ -169,40 +191,55 @@ export default class editMenuManager {
         input.spellcheck = 'false';
         input.value = value;
 
-        // if(obstacle._properties === undefined){
-        //     obstacle._properties = {};
-        // }
-        // obstacle._properties[key] = value;
-        // Object.defineProperty(obstacle, key, {
-        //     set(value) {
-        //         obstacle._properties[key] = value;
-        //         input.value = value;
-        //     },
-        //     get() {
-        //         return obstacle._properties[key];
-        //     },
-        //     enumerable: true,
-        //     configurable: true,
-        // });
+        if(obstacle._properties === undefined){
+            obstacle._properties = {};
+        }
+        obstacle._properties[key] = value;
+        Object.defineProperty(obstacle, key, {
+            set(value) {
+                obstacle._properties[key] = value;
+                input.value = value;
+            },
+            get() {
+                return obstacle._properties[key];
+            },
+            enumerable: true,
+            configurable: true,
+        });
 
         input.oninput = ((event) => {
             obstacle[key] = parseInt(event.target.value);
-            
-            // regenerate the obstacle
-            obstacle.shape = obstacle.renderFlag ?? obstacle.shape;
-            window.initObstacle(obstacle);
-            // console.log(key, obstacle[key]);
+            this.regenerateObstacle(obstacle);
         }).bind(this);
 
         // running the configuration function hashmap
         if(this.obstaclePropertyMap[typeof value] !== undefined){
-            this.obstaclePropertyMap[typeof value](key, value, {input, property});
+            this.obstaclePropertyMap[typeof value](key, value, {input, property, obstacle});
         } else {
             input.classList.add('property-text-input');
             property.appendChild(input);
         }
 
         return property;
+    }
+    regenerateObstacle(obstacle, isRegeneratable=obstacle.effect!==undefined) {
+        if(isRegeneratable === false){
+            this.regenerateMapProperty(obstacle);
+            return;
+        }
+        obstacle.shape = obstacle.renderFlag ?? obstacle.shape;
+        const newObstacle = window.initObstacle(obstacle);
+        for(let key in newObstacle){
+            obstacle[key] = newObstacle[key];
+        }
+    }
+    regenerateMapProperty(mapReferences){
+        for(let key in mapReferences){
+            if(key === '_properties' || key === 'editorPropertyReferences'){
+                continue;
+            }
+            mapReferences.editorPropertyReferences[key][key] = mapReferences[key];
+        }
     }
     clickFolder(event, folder){
         folder.isOpen = !folder.isOpen;

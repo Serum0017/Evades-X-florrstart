@@ -16,6 +16,8 @@ export default class SelectionManager {
         this.selectionRect = null;
         this.transformMode = 'select';
         this.transformActive = false;
+        this.snapDistance = 25;
+        this.toSnap = true;
     }
     start(){
         this.game = this.client.game;
@@ -55,11 +57,25 @@ export default class SelectionManager {
         }
         if(this.transformActive === true){
             for(let i = 0; i < this.selectedObstacles.length; i++){
-                transformBody(this.selectedObstacles[i], {
-                    x: this.mouse.delta.x,
-                    y: this.mouse.delta.y,//this.mouse.y - this.selectedObstacles[i].y,
-                    rotation: 0
-                })
+                if(this.toSnap === true){
+                    const difference = {
+                        x: Math.round(stw.x / this.snapDistance) * this.snapDistance - this.selectedObstacles[i].x,
+                        y: Math.round(stw.y / this.snapDistance) * this.snapDistance - this.selectedObstacles[i].y,
+                    }
+                    transformBody(this.selectedObstacles[i], {
+                        x: difference.x,
+                        y: difference.y,
+                        rotation: 0
+                    })
+                    this.selectedObstacles[i].x += difference.x;
+                    this.selectedObstacles[i].y += difference.y;
+                } else {
+                    transformBody(this.selectedObstacles[i], {
+                        x: this.mouse.delta.x,
+                        y: this.mouse.delta.y,
+                        rotation: 0
+                    })
+                }
             }
         }
         this.mouse.last = {x: stw.x, y: stw.y};
@@ -114,9 +130,23 @@ export default class SelectionManager {
         this.transformPreviewObstacle({x: this.map.self.renderX - Ref.canvas.w/2, y: this.map.self.renderY - Ref.canvas.h/2});
     }
     transformPreviewObstacle({x,y}){
-        this.previewObstacle.x += x;
-        this.previewObstacle.y += y;
-        transformBody(this.previewObstacle, {x, y, rotation: 0});
+        if(this.toSnap === true){
+            const difference = {
+                x: Math.round((x + this.previewObstacle.x) / this.snapDistance) * this.snapDistance - this.previewObstacle.x,
+                y: Math.round((y + this.previewObstacle.y) / this.snapDistance) * this.snapDistance - this.previewObstacle.y,
+            }
+            transformBody(this.previewObstacle, {
+                x: difference.x,
+                y: difference.y,
+                rotation: 0
+            })
+            this.previewObstacle.x += difference.x;
+            this.previewObstacle.y += difference.y;
+        } else {
+            this.previewObstacle.x += x;
+            this.previewObstacle.y += y;
+            transformBody(this.previewObstacle, {x, y, rotation: 0});
+        }
         // console.log(this.previewObstacle.x, this.previewObstacle.y);
     }
     placePreviewObstacle(){

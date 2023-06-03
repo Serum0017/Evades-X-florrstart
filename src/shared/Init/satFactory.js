@@ -87,8 +87,6 @@ function generateBody(obstacle) {
         init.renderFlag = 'oval';
     }
 
-    console.log(obstacle, init.body);
-
     return init;
 }
 
