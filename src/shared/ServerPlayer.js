@@ -9,7 +9,7 @@ class Player{
 
         this.frictions = {};
 
-        this.speed = 430 / 60 //equal to 430 / 60, the same speed from semioldevade
+        this.speed = 430 / 60; //equal to 430 / 60, the same speed from semioldevade
         this.friction = 0.4;
 
         this.map = init.map.name;

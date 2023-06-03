@@ -75,7 +75,7 @@ export default class Player{
         transformBody(this, {x: this.x - last.x, y: this.y-last.y, rotation: 0});
     }
     renderBody(ctx, canvas, camera) {
-        // this.updateInterpolate();
+        this.updateInterpolate();
         
         ctx.fillStyle = 'black';
         if(this.dead === true){
