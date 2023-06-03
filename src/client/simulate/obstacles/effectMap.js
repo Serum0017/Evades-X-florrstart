@@ -186,7 +186,7 @@ const Effects = {
             player.changeShape({shapeType: 'poly', shapePoints });
         } else {
             player.r = 0;
-            player.renderR = 0;
+            player.render.r = 0;
             player.changeShape({shapeType: 'circle'});
         }
     },

@@ -93,7 +93,7 @@ export default class Renderer {
         for(let i = 0; i < map.obstacles.length; i++){
             map.obstacles[i].toRender = this.camera.isInsideView(map.obstacles[i]);
             if(map.obstacles[i].toRender === false)continue;
-            map.obstacles[i].render = interpolateManager.interpolateObstacle(map.obstacles[i].lastState, map.obstacles[i], (performance.now() - map.lastInterpolateTime) * (10/1000), { map });
+            map.obstacles[i].render = interpolateManager.interpolateObstacle(map.obstacles[i].lastState, map.obstacles[i], (performance.now() - map.lastInterpolateTime) * (60/1000), { map });
         }
         
         this.renderObstacles(map.obstacles.filter(o => o.toRender !== false), map.players, map.self);
