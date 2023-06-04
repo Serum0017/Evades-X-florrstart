@@ -77,7 +77,7 @@ export default class Renderer {
         const { map } = this.client.game;
         const me = this.client.me();
 
-        me.updateInterpolate();
+        me.updateInterpolate(this.client.game.getInterpolationRatio());
 
         // filling bg
         ctx.fillStyle = this.colors.background;
@@ -93,7 +93,7 @@ export default class Renderer {
         for(let i = 0; i < map.obstacles.length; i++){
             map.obstacles[i].toRender = this.camera.isInsideView(map.obstacles[i]);
             if(map.obstacles[i].toRender === false)continue;
-            map.obstacles[i].render = interpolateManager.interpolateObstacle(map.obstacles[i].lastState, map.obstacles[i], (performance.now() - map.lastInterpolateTime) * (60/1000), { map });
+            map.obstacles[i].render = interpolateManager.interpolateObstacle(map.obstacles[i].lastState, map.obstacles[i], /*(performance.now() - map.lastInterpolateTime) **/ this.client.game.getInterpolationRatio(), { map });
         }
         
         this.renderObstacles(map.obstacles.filter(o => o.toRender !== false), map.players, map.self);
@@ -104,7 +104,8 @@ export default class Renderer {
 
         this.camera.resetTranslate();
 
-        this.renderOverlay(me);
+        // TODO: uncomment this and make it cached because vinete drawing is really laggy
+        // this.renderOverlay(me);
     }
     renderOverlay(me){
         if (me.dead === true){
@@ -122,7 +123,7 @@ export default class Renderer {
     }
     renderPlayers(players){
         if(this.client.clientType === 'editor' && this.client.playerActive === false){
-            this.client.me().updateInterpolate();
+            // this.client.me().updateInterpolate(this.client.game.getInterpolationRatio());
             return;
         }
         for(let id in players){

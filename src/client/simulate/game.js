@@ -13,6 +13,9 @@ export default class Game {
         this.lastTime = performance.now();
         this.accum = 0;
 
+        this.ticksPerSecond = 60;
+        this.ticksPerSecond /= 1000;
+
         this.lastRequestedMapTime = 0;
     }
     start() {
@@ -26,39 +29,58 @@ export default class Game {
     reset() {
         this.renderer.reset();
         cancelAnimationFrame(this.gameLoop);
-        clearInterval(this.gameLoop);
     }
     initState(data){
         // initializes map client side
         this.map.init(data);
 
         if(data.requestTime !== undefined){
-            this.accum += (performance.now() - this.lastRequestedMapTime - data.requestTime)/2;
+            this.accum +=/*-= if using catch up/ slow down approximate simulation system*/ (performance.now() - this.lastRequestedMapTime - data.requestTime)/2;
         }
     }
-    run(){
-        this.accum += performance.now() - this.lastTime;
-        this.lastTime = performance.now();
-        
-        if(this.accum > 1000 / 60){
-            while(this.accum >= 1000 / 60){
-                this.simulate();
-                this.accum -= 1000 / 60;
+    run(time){
+        // each tick should happen every 1 / this.ticksPerSecond seconds.
+        // Thus, simulating 1 tick as a given and then compensate if necessary
+        this.accum += time - this.lastTime;
+        this.lastTime = time;
+
+        if(this.accum > 1 / this.ticksPerSecond){
+            this.map.createSimulateState();
+            while(this.accum > 1 / this.ticksPerSecond){
+                this.simulateTick();
             }
         }
 
         this.renderer.render();
 
-        this.gameLoop = requestAnimationFrame(this.run.bind(this));
+        // if(Math.abs(this.accum) < 1 / this.ticksPerSecond){
+            // everything's good, just tick once
+            // this.simulateTick();
+        // } else if(this.accum < 0){
+        //     // we oversimulated and now there's a debt! This means we have to wait for more time to come in.
+        //     return;
+        // } else {
+        //     // we're falling behind! catch up however many ticks we have to to be within the 1 / this.ticksPerSecond range
+        //     // while its outside the range simulate. if we break that means that we must be inside
+        //     // we only want to simulate twice instead of doing a while loop because that might cause a recurring spiral of lag
+        //     this.simulateTick();
+        //     this.simulateTick();
+        // }
+
+        requestAnimationFrame(this.run.bind(this));
     }
-    simulate(){
-        // simulate 1 tick
+    simulateTick(){
+        this.accum -= 1 / this.ticksPerSecond;
         this.map.simulate();
 
         // run tickwise rendering stuff
         this.renderer.updateState();
 
         this.sendState();
+    }
+    getInterpolationRatio(){
+        // return (performance.now() - this.lastTime) * this.ticksPerSecond;
+        return this.accum * this.ticksPerSecond;
     }
     sendState(){
         this.client.send({update: this.map.self.pack(), mapTick: this.map.tick});

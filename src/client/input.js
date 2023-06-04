@@ -66,6 +66,15 @@ export default class InputHandler {
 
         // prevent right click
         window.addEventListener("contextmenu", e => e.preventDefault());
+
+        // make current keys pressed stop if user navigates out of tab
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden") {
+                for(let key in this.input){
+                    this.input[key] = false;
+                }
+            }
+        });
     }
     startEditor(){
         for(let key in editorKeyCodes){

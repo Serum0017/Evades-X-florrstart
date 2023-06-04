@@ -13,16 +13,20 @@ const renderShapeMap = {
             return;
         }
         // drawing body
+
+        // TODO: uncomment and fix this (idk why but they dont un-offset after this)
+        // ctx.translate(o.render.x - o.x, o.render.y - o.y);
         ctx.beginPath();
-        ctx.translate(o.render.x - o.x, o.render.y - o.y);
+        
         ctx.moveTo(o.body.calcPoints[0].x + o.body.pos.x, o.body.calcPoints[0].y + o.body.pos.y);
         for(let i = 1; i < o.body.calcPoints.length; i++){
             ctx.lineTo(o.body.calcPoints[i].x + o.body.pos.x, o.body.calcPoints[i].y + o.body.pos.y);
         }
         ctx.lineTo(o.body.calcPoints[0].x + o.body.pos.x, o.body.calcPoints[0].y + o.body.pos.y);
         fsin(o, ctx, advanced);
-        ctx.translate(o.x - o.render.x, o.y - o.render.y);
+        
         ctx.closePath();
+        // ctx.translate(o.x - o.render.x, o.y - o.render.y);
     },
     oval: (o, ctx, advanced) => {
         ctx.beginPath();

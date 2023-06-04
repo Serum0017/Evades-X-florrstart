@@ -75,8 +75,6 @@ export default class Player{
         transformBody(this, {x: this.x - last.x, y: this.y-last.y, rotation: 0});
     }
     renderBody(ctx, canvas, camera) {
-        this.updateInterpolate();
-        
         ctx.fillStyle = 'black';
         if(this.dead === true){
             ctx.fillStyle = 'red';
@@ -111,23 +109,21 @@ export default class Player{
         // ctx.fillStyle = 'white';
         // ctx.fillText(`(${Math.round(this.x)}, ${Math.round(this.y)})`, this.render.x, this.render.y);
     }
-    updateInterpolate(){
+    updateInterpolate(timeSinceLastTick){
         this.render.r = this.render.r * 0.917 + this.r * 0.083;
         if(this.dead === true)return;
-        const time = (performance.now() - this.lastSimulateState.time) * (60/1000);
         if(this.isSelf === true){
-            this.render.x = this.lastSimulateState.x * (1-time) + this.x * time;
-            this.render.y = this.lastSimulateState.y * (1-time) + this.y * time;
+            this.render.x = this.lastSimulateState.x * (1-timeSinceLastTick) + this.x * timeSinceLastTick;
+            this.render.y = this.lastSimulateState.y * (1-timeSinceLastTick) + this.y * timeSinceLastTick;
         } else {
             this.render.x = this.render.x * 0.62 + this.x * 0.38;
             this.render.y = this.render.y * 0.62 + this.y * 0.38;
         }
     }
-    createSimulateState(time){
+    createSimulateState(){
         this.lastSimulateState = {
             x: this.x,
             y: this.y,
-            time
         }
     }
     updatePack(data){

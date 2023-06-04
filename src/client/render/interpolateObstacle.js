@@ -136,6 +136,7 @@ function createInterpolateState(last){
 
 function interpolateObstacle(last, next, time/*0-1*/, advanced){
     // every obstacle interpolates position
+    time = 0;
     const interpolate = {
         x: last.x * (1 - time) + next.x * time,
         y: last.y * (1 - time) + next.y * time,
