@@ -83,6 +83,22 @@ export default class InputHandler {
                 this.input[keycodes[key]] = false;
             }
         }
+
+        this.editorKeyMap = {
+            repeat: {
+                zoomin: () => {
+                    this.renderer.camera.scale(1.018);
+                },
+                zoomout: () => {
+                    this.renderer.camera.scale(1 / 1.018);
+                }
+            },
+            noRepeat: {
+                delete: () => {
+                    this.client.selectionManager.deleteSelectedObstacles();
+                }
+            }
+        }        
     }
     handleKey(e){
         // make sure the user hasn't selected / deselected the chat between inputs
@@ -131,6 +147,10 @@ export default class InputHandler {
         // if we're typing, return
         if(this.chatOpen === true)return;
 
+        if(this.client.clientType === 'editor'){
+            this.handleRepeatingEditorKey(e);
+        }
+
         // if we're not typing and we repeat keys, return
         if (e.repeat && this.chatOpen === false) return e.preventDefault();
 
@@ -149,7 +169,7 @@ export default class InputHandler {
 
         // if we're in editor, handle editor key presses as well
         if (this.client.clientType === 'editor'){
-            this.handleEditorKey(e);
+            this.handleEditorKey(e, false);
         }
 
         // otherwise, set inputs in this.inputs as they're mapped by keycodes
@@ -160,9 +180,12 @@ export default class InputHandler {
 
         this.map.self.input = this.input;
     }
+    handleRepeatEditorKey(e){
+        
+    }
     handleEditorKey(e){
-        if(keycodes[e.code] === 'delete'){
-            this.client.selectionManager.deleteSelectedObstacles();
+        if(this.editorKeyMap[keycodes[e]] !== undefined){// TODO
+            this.editorKeyMap[keycodes[e]](e);
         }
     }
     handleMouse(e) {

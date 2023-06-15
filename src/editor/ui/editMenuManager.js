@@ -32,6 +32,7 @@ export default class editMenuManager {
         }
     }
     defineObstaclePropertyMap(){
+        this.id = 0;
         this.obstaclePropertyMap = {
             string: (key, value, {input, property, obstacle}) => {
                 if(typeConverter.toHex(value, 'notahex') !== 'notahex'){
@@ -43,6 +44,9 @@ export default class editMenuManager {
                 property.appendChild(input);
             },
             boolean: (key, value, {input, property, obstacle}) => {
+                // this code is really spaghetti. Come back here in like a year
+                // when i actually know how to write proper css and fix this mess
+                // also take a look at the styles, specifically the slider::before mess
                 input.checked = value;
 
                 const label = document.createElement('label');
@@ -52,6 +56,9 @@ export default class editMenuManager {
 
                 const span = document.createElement('span');
                 span.classList.add('slider');
+                if(input.checked == true){
+                    span.classList.add('inputChecked'); 
+                }
                 label.appendChild(span);
 
                 property.addEventListener('mousedown', (event) => {
@@ -59,16 +66,34 @@ export default class editMenuManager {
                     input.checked = !input.checked;
                     obstacle[key] = input.checked;
                     this.regenerateObstacle(obstacle);
+                    if(input.checked == true){
+                        span.classList.add('inputChecked'); 
+                    } else {
+                        span.classList.remove('inputChecked'); 
+                    }
                 });
 
                 property.appendChild(label);
+
+                // const label = createEl('label');
+                // label.classList.add('switch');
+                // input.checked = value; // can u help fix css xd ooh theres a checkboxc ok
+                // label.classList.add('property-checkbox-input');
+                // label.appendChild(input);
+                // const span = createEl('span');
+                // span.classList.add('slider');
+                // label.appendChild(span);
+                // property.appendChild(label);
             },
-            // object: (key, value, {input, property, obstacle}) => {
-            //     // this isnt gonna work but ill do it for now
-            //     property.appendChild(this.createObstacleProperties(value, key));
-            // },
+            object: (key, value, {input, property, obstacle}) => {
+                // this isnt gonna work but ill do it for now
+                property.appendChild(this.createObstacleProperties(value, key));
+            },
             color: (key, value, {input, property, obstacle}) => {
                 input.classList.add('property-color-input');
+                input.type = 'color';
+
+                input.id = this.generateId();
                 
                 const text = document.createTextNode(input.value);
                 text.nodeValue = input.value;
@@ -80,7 +105,7 @@ export default class editMenuManager {
                 label.appendChild(input);
                 label.appendChild(text);
 
-                label.addEventListener('input', () => {
+                input.addEventListener('input', () => {
                     text.nodeValue = input.value;
                     label.style.background = input.value;
                 });
@@ -111,7 +136,7 @@ export default class editMenuManager {
             }
         }
 
-        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences'];
+        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences','hashId','hashPositions','lastCollidedTime'];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
             this.excludedProperties[this.excludedProps[i]] = true;
@@ -157,7 +182,7 @@ export default class editMenuManager {
 
         return folder;
     }
-    createObstacleProperties(obstacle, folderName=[obstacle.shape, obstacle.simulate, obstacle.effect].map(s => s[0].toUpperCase() + s.slice(1)).join(' ')) {
+    createObstacleProperties(obstacle, folderName=[obstacle.shape, obstacle.simulate.join('-'), obstacle.effect].map(s => s[0].toUpperCase() + s.slice(1)).join(' ')) {
         const folder = this.createFolder(folderName);
         const folderContent = folder.getElementsByClassName('folder-content')[0];
 
@@ -179,10 +204,13 @@ export default class editMenuManager {
         property.classList.add('property');
         property.classList.add('text');
 
-        const propName = document.createElement('span');
-        propName.classList.add('property-name');
-        propName.innerText = this.formatName(key);
-        property.appendChild(propName);
+        if(typeof value !== 'object'){
+            const propName = document.createElement('span');
+            propName.classList.add('property-name');
+            propName.innerText = this.formatName(key);
+            property.appendChild(propName);
+        }
+        
 
         const input = document.createElement('input');
         input.maxLength = 500;
@@ -206,7 +234,11 @@ export default class editMenuManager {
         });
 
         input.oninput = ((event) => {
-            obstacle[key] = parseInt(event.target.value);
+            if(isNaN(parseInt(event.target.value)) === true){
+                obstacle[key] = event.target.value;
+            } else {
+                obstacle[key] = parseInt(event.target.value);
+            }
             this.regenerateObstacle(obstacle);
         }).bind(this);
 
@@ -216,6 +248,10 @@ export default class editMenuManager {
         } else {
             input.classList.add('property-text-input');
             property.appendChild(input);
+        }
+
+        if(typeof value === 'object'){
+            property.style.height = 'auto';
         }
 
         return property;
@@ -255,6 +291,9 @@ export default class editMenuManager {
             }
         }
         
+    }
+    generateId(){
+        return this.id++;
     }
     // createFolder(parent, name, layerType='simulate') {
     //     const folder = document.createElement('div');

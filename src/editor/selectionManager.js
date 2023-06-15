@@ -44,11 +44,13 @@ export default class SelectionManager {
         setInterval(this.run.bind(this), 1000/60);
     }
     run(){
+        this.updateTransforms();
+    }
+    updateTransforms(){
+        const mousePos = this.screenToWorld(this.mouse.pos);
+        const lastMousePos = this.screenToWorld(this.mouse.last);
+        this.mouse.delta = {x: mousePos.x - lastMousePos.x, y: mousePos.y - lastMousePos.y};
         const stw = this.screenToWorld(this.mouse.pos);
-        this.mouse.delta = {
-            x: stw.x - this.mouse.last.x,
-            y: stw.y - this.mouse.last.y
-        }
         if(this.previewObstacle !== null){
             this.transformPreviewObstacle({
                 x: stw.x - this.previewObstacle.x,
@@ -78,12 +80,11 @@ export default class SelectionManager {
                 }
             }
         }
-        this.mouse.last = {x: stw.x, y: stw.y};
+        this.mouse.last = {x: this.mouse.pos.x, y: this.mouse.pos.y};
     }
     addEventListeners(){
-        this.mouse = {pos: {x: 0, y: 0}, last: {x: 0, y: 0}, delta: {x: 0, y: 0}};
+        this.mouse = {pos: {x: 0, y: 0}, delta: {x: 0, y: 0}, last: {x: 0, y: 0}};
         Ref.canvas.onmouseup = (event) => {
-            this.mouse.pos = {x: event.pageX, y: event.pageY};
             if(this.selectionRect !== null){
                 this.selectObstacles({
                     x: (this.selectionRect.end.x + this.selectionRect.start.x)/2,
@@ -100,12 +101,9 @@ export default class SelectionManager {
             if(this.selectionRect !== null){
                 this.selectionRect.end = this.screenToWorld(this.mouse.pos);
             }
-        },
-        window.onmouseenter = (event) => {
-            this.mouse.pos = {x: event.pageX, y: event.pageY};
+            this.updateTransforms();
         },
         Ref.canvas.onmousedown = (event) => {
-            this.mouse.pos = {x: event.pageX, y: event.pageY};
             if(this.previewObstacle !== null){
                 this.placePreviewObstacle();
                 return;
@@ -130,7 +128,8 @@ export default class SelectionManager {
     }
     addPreviewObstacle(obj){
         this.previewObstacle = window.initObstacle(obj);
-        this.transformPreviewObstacle({x: this.map.self.render.x - Ref.canvas.w/2, y: this.map.self.render.y - Ref.canvas.h/2});
+        const mousePos = this.screenToWorld(this.mouse.pos);
+        this.transformPreviewObstacle({x: mousePos.x - this.previewObstacle.x, y: mousePos.y - this.previewObstacle.y});
     }
     transformPreviewObstacle({x,y}){
         if(this.toSnap === true){
@@ -201,8 +200,8 @@ export default class SelectionManager {
 
     screenToWorld({x,y}){
         return {
-            x: -this.renderer.camera.x + x * (Ref.canvas.w / window.innerWidth),
-            y: -this.renderer.camera.y + y * (Ref.canvas.h / window.innerHeight)
+            x: this.client.me().render.x - canvas.w / 2 + x * (Ref.canvas.w / window.innerWidth),
+            y: this.client.me().render.y - canvas.h / 2 + y * (Ref.canvas.h / window.innerHeight)
         }
     }
 

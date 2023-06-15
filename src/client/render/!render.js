@@ -205,15 +205,6 @@ export default class Renderer {
         //     ctx.translate(-canvas.width/2, -canvas.height/2);
         // }
 
-        ctx.beginPath();
-        ctx.fillStyle = 'red';
-        ctx.globalAlpha = 0.6;
-        const stw = this.client.selectionManager.screenToWorld(this.client.selectionManager.mouse.pos);
-        ctx.arc(stw.x,stw.y,12,0,Math.PI*2);
-        ctx.fill();
-        ctx.closePath();
-        ctx.globalAlpha = 1;
-
         // rendering tranparent preview obs
         if(this.client.selectionManager.previewObstacle !== null){
             ctx.globalAlpha = 0.5;
@@ -364,6 +355,8 @@ class Camera {
 			zoom: 1000,
 		}
 
+        this.scalar = 1;
+
         this.resize();
         window.addEventListener('resize', () => {
             this.resize();
@@ -397,13 +390,24 @@ class Camera {
     resetRotate(){
         this.setRotate(0);
     }
+    scale(s){
+        this.scalar *= s;
+        this.resize();
+    }
+    setScale(s){
+        this.scalar = s;
+        this.resize();
+    }
+    resetScale(){
+        this.setScale(1);
+    }
     resize(){
         const dpi = window.devicePixelRatio;
         canvas.style.width = Math.ceil(window.innerWidth) + 'px';
         canvas.style.height = Math.ceil(window.innerHeight) + 'px';
         canvas.width = Math.ceil(window.innerWidth) * dpi;
         canvas.height = Math.ceil(window.innerHeight) * dpi;
-        canvas.zoom = Math.max(canvas.height, canvas.width * this.fullscreen.ratio) / this.fullscreen.zoom;
+        canvas.zoom = Math.max(canvas.height, canvas.width * this.fullscreen.ratio) / this.fullscreen.zoom * this.scalar;
         // w and h are calced with zoom
         canvas.w = canvas.width / canvas.zoom;
         canvas.h = canvas.height / canvas.zoom;

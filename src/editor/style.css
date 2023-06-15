@@ -40,7 +40,7 @@ body {
     overflow-x: hidden;
     overflow-y: auto;
     /* background: red; */
-    z-index: 1;
+    z-index: 1000;
 }
 
 .or,
@@ -196,6 +196,15 @@ input:focus + .slider {
 input:checked + .slider:before {
     /* -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px); */
+    transform: translateX(calc(26px * 0.75));
+}
+
+.inputChecked {
+    background-color: #b0b0b0;
+    /*transform: translateX(calc(26px * 0.75));*/
+}
+
+.inputChecked::before {
     transform: translateX(calc(26px * 0.75));
 }
 

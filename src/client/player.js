@@ -113,7 +113,7 @@ export default class Player{
     }
     updateInterpolate(timeSinceLastTick){
         this.render.r = this.render.r * 0.917 + this.r * 0.083;
-        if(this.dead === true)return;
+        // if(this.dead === true)return;
         if(this.isSelf === true){
             this.render.x = this.lastSimulateState.x * (1-timeSinceLastTick) + this.x * timeSinceLastTick;
             this.render.y = this.lastSimulateState.y * (1-timeSinceLastTick) + this.y * timeSinceLastTick;

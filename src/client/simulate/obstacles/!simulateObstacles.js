@@ -46,7 +46,6 @@ function runObstacleCollisions(player, players, obstacles, tick, client){
     const spatialHash = client.game.map.spatialHash;
     if(player.dead !== true && player.god !== true){
         const collisions = spatialHash.getCollisions(player);
-        console.log(collisions);
 
         for(let i = 0; i < collisions.length; i++){
             const response = Collide(player, collisions[i]);
