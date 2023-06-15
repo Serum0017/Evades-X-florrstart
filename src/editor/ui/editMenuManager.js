@@ -65,9 +65,7 @@ export default class editMenuManager {
             },
             // object: (key, value, {input, property, obstacle}) => {
             //     // this isnt gonna work but ill do it for now
-            //     for(let subProperty in value){
-            //         property.appendChild(this.createObstacleProperty(value, subProperty, value[subProperty]));
-            //     }
+            //     property.appendChild(this.createObstacleProperties(value, key));
             // },
             color: (key, value, {input, property, obstacle}) => {
                 input.classList.add('property-color-input');

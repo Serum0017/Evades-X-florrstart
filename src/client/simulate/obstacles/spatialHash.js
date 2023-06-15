@@ -8,52 +8,50 @@ export default class SpatialHash {
         this.positions = {};
         this.hashId = 0;
     }
-    addEntities(entities){
-        this.positions = {};
-        for(let i = 0; i < entities.length; i++){
-            const entity = entities[i];
-            entity.hashPositions = [];
-            entity.hashId = i;
-            this.hashId++;
-            const topSpatial = {
-                x: entity.top.x - (entity.top.x % hashDistance) - hashDistance,// TODO: REMOVE DEPENDANCIES ON TOP/ BOTTOM AND REPLACE WITH X/Y AND DIFFERENCE
-                y: entity.top.y - (entity.top.y % hashDistance) - hashDistance
-            }
-            const bottomSpatial = {
-                x: entity.bottom.x - (entity.bottom.x % hashDistance) + 2*hashDistance,// also dont do sus stuff like 2* hashDistance, we don't know the player's radius so we can't just have a fixed expansion...
-                y: entity.bottom.y - (entity.bottom.y % hashDistance) + 2*hashDistance
-            }
-            for(let x = topSpatial.x; x < bottomSpatial.x; x += hashDistance){
-                if(this.positions[x] === undefined){
-                    this.positions[x] = {};
-                }
-                for(let y = topSpatial.y; y < bottomSpatial.y; y += hashDistance){
-                    if(this.positions[x][y] === undefined){
-                        this.positions[x][y] = {};
-                    }
-                    entity.hashPositions.push({x, y});
-                    this.positions[x][y][i] = entity;
-                }
+    addEntity(entity){
+        entity.hashId = this.hashId;
+        this.hashId++;
+
+        entity.hashPositions = [];
+        const hashPoints = this.calculateHashPoints(entity);
+        for(let x in hashPoints){
+            for(let y in hashPoints[x]){
+                this.addPosition({x,y}, entity);
             }
         }
+
+        Object.defineProperty(entity, 'spatialHash', {
+            value: this,
+            enumerable: false,
+            configurable: false,
+        })
+    }
+    addPosition({x,y}, entity){
+        if(this.positions[x] === undefined){
+            this.positions[x] = {};
+        }
+        if(this.positions[x][y] === undefined){
+            this.positions[x][y] = {};
+        }
+        this.positions[x][y][entity.hashId] = entity;
+        entity.hashPositions.push({x,y});
     }
     calculateHashPoints(entity){
         const positions = {};
 
-        // TODO: fix these bs expansion and verify that player is being spatially hashed correctly
         const topSpatial = {
-            x: entity.top.x - (entity.top.x % hashDistance),
-            y: entity.top.y - (entity.top.y % hashDistance)
+            x: Math.floor((entity.x - entity.difference.x/2) / hashDistance) * hashDistance,
+            y: Math.floor((entity.y - entity.difference.y/2) / hashDistance) * hashDistance
         }
         const bottomSpatial = {
-            x: entity.bottom.x - (entity.bottom.x % hashDistance) + 2*hashDistance,
-            y: entity.bottom.y - (entity.bottom.y % hashDistance) + 2*hashDistance
+            x: Math.ceil((entity.x + entity.difference.x/2) / hashDistance) * hashDistance,
+            y: Math.ceil((entity.y + entity.difference.y/2) / hashDistance) * hashDistance
         }
-        for(let x = topSpatial.x; x < bottomSpatial.x; x += hashDistance){
+        for(let x = topSpatial.x; x <= bottomSpatial.x; x += hashDistance){
             if(!positions[x]){
                 positions[x] = {};
             }
-            for(let y = topSpatial.y; y < bottomSpatial.y; y += hashDistance){
+            for(let y = topSpatial.y; y <= bottomSpatial.y; y += hashDistance){
                 positions[x][y] = true;
             }
         }
@@ -62,25 +60,57 @@ export default class SpatialHash {
     updateEntity(entity){
         // deleting all the current hash positions
         for(let point of entity.hashPositions){
-            const { x,y,id } = point;
-            delete this.positions[x][y][id];
+            delete this.positions[point.x][point.y][entity.hashId];
+            if(Object.keys(this.positions[point.x][point.y]).length === 0){
+                delete this.positions[point.x][point.y];
+            }
+            if(Object.keys(this.positions[point.x]).length === 0){
+                delete this.positions[point.x];
+            }
         }
-        this.addEntities([entity]);
+        this.addEntity(entity);
     }
     getCollisions(/*player: */entity){
+        // const hashPoints = this.calculateHashPoints(entity);
+        // const collisions = {};
+        // for(let x in hashPoints){
+        //     for(let y in hashPoints[x]){
+        //         const intersectingEntities = Object.values(this.positions[x][y]);
+        //         for(let e in intersectingEntities){
+        //             if(collisions[e.hashId] === undefined){
+        //                 collisions[e.hashId] = e;
+        //             }
+        //         }
+        //     }
+        // }
+        // return Object.values(collisions);
         const hashPoints = this.calculateHashPoints(entity);
+
         const collisions = {};
+
         for(let x in hashPoints){
             for(let y in hashPoints[x]){
-                if(this.positions[x] === undefined || this.positions[x][y] === undefined) continue;
+                if(this.positions[x] === undefined)continue;
+                if(this.positions[x][y] === undefined)continue;
                 const intersectingEntities = Object.values(this.positions[x][y]);
-                for(let e of intersectingEntities){
-                    if(collisions[e.hashId] === undefined){
-                        collisions[e.hashId] = e;
-                    }
+                for(let i = 0; i < intersectingEntities.length; i++){
+                    collisions[intersectingEntities[i].hashId] = intersectingEntities[i];
                 }
             }
         }
         return Object.values(collisions);
     }
+    // renderDebug(canvas,ctx){
+    //     ctx.globalAlpha = 0.8;
+    //     ctx.fillStyle = 'red';
+    //     for(let x in this.positions){
+    //         for(let y in this.positions[x]){
+    //             ctx.beginPath();
+    //             ctx.arc(parseInt(x), parseInt(y), 15, 0, Math.PI*2);
+    //             ctx.fill();
+    //             ctx.closePath();
+    //         }
+    //     }
+    //     ctx.globalAlpha = 1;
+    // }
 }

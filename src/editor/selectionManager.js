@@ -100,7 +100,10 @@ export default class SelectionManager {
             if(this.selectionRect !== null){
                 this.selectionRect.end = this.screenToWorld(this.mouse.pos);
             }
-        }
+        },
+        window.onmouseenter = (event) => {
+            this.mouse.pos = {x: event.pageX, y: event.pageY};
+        },
         Ref.canvas.onmousedown = (event) => {
             this.mouse.pos = {x: event.pageX, y: event.pageY};
             if(this.previewObstacle !== null){
@@ -198,8 +201,8 @@ export default class SelectionManager {
 
     screenToWorld({x,y}){
         return {
-            x: this.client.me().render.x - Ref.canvas.w / 2 + x / Ref.canvas.zoom,
-            y: this.client.me().render.y - Ref.canvas.h / 2 + y / Ref.canvas.zoom
+            x: -this.renderer.camera.x + x * (Ref.canvas.w / window.innerWidth),
+            y: -this.renderer.camera.y + y * (Ref.canvas.h / window.innerHeight)
         }
     }
 

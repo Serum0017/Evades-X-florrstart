@@ -2,6 +2,7 @@ import Player from './player.js';
 import ObstacleManager from './simulate/obstacles/!simulateObstacles.js';
 import satFactory from './simulate/obstacles/satFactory.js';
 import interpolateManager from './render/interpolateObstacle.js';
+import SpatialHash from './simulate/obstacles/spatialHash.js';
 
 export default class Map {
     constructor(client){
@@ -17,6 +18,8 @@ export default class Map {
         this.self = null;
     }
     init(data){
+        this.spatialHash = new SpatialHash();
+
         if(this.self !== null){
             this.players = {[this.selfId]: this.self};
         }
@@ -110,6 +113,7 @@ export default class Map {
             this.resetObstacleParameters(o, o.parametersToReset);
         }
         interpolateManager.createInterpolateState(o);
+        this.spatialHash.addEntity(o);
     }
     removeObstacle(index){
         this.obstacles.splice(index, 1);

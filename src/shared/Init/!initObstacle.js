@@ -48,6 +48,7 @@ function initGlobal(init){
     if(Array.isArray(init.eventRecievers) === true){
         obs.eventRecievers = init.eventRecievers;
     }
+    obs.spatialHash = {updateEntity: () => {}};
     return obs;
 }
 

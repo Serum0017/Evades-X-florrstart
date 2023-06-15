@@ -205,6 +205,15 @@ export default class Renderer {
         //     ctx.translate(-canvas.width/2, -canvas.height/2);
         // }
 
+        ctx.beginPath();
+        ctx.fillStyle = 'red';
+        ctx.globalAlpha = 0.6;
+        const stw = this.client.selectionManager.screenToWorld(this.client.selectionManager.mouse.pos);
+        ctx.arc(stw.x,stw.y,12,0,Math.PI*2);
+        ctx.fill();
+        ctx.closePath();
+        ctx.globalAlpha = 1;
+
         // rendering tranparent preview obs
         if(this.client.selectionManager.previewObstacle !== null){
             ctx.globalAlpha = 0.5;

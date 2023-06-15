@@ -19,6 +19,8 @@ export default class Player{
             this[key] = init[key];
         }
 
+        this.spatialHash = {updateEntity: () => {}};
+
         this.changeShape({shapeType: this.shape, shapePoints: this.shapePoints})//new SAT.Circle(new SAT.Vector(this.x, this.y), this.r);
         this.body.angle = 0;
         this.shapePoints = init.shapePoints;

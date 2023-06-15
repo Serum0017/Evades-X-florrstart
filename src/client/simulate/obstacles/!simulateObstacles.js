@@ -1,10 +1,7 @@
 import Simulate from './simulateMap.js';
 import Collide from './collisionManager.js';
-import SpatialHash from './spatialHash.js';
 import effectMap from './effectMap.js';
 import eventSystem from './eventSystem.js';
-
-const hash = new SpatialHash();
 
 // literally just simulate obstacles, nothing else
 function simulateObstacles(player, players, obstacles, tick, client){
@@ -46,18 +43,32 @@ function runObstacleCollisions(player, players, obstacles, tick, client){
     // - for each server sided object:
     //  - if we have influenced it, then send changes to server
 
-    // TODO: spatial hashing
+    const spatialHash = client.game.map.spatialHash;
     if(player.dead !== true && player.god !== true){
-        for(let i = 0; i < obstacles.length; i++){
-            const response = Collide(player, obstacles[i]);
+        const collisions = spatialHash.getCollisions(player);
+        console.log(collisions);
+
+        for(let i = 0; i < collisions.length; i++){
+            const response = Collide(player, collisions[i]);
             if(response !== false){
                 // run collision response
-                effectMap.runEffects(response, player, obstacles[i], {obstacles, players, tick, client});
-                obstacles[i].lastCollidedTime = tick;
+                effectMap.runEffects(response, player, collisions[i], {obstacles, players, tick, client});
+                collisions[i].lastCollidedTime = tick;
             } else {
-                obstacles[i].lastCollidedTime = undefined;
+                collisions[i].lastCollidedTime = undefined;
             }
         }
+        
+        // for(let i = 0; i < obstacles.length; i++){
+        //     const response = Collide(player, obstacles[i]);
+        //     if(response !== false){
+        //         // run collision response
+        //         effectMap.runEffects(response, player, obstacles[i], {obstacles, players, tick, client});
+        //         obstacles[i].lastCollidedTime = tick;
+        //     } else {
+        //         obstacles[i].lastCollidedTime = undefined;
+        //     }
+        // }
     }
 
     eventSystem.checkEmmisions(obstacles, {obstacles, player, players, tick, client});
