@@ -136,7 +136,7 @@ export default class editMenuManager {
             }
         }
 
-        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences','hashId','hashPositions','lastCollidedTime','specialKeyNames'];
+        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences','hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash'];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
             this.excludedProperties[this.excludedProps[i]] = true;
