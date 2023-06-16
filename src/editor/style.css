@@ -367,7 +367,7 @@ input[type='number'] {
 
 .leftgui {
     position: absolute;
-    top: 30px;
+    top: 0px;
     left: 0px;
     width: 100vw;
     /* width: calc(100vw - 300px); */
@@ -575,7 +575,7 @@ input[type='number'] {
 
 .leftgui .submenu {
     /* border: 2px solid black; */
-    top: 30px;
+    top: 0px;
     height: 60px;
     min-width: 50px;
     background: rgba(0, 0, 0, 0.4);
@@ -593,11 +593,10 @@ input[type='number'] {
     font-size: 0.75rem;
 }
 
-.leftgui-top {
+/*.leftgui-top {
     position: absolute;
     top: 0px;
     left: 0px;
-    /* width: 25vw; */
     height: 30px;
     padding: 5px;
     display: flex;
@@ -626,7 +625,7 @@ input[type='number'] {
 }
 .leftgui-top button:hover {
     background-color: rgba(255, 255, 255, 0.1);
-}
+}*/
 
 .hover-div {
     color: white;

@@ -4,7 +4,7 @@ if(typeof window === 'undefined'){
     registerFont('./src/shared/init/inter.ttf', { family: 'Inter' });
     canvas = createCanvas(1,1);
 } else {
-    canvas = document.getElementById('canvas');
+    canvas = document.createElement('canvas');
 }
 if(typeof require !== 'undefined'){
     var {toBoolean, toNumber, toString, toHex, toStructure} = require('./convertType.js');
@@ -25,7 +25,37 @@ const SATMap = {
         return new SAT.Circle(new SAT.Vector(x, y), r);
     },
     poly: ({ points,x,y }) => {
-        return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
+        // TODO: investigate if this is actually needed or not
+        points = toStructure({type: "array", minLength: 2, sub: {type: "array", sub: {type: "number"}}}, points, [[100, 0], [200, 0], [150, 75]]);
+
+        var top, right, bottom, left;
+        top = right = bottom = left = null;
+        for(let [px, py] of points){
+            if(px < left || left === null){
+                left = px;
+            }
+            if(px > right || right === null){
+                right = px;
+            }
+            if(py > bottom || bottom === null){
+                bottom = py;
+            }
+            if(py < top || top === null){
+                top = py;
+            }
+        }
+
+        const middle = {
+            x: (right + left)/2,
+            y: (top + bottom)/2
+        };
+
+        // console.log(middle);
+
+        // console.log(new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]));
+        // console.log(new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x - middle.x, p[1] + y - middle.y))]).addOffset((new SAT.Vector(middle.x, middle.y)))));
+        return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x - middle.x, p[1] + y - middle.y))]).addOffset(middle);
+        // return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
     },
     oval: ({ x,y,rw,rh }) => {
         const points = [];
@@ -65,6 +95,14 @@ SAT.Circle.prototype['setAngle'] = function (angle) {
     this.angle = angle;
 }
 
+SAT.Circle.prototype['addOffset'] = function (v) {
+    return this.setOffset(new SAT.Vector(v.x + this.offset.x, v.y + this.offset.y));
+}
+
+SAT.Polygon.prototype['addOffset'] = function (v) {
+    return this.setOffset(new SAT.Vector(v.x + this.offset.x, v.y + this.offset.y));
+}
+
 function generateBody(obstacle) {
     const init = {};
     init.body = SATMap[obstacle.shape](obstacle);
@@ -74,7 +112,7 @@ function generateBody(obstacle) {
     init.body.angle = obstacle.rotation ?? 0;
 
     init.body.translate(-obstacle.pivot.x,-obstacle.pivot.y);
-    init.body.setOffset(new SAT.Vector(obstacle.pivot.x, obstacle.pivot.y));
+    init.body.addOffset(new SAT.Vector(obstacle.pivot.x, obstacle.pivot.y));
 
     init.body.setAngle(/*obstacle.rotation ?? */0);// TODO: replace with math.atan2 calc
     init.body.rotate(obstacle.rotation);
@@ -142,8 +180,6 @@ const DimensionsMap = {
 
         return {
             difference: {x: right - left, y: bottom - top},
-            // x: (left + right)/2,
-            // y: (bottom + top)/2
         };
     },
     oval: ({ rw, rh }) => {

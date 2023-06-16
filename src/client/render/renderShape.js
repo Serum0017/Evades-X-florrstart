@@ -8,6 +8,10 @@ const renderShapeMap = {
         ctx.closePath();
     },
     poly: (o, ctx, advanced) => {
+        // if(o.renderFlag !== undefined){
+        //     renderShapeMap[o.renderFlag](o, ctx, advanced);
+        //     return;
+        // }
         if(o.renderFlag === 'oval'){
             renderShapeMap.oval(o, ctx, advanced);
             return;
@@ -28,6 +32,24 @@ const renderShapeMap = {
         ctx.closePath();
         // ctx.translate(o.x - o.render.x, o.y - o.render.y);
     },
+    // TODO
+    // square: (o, ctx, advanced) => {
+    //     ctx.save();
+    //     ctx.translate(o.body.pos.x + o.difference.x/2, o.body.pos.y + o.difference.y/2);
+    //     ctx.rotate(o.render.rotation/2);
+
+    //     ctx.beginPath();
+    //     // remember to add back in + o.render.y - o.y
+        
+    //     ctx.rect(-o.w/2, -o.h/2, o.w, o.h);
+    //     fsin(o, ctx, advanced);
+        
+    //     ctx.closePath();
+
+    //     ctx.restore();
+    //     // ctx.rotate(-o.render.rotation/2);
+    //     // ctx.translate(-o.body.calcPoints[0].x - o.body.pos.x - o.difference.x/2, -o.body.calcPoints[0].y - o.body.pos.y - o.difference.x/2);
+    // },
     oval: (o, ctx, advanced) => {
         ctx.beginPath();
         ctx.ellipse(o.render.x, o.render.y, o.rw, o.rh, o.render.rotation/2, 0, Math.PI*2);

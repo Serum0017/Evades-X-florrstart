@@ -114,6 +114,10 @@ export default class Map {
         }
         interpolateManager.createInterpolateState(o);
         this.spatialHash.addEntity(o);
+        // TODO: Fix this mess
+        setTimeout(() => {
+            this.spatialHash.updateEntity(o);
+        }, 100)
     }
     removeObstacle(index){
         this.obstacles.splice(index, 1);

@@ -107,6 +107,8 @@ export default class Renderer {
 
         this.renderPlayers(map.players);
 
+        map.spatialHash.renderDebug(canvas, ctx, map.obstacles.filter(o => o.toRender !== false));
+
         this.renderEditor();
 
         this.camera.resetTranslate();
@@ -229,8 +231,10 @@ export default class Renderer {
                 EffectManager.renderEffectAfterShape(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
             }
 
-            ctx.setLineDash([]);
-            ctx.lineCap = 'butt';
+            if(o.visible === false){
+                ctx.setLineDash([]);
+                ctx.lineCap = 'butt';
+            }
 
             ctx.globalAlpha = 1;
         }
@@ -275,7 +279,6 @@ export default class Renderer {
             ctx.toClip = false;
             ctx.strokeStyle = 'blue';
             ctx.lineWidth = 4;
-            ctx.lineCap = 'square';
             if(selectedObstacle.visible === false){
                 ctx.translate(selectedObstacle.x, selectedObstacle.y);
                 ctx.scale((selectedObstacle.difference.x + 8) / selectedObstacle.difference.x, (selectedObstacle.difference.y + 8) / selectedObstacle.difference.y);
@@ -291,7 +294,6 @@ export default class Renderer {
             }
 
             ctx.globalAlpha = 1;
-            ctx.lineCap = 'butt';
         }
 
         // rendering selection rect
@@ -482,6 +484,7 @@ class Camera {
         ctx.scale(canvas.zoom, canvas.zoom);
         // ctx.translate(-canvas.width/2, -canvas.height/2);
         this.angle = 0;
+        ctx.lineCap = 'square';
     }
     isInsideView(obstacle){
         if(obstacle.x - obstacle.difference.x/2 > -this.x + canvas.w || obstacle.x + obstacle.difference.x/2 < -this.x) return false;

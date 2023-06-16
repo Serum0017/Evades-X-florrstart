@@ -135,6 +135,24 @@ export default class SelectionManager {
         document.onvisibilitychange = (event) => {
             this.selectionRect = null;
         }
+        Ref.selectButton.onmousedown = (event) => {
+            this.transformMode = 'select';
+            Ref.selectText.classList.add('red');
+            Ref.resizeText.classList.remove('red');
+            Ref.rotateText.classList.remove('red');
+        }
+        Ref.rotateButton.onmousedown = (event) => {
+            this.transformMode = 'rotate';
+            Ref.rotateText.classList.add('red');
+            Ref.selectText.classList.remove('red');
+            Ref.resizeText.classList.remove('red');
+        }
+        Ref.resizeButton.onmousedown = (event) => {
+            this.transformMode = 'resize';
+            Ref.resizeText.classList.add('red');
+            Ref.rotateText.classList.remove('red');
+            Ref.selectText.classList.remove('red');
+        }
     }
     addPreviewObstacle(obj){
         this.previewObstacle = window.initObstacle(obj);
@@ -221,6 +239,7 @@ export default class SelectionManager {
             this.map.addObstacle(this.clipboard[i]);
             this.selectedObstacles.push(this.map.obstacles[this.map.obstacles.length-1]);
         }
+        this.clipboard = window.structuredClone(this.clipboard);
     }
 
     screenToWorld({x,y}){

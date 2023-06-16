@@ -136,7 +136,7 @@ export default class editMenuManager {
             }
         }
 
-        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences','hashId','hashPositions','lastCollidedTime'];
+        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences','hashId','hashPositions','lastCollidedTime','specialKeyNames'];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
             this.excludedProperties[this.excludedProps[i]] = true;
@@ -154,11 +154,13 @@ export default class editMenuManager {
         }
     }
     createEditorProperties(){
-        const obstacle = {editorPropertyReferences: {}};
+        const obstacle = {editorPropertyReferences: {}, specialKeyNames: {}};
         for(let i = 0; i < this.editorProperties.length; i++){
-            obstacle[this.editorProperties[i].keyName ?? this.editorProperties[i].key] = this.editorProperties[i].object[this.editorProperties[i].key];
-            obstacle.editorPropertyReferences[this.editorProperties[i].keyName ?? this.editorProperties[i].key] = this.editorProperties[i].object;
-            obstacle.editorPropertyReferences[this.editorProperties[i].keyName ?? this.editorProperties[i].key].editorPropertyName = this.editorProperties[i].keyName ?? this.editorProperties[i].key;
+            obstacle[this.editorProperties[i].key] = this.editorProperties[i].object[this.editorProperties[i].key];
+            obstacle.editorPropertyReferences[this.editorProperties[i].key] = this.editorProperties[i].object;
+            if(this.editorProperties[i].keyName !== undefined){
+                obstacle.specialKeyNames[this.editorProperties[i].key] = this.editorProperties[i].keyName;
+            }
         }
         return this.createObstacleProperties(obstacle, 'Editor Settings');
     }
@@ -208,7 +210,11 @@ export default class editMenuManager {
         if(typeof value !== 'object'){
             const propName = document.createElement('span');
             propName.classList.add('property-name');
-            propName.innerText = this.formatName(key);
+            if(obstacle.specialKeyNames !== undefined){
+                propName.innerText = this.formatName(obstacle.specialKeyNames[key] ?? key);
+            } else {
+                propName.innerText = this.formatName(key);
+            }
             property.appendChild(propName);
         }
         
@@ -270,10 +276,10 @@ export default class editMenuManager {
     }
     regenerateMapProperty(mapReferences){
         for(let key in mapReferences){
-            if(key === '_properties' || key === 'editorPropertyReferences'){
+            if(key === '_properties' || key === 'editorPropertyReferences' || key === 'specialKeyNames'){
                 continue;
             }
-            // TODO: fix error when keyname is not the same as key that was added yesterday because of map dimensions just being x looking weird
+            
             mapReferences.editorPropertyReferences[key][key] = mapReferences[key];
         }
     }

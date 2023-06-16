@@ -13,5 +13,7 @@ module.exports = {
 
         {type: 'square-normal-bounce', x: 400, y: 150, w: 50, h: 50, bounciness: 1, friction: 0.98 },
         {type: 'square-normal-changeMap', x: 950, y: 0, w: 50, h: 50, map: 'Winroom' },
+
+        {type: 'poly-enemy-lava', solid: true, points: [[0, 0], [40, 0], [20, 30]], bound: {x: 350, y: 350, w: 100, h: 100}, w: 40, h: 40, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/, speed: 1.8, r: 10, maxStrength: 100, regenTime: 100, healSpeed: 10},
     ]
 }

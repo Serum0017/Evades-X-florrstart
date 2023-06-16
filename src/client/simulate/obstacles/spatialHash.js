@@ -1,4 +1,4 @@
-const hashDistance = 50;// memory vs efficiency tradeoff
+const hashDistance = /*2*/50;// memory vs efficiency tradeoff
 
 // TODO: fix this relying on top/ bottom
 
@@ -55,6 +55,7 @@ export default class SpatialHash {
                 positions[x][y] = true;
             }
         }
+
         return positions;
     }
     updateEntity(entity){
@@ -100,17 +101,37 @@ export default class SpatialHash {
         }
         return Object.values(collisions);
     }
-    // renderDebug(canvas,ctx){
-    //     ctx.globalAlpha = 0.8;
-    //     ctx.fillStyle = 'red';
-    //     for(let x in this.positions){
-    //         for(let y in this.positions[x]){
-    //             ctx.beginPath();
-    //             ctx.arc(parseInt(x), parseInt(y), 15, 0, Math.PI*2);
-    //             ctx.fill();
-    //             ctx.closePath();
-    //         }
-    //     }
-    //     ctx.globalAlpha = 1;
-    // }
+    renderDebug(canvas,ctx,entities){
+        ctx.globalAlpha = 0.65;
+        ctx.strokeStyle = 'blue';
+        ctx.lineWidth = 4;
+        for(let i = 0; i < entities.length; i++){
+            if(entities[i].renderFlag === 'square' || entities[i].shape !== 'poly')continue;
+            // ctx.strokeRect(entities[i].x-entities[i].difference.x/2, entities[i].y - entities[i].difference.y/2, entities[i].difference.x, entities[i].difference.y);
+            const e = entities[i];
+            ctx.fillStyle = 'red';
+            for(let i = 0; i < e.hashPositions.length; i++){
+                const {x,y} = e.hashPositions[i];
+                ctx.beginPath();
+                ctx.arc(parseInt(x), parseInt(y), 15, 0, Math.PI*2);
+                ctx.fill();
+                ctx.closePath();
+            }
+            if(Math.random() < 0.001){
+                console.log(e.body);
+            }
+        }
+        ctx.globalAlpha = 1;
+        // ctx.globalAlpha = 0.8;
+        // ctx.fillStyle = 'red';
+        // for(let x in this.positions){
+        //     for(let y in this.positions[x]){
+        //         ctx.beginPath();
+        //         ctx.arc(parseInt(x), parseInt(y), 15, 0, Math.PI*2);
+        //         ctx.fill();
+        //         ctx.closePath();
+        //     }
+        // }
+        // ctx.globalAlpha = 1;
+    }
 }
