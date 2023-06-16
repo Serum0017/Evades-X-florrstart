@@ -107,8 +107,6 @@ export default class Renderer {
 
         this.renderPlayers(map.players);
 
-        map.spatialHash.renderDebug(canvas, ctx, map.obstacles.filter(o => o.toRender !== false));
-
         this.renderEditor();
 
         this.camera.resetTranslate();

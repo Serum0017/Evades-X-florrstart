@@ -31,6 +31,8 @@ arrowImg.src = '../client/gfx/arrow.png';
 // fallback for performance.now on older browsers
 window.performance = window.performance || {}; performance.now = (function() {return performance.now || performance.mozNow || performance.msNow || performance.oNow || performance.webkitNow || function() { return new Date().getTime();};})();
 
+window.hashDistance = 250;
+
 CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
   if (w < 2 * r) r = w / 2;
   if (h < 2 * r) r = h / 2;

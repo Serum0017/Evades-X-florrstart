@@ -113,11 +113,12 @@ export default class Map {
             this.resetObstacleParameters(o, o.parametersToReset);
         }
         interpolateManager.createInterpolateState(o);
+
+        const bound = o.body.getBoundingBox();
+        o.x = bound.pos.x + bound.w/2;
+        o.y = bound.pos.y + bound.h/2;
+        o.difference = {x: bound.w, y: bound.h};
         this.spatialHash.addEntity(o);
-        // TODO: Fix this mess
-        setTimeout(() => {
-            this.spatialHash.updateEntity(o);
-        }, 100)
     }
     removeObstacle(index){
         this.obstacles.splice(index, 1);
