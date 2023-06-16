@@ -17,6 +17,10 @@ const editorKeyCodes = {
     KeyI: 'zoomin',
     KeyO: 'zoomout',
     Delete: 'delete',
+    KeyC: 'copy',
+    KeyV: 'paste',
+    ControlLeft: 'ctrl',
+    ControlRight: 'ctrl'
 }
 
 const chatCommandMap = {
@@ -26,7 +30,7 @@ const chatCommandMap = {
     },
     'devmodeoN': (handler, { client }) => {
         client.me().dev = !client.me().dev;
-    }
+    },
 }
 
 // adding / to all commands
@@ -85,19 +89,35 @@ export default class InputHandler {
         }
 
         this.editorKeyMap = {
-            repeat: {
-                zoomin: () => {
-                    this.renderer.camera.scale(1.018);
-                },
-                zoomout: () => {
-                    this.renderer.camera.scale(1 / 1.018);
+            delete: () => {
+                this.client.selectionManager.deleteSelectedObstacles();
+            },
+            zoomin: (e) => {
+                if(e.type === 'keydown'){
+                    this.renderer.zoomDirection = 'in';
+                } else if(this.renderer.zoomDirection === 'in') {
+                    this.renderer.zoomDirection = 'neutral';
                 }
             },
-            noRepeat: {
-                delete: () => {
-                    this.client.selectionManager.deleteSelectedObstacles();
+            zoomout: (e) => {
+                if(e.type === 'keydown'){
+                    this.renderer.zoomDirection = 'out';
+                } else if(this.renderer.zoomDirection === 'out') {
+                    this.renderer.zoomDirection = 'neutral';   
                 }
-            }
+            },
+            copy: (e) => {
+                if(e.type !== 'keydown' || this.input.ctrl === false){
+                    return;
+                }
+                this.client.selectionManager.copy();
+            },
+            paste: (e) => {
+                if(e.type !== 'keydown' || this.input.ctrl === false){
+                    return;
+                }
+                this.client.selectionManager.paste();
+            },
         }        
     }
     handleKey(e){
@@ -147,10 +167,6 @@ export default class InputHandler {
         // if we're typing, return
         if(this.chatOpen === true)return;
 
-        if(this.client.clientType === 'editor'){
-            this.handleRepeatingEditorKey(e);
-        }
-
         // if we're not typing and we repeat keys, return
         if (e.repeat && this.chatOpen === false) return e.preventDefault();
 
@@ -169,7 +185,7 @@ export default class InputHandler {
 
         // if we're in editor, handle editor key presses as well
         if (this.client.clientType === 'editor'){
-            this.handleEditorKey(e, false);
+            this.handleEditorKey(e);
         }
 
         // otherwise, set inputs in this.inputs as they're mapped by keycodes
@@ -180,12 +196,10 @@ export default class InputHandler {
 
         this.map.self.input = this.input;
     }
-    handleRepeatEditorKey(e){
-        
-    }
     handleEditorKey(e){
-        if(this.editorKeyMap[keycodes[e]] !== undefined){// TODO
-            this.editorKeyMap[keycodes[e]](e);
+        if(this.editorKeyMap[keycodes[e.code]] !== undefined){
+            this.editorKeyMap[keycodes[e.code]](e);
+            return;
         }
     }
     handleMouse(e) {

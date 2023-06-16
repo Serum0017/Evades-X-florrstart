@@ -66,6 +66,11 @@ export default class Renderer {
         for(let key in this.defaultColors){
             this.colors[key] = this.defaultColors;
         }
+
+        if(this.client.clientType === 'editor'){
+            this.zoomDirection = 'neutral';
+            this.renderObstacles = this.renderEditorObstacles;
+        }
     }
     stop(){}
     reset(){
@@ -74,6 +79,8 @@ export default class Renderer {
         }
     }
     render(){
+        this.updateZoom();
+
         const { map } = this.client.game;
         const me = this.client.me();
 
@@ -188,11 +195,59 @@ export default class Renderer {
         ctx.strokeRect(-ctx.lineWidth/2, -ctx.lineWidth/2, map.settings.dimensions.x + ctx.lineWidth, map.settings.dimensions.y + ctx.lineWidth);
         ctx.lineWidth = 3;
     }
+    updateZoom(){
+        if(this.client.clientType !== 'editor' || this.client.playerActive === true || this.zoomDirection === 'neutral'){
+            return;
+        }
+        if(this.zoomDirection === 'in'){
+            this.camera.scale(1.014);
+        } else {
+            this.camera.scale(1 / 1.014);
+        }
+        if(this.camera.scalar > 5){
+            this.camera.setScale(5);
+        } else if(this.camera.scalar < 0.2){
+            this.camera.setScale(0.2);
+        }
+    }
+    renderEditorObstacles(obstacles, players, player){
+        for(let o of obstacles){
+            ctx.toStroke = false;
+            ctx.toFill = true;
+            ctx.toClip = false;
+
+            this.renderGlobal(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+            EffectManager.renderEffect(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+
+            if(ctx.toFill === false && ctx.toStroke === false || ctx.globalAlpha === 0){
+                this.renderEditorObstacleOutline(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+                o.visible = false;
+            }
+
+            renderShape(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+            if(EffectManager.renderEffectAfterShapeMap[o.effect] !== undefined){
+                EffectManager.renderEffectAfterShape(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+            }
+
+            ctx.setLineDash([]);
+            ctx.lineCap = 'butt';
+
+            ctx.globalAlpha = 1;
+        }
+    }
+    renderEditorObstacleOutline(o, ctx, advanced){
+        ctx.globalAlpha = (Math.sin(performance.now()/300) + 1)/2;
+        ctx.toStroke = true;
+        ctx.strokeStyle = 'yellow';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([15,25]);
+        ctx.lineDashOffset = -performance.now() / 25;
+        ctx.lineCap = 'round';
+    }
     renderEditor(){
         if(this.client.clientType !== 'editor'){
             return;
         }
-
         // TODO
         // if(this.client.inputHandler.input.zoomin === true){
         //     ctx.translate(canvas.width/2, canvas.height/2);
@@ -214,14 +269,26 @@ export default class Renderer {
 
         // rendering blue outline around selected obstacles
         for(let i = 0; i < this.client.selectionManager.selectedObstacles.length; i++){
+            const selectedObstacle = this.client.selectionManager.selectedObstacles[i];
             ctx.toStroke = true;
             ctx.toFill = false;
             ctx.toClip = false;
             ctx.strokeStyle = 'blue';
             ctx.lineWidth = 4;
             ctx.lineCap = 'square';
+            if(selectedObstacle.visible === false){
+                ctx.translate(selectedObstacle.x, selectedObstacle.y);
+                ctx.scale((selectedObstacle.difference.x + 8) / selectedObstacle.difference.x, (selectedObstacle.difference.y + 8) / selectedObstacle.difference.y);
+                ctx.translate(-selectedObstacle.x, -selectedObstacle.y);
+            }
 
             renderShape(this.client.selectionManager.selectedObstacles[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
+
+            if(selectedObstacle.visible === false){
+                ctx.translate(selectedObstacle.x, selectedObstacle.y);
+                ctx.scale(selectedObstacle.difference.x / (selectedObstacle.difference.x + 8), selectedObstacle.difference.y / (selectedObstacle.difference.y + 8));
+                ctx.translate(-selectedObstacle.x, -selectedObstacle.y);
+            }
 
             ctx.globalAlpha = 1;
             ctx.lineCap = 'butt';

@@ -54,15 +54,10 @@ const initEffectMap = {
         obs.difficulty = 'Peaceful';
     },
     changeColor: (obs, init) => {
-        obs.colorsToChange = {};
-        if(toHex(init.backgroundColor,'undef') !== 'undef'){
-            obs.colorsToChange.background = init.backgroundColor;
-        }
-        if(toHex(init.tileColor,'undef') !== 'undef'){
-            obs.colorsToChange.tile = init.tileColor;
-        }
-        if(toHex(init.safeColor,'undef') !== 'undef'){
-            obs.colorsToChange.safe = init.safeColor;
+        obs.colorsToChange = {
+            tile: toHex(init.tileColor, '#0d0d0d'),// the stroke and outside of arena
+            background: toHex(init.backgroundColor, '#383838'),// the fillcolor
+            safe: toHex(init.safeColor, '#8c8c8c'),// the safe
         }
     },
     changeSpeed: (obs, init) => {

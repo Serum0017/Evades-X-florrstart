@@ -8,6 +8,7 @@ export default class UIManager {
     }
     start(){// TODO: add right click to pan around like three.js. This could just involve something like
         this.game = this.client.game;
+        this.renderer = this.client.game.renderer;
         this.map = this.client.game.map;
 
         this.createMenuManager = new createMenuManager(this.client);
@@ -39,7 +40,14 @@ export default class UIManager {
                     button.appendChild(span);
                 }
                 this.hideMenuUnlessHover();
+                this.renderer.lastCamera = window.structuredClone(this.renderer.camera);
+                this.renderer.camera.setScale(1);
             } else {
+                if(this.renderer.lastCamera !== undefined){
+                    this.renderer.camera.setRotate(this.renderer.lastCamera.rotation);
+                    this.renderer.camera.setScale(this.renderer.lastCamera.scalar);
+                    delete this.renderer.lastCamera;
+                }
                 this.client.me.dead = false;
                 this.client.me().god = true;
                 this.client.selectionManager.exitPlayMode();

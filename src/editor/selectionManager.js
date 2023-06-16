@@ -51,26 +51,33 @@ export default class SelectionManager {
         const lastMousePos = this.screenToWorld(this.mouse.last);
         this.mouse.delta = {x: mousePos.x - lastMousePos.x, y: mousePos.y - lastMousePos.y};
         const stw = this.screenToWorld(this.mouse.pos);
+        if(this.toSnap === true && (this.previewObstacle !== null || this.transformActive === true)){
+            this.snapDifference = {
+                x: Math.round(stw.x / this.snapDistance) * this.snapDistance - Math.round(lastMousePos.x / this.snapDistance) * this.snapDistance,
+                y: Math.round(stw.y / this.snapDistance) * this.snapDistance - Math.round(lastMousePos.y / this.snapDistance) * this.snapDistance
+            }
+        }
         if(this.previewObstacle !== null){
-            this.transformPreviewObstacle({
-                x: stw.x - this.previewObstacle.x,
-                y: stw.y - this.previewObstacle.y
-            })
+            if(this.toSnap === true){
+                this.transformPreviewObstacle(this.snapDifference);
+            } else {
+                this.transformPreviewObstacle({
+                    x: this.mouse.delta.x,
+                    y: this.mouse.delta.y
+                })
+            }
+            
         }
         if(this.transformActive === true){
             for(let i = 0; i < this.selectedObstacles.length; i++){
                 if(this.toSnap === true){
-                    const difference = {
-                        x: Math.round(stw.x / this.snapDistance) * this.snapDistance - this.selectedObstacles[i].x,
-                        y: Math.round(stw.y / this.snapDistance) * this.snapDistance - this.selectedObstacles[i].y,
-                    }
                     transformBody(this.selectedObstacles[i], {
-                        x: difference.x,
-                        y: difference.y,
+                        x: this.snapDifference.x,
+                        y: this.snapDifference.y,
                         rotation: 0
                     })
-                    this.selectedObstacles[i].x += difference.x;
-                    this.selectedObstacles[i].y += difference.y;
+                    this.selectedObstacles[i].x += this.snapDifference.x;
+                    this.selectedObstacles[i].y += this.snapDifference.y;
                 } else {
                     transformBody(this.selectedObstacles[i], {
                         x: this.mouse.delta.x,
@@ -109,7 +116,10 @@ export default class SelectionManager {
                 return;
             } else if(this.client.playerActive === false){
                 const collidingObstacle = this.collidingWithObstacle(this.screenToWorld(this.mouse.pos));
-                if(this.collidingWithSelectedObstacle(this.screenToWorld(this.mouse.pos)) !== false){
+                if(event.altKey === true && collidingObstacle !== false){
+                    // if the alt key is pressed, initiate an alt drag
+                    this.addPreviewObstacle({...collidingObstacle, shape: collidingObstacle.renderFlag === 'square' ? 'square' : collidingObstacle.shape});
+                } else if(this.collidingWithSelectedObstacle(this.screenToWorld(this.mouse.pos)) !== false){
                     // if we already have a selection, drag those
                     this.transformActive = true;
                 } else if(collidingObstacle !== false){
@@ -196,6 +206,21 @@ export default class SelectionManager {
         
         this.map.obstacles = this.map.obstacles.filter(o => o.toRemoveSelector !== true);
         this.selectedObstacles = [];
+    }
+    copy(){
+        // TODO: make offsetting by 25px both directions a setting (on by default, most ppl will turn it off)
+        this.clipboard = this.selectedObstacles.map(o => window.initObstacle({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape}));
+        console.log(this.clipboard);
+    }
+    paste(){
+        if(this.clipboard === undefined){
+            return;
+        }
+        this.selectedObstacles = [];
+        for(let i = 0; i < this.clipboard.length; i++){
+            this.map.addObstacle(this.clipboard[i]);
+            this.selectedObstacles.push(this.map.obstacles[this.map.obstacles.length-1]);
+        }
     }
 
     screenToWorld({x,y}){

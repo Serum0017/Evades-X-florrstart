@@ -142,7 +142,7 @@ export default class editMenuManager {
             this.excludedProperties[this.excludedProps[i]] = true;
         }
         delete this.excludedProps;
-        this.editorProperties = [{object: this.client.selectionManager, key: 'snapDistance'}, {object: this.client.selectionManager, key: 'toSnap'}];
+        this.editorProperties = [{object: this.client.selectionManager, key: 'snapDistance'}, {object: this.client.selectionManager, key: 'toSnap'}, {object: this.client.game.map.settings.dimensions, key: 'x', keyName: 'map width'}, {object: this.client.game.map.settings.dimensions, key: 'y', keyName: 'map height'}];
     }
     reloadMenu(){
         while(Ref.gui.firstChild){
@@ -156,8 +156,9 @@ export default class editMenuManager {
     createEditorProperties(){
         const obstacle = {editorPropertyReferences: {}};
         for(let i = 0; i < this.editorProperties.length; i++){
-            obstacle[this.editorProperties[i].key] = this.editorProperties[i].object[this.editorProperties[i].key];
-            obstacle.editorPropertyReferences[this.editorProperties[i].key] = this.editorProperties[i].object;
+            obstacle[this.editorProperties[i].keyName ?? this.editorProperties[i].key] = this.editorProperties[i].object[this.editorProperties[i].key];
+            obstacle.editorPropertyReferences[this.editorProperties[i].keyName ?? this.editorProperties[i].key] = this.editorProperties[i].object;
+            obstacle.editorPropertyReferences[this.editorProperties[i].keyName ?? this.editorProperties[i].key].editorPropertyName = this.editorProperties[i].keyName ?? this.editorProperties[i].key;
         }
         return this.createObstacleProperties(obstacle, 'Editor Settings');
     }
@@ -234,10 +235,10 @@ export default class editMenuManager {
         });
 
         input.oninput = ((event) => {
-            if(isNaN(parseInt(event.target.value)) === true){
+            if(isNaN(parseFloat(event.target.value)) === true){
                 obstacle[key] = event.target.value;
             } else {
-                obstacle[key] = parseInt(event.target.value);
+                obstacle[key] = parseFloat(event.target.value);
             }
             this.regenerateObstacle(obstacle);
         }).bind(this);
@@ -272,6 +273,7 @@ export default class editMenuManager {
             if(key === '_properties' || key === 'editorPropertyReferences'){
                 continue;
             }
+            // TODO: fix error when keyname is not the same as key that was added yesterday because of map dimensions just being x looking weird
             mapReferences.editorPropertyReferences[key][key] = mapReferences[key];
         }
     }

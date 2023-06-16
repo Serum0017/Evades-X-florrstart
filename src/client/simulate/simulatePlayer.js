@@ -45,17 +45,19 @@ export default function simulatePlayer(p, map) {
 	p.y += p.yv;
 
 	// bound player against the map
-	if (p.x - p.difference.x/2 < 0) {
-		p.x = p.difference.x/2;
-	}
-	if (p.x + p.difference.x/2 > map.settings.dimensions.x) {
-		p.x = map.settings.dimensions.x - p.difference.x/2;
-	}
-	if (p.y - p.difference.x/2 < 0) {
-		p.y = p.difference.x/2;
-	}
-	if (p.y + p.difference.x/2 > map.settings.dimensions.y) {
-		p.y = map.settings.dimensions.y - p.difference.x/2;
+	if(p.god !== true){
+		if (p.x - p.difference.x/2 < 0) {
+			p.x = p.difference.x/2;
+		}
+		if (p.x + p.difference.x/2 > map.settings.dimensions.x) {
+			p.x = map.settings.dimensions.x - p.difference.x/2;
+		}
+		if (p.y - p.difference.x/2 < 0) {
+			p.y = p.difference.x/2;
+		}
+		if (p.y + p.difference.x/2 > map.settings.dimensions.y) {
+			p.y = map.settings.dimensions.y - p.difference.x/2;
+		}
 	}
 
 	// making sure player doesn't violate predictionLimit
