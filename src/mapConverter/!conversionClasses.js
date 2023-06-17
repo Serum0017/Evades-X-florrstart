@@ -504,21 +504,21 @@ class Polygon {
     }
 }
 
-const { registerFont, createCanvas } = require('canvas');// TODO: load inter font manually because device might not hvae installed
-registerFont('./src/shared/init/inter.ttf', { family: 'Inter' });
-const canvas = createCanvas(1,1);
-const ctx = canvas.getContext('2d');
+// const { registerFont, createCanvas } = require('canvas');// TODO: load inter font manually because device might not hvae installed
+// registerFont('./src/shared/init/inter.ttf', { family: 'Inter' });
+// const canvas = createCanvas(1,1);
+// const ctx = canvas.getContext('2d');
 
 class Text {
 	constructor(x, y, text, story, size, angle) {// text: 'Evades X', fontSize: 60
-        ctx.font = `${size}px Inter`;
-        const textMeasurements = ctx.measureText(text);
-        const w = textMeasurements.width;
-        const h = textMeasurements.actualBoundingBoxAscent;
+        // ctx.font = `${size}px Inter`;
+        // const textMeasurements = ctx.measureText(text);
+        // const w = textMeasurements.width;
+        // const h = textMeasurements.actualBoundingBoxAscent;
         if(story){return [];}
 		return {
             type: 'text-normal-coin',color: 'white',
-            x:x-w/2,y:y-h/2,text, fontSize: size
+            x:x,y:y,text, fontSize: size
         }
 	}
 }

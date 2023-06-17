@@ -86,7 +86,8 @@ export default class editMenuManager {
                 // property.appendChild(label);
             },
             object: (key, value, {input, property, obstacle}) => {
-                // this isnt gonna work but ill do it for now
+                // TODO: make sure that sub-object folders sync with their props like x and y do (they change whenever the obs changes and vice versa)
+                // // /// // / / / // / / //// /// /// /// // // /// // // // // // // / // stop whatever ur doing rn and do this! /// // // /// // /// /// /// /// /// //// //// /// // / /// /// /// // //// /// // // //
                 property.appendChild(this.createObstacleProperties(value, key));
             },
             color: (key, value, {input, property, obstacle}) => {
@@ -136,7 +137,10 @@ export default class editMenuManager {
             }
         }
 
-        this.excludedProps = ['shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences','hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash'];
+        this.excludedProps = [
+            'shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
+            'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym'
+        ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
             this.excludedProperties[this.excludedProps[i]] = true;

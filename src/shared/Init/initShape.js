@@ -40,8 +40,9 @@ const initShapeMap = {
     //     obs.endAngle *= Math.PI/180;
     // }
     text: (obs, init) => {
-        obs.text = toString(init.text, `Evades ${Math.ceil(Math.random()*10) === 10 ? 'X' : Math.ceil(Math.random()*10)}`);
+        obs.text = toString(init.text, `Evades ${Math.ceil(Math.random()*10) === 10 ? 'X' : Math.ceil(Math.random()*9)}`);
         obs.fontSize = toNumber(init.fontSize, 32);
+        obs.shapeCollidable = toBoolean(init.shapeCollidable, false);
     },
     oval: (obs, init) => {
         obs.rw = toNumber(init.rw, 50);

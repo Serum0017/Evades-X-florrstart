@@ -41,6 +41,14 @@ const initEffectMap = {
                 obs.acronym += obs.map[0];
             }
         }
+        if(advanced === undefined){
+            // editor
+            obs.difficulty = 'Peaceful';
+            obs.difficultyNumber = 0;
+            obs.map = 'Winroom';
+            obs.acronym = 'W';
+            return;
+        }
         if(obs.map === 'Hub'){obs.acronym = 'Hub';}
         const mapData = advanced.game.mapData[obs.map] ?? advanced.game.mapData.Winroom;
         if(mapData.init === undefined){console.log('Portal points to an invalid map! initEffect.js.' + JSON.stringify(obs)); return;}

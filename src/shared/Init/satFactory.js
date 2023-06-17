@@ -50,12 +50,7 @@ const SATMap = {
             y: (top + bottom)/2
         };
 
-        // console.log(middle);
-
-        // console.log(new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]));
-        // console.log(new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x - middle.x, p[1] + y - middle.y))]).addOffset((new SAT.Vector(middle.x, middle.y)))));
         return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x - middle.x, p[1] + y - middle.y))]).addOffset(middle);
-        // return new SAT.Polygon(new SAT.Vector(), [...points.map((p) => new SAT.Vector(p[0] + x, p[1] + y))]);
     },
     oval: ({ x,y,rw,rh }) => {
         const points = [];
@@ -76,7 +71,7 @@ const SATMap = {
         const textMeasurements = ctx.measureText(text);
         const w = textMeasurements.width;
         const h = textMeasurements.actualBoundingBoxAscent;
-        return new SAT.Box(new SAT.Vector(x, y), w, h).toPolygon();
+        return new SAT.Box(new SAT.Vector(x-w/2, y-h/2), w, h).toPolygon();
     }
 };
 

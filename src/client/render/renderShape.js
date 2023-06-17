@@ -59,7 +59,7 @@ const renderShapeMap = {
     text: (o, ctx, advanced) => {
         // renderShapeMap.poly(o, ctx, advanced);
 
-        ctx.translate(o.body.pos.x + o.render.x - o.x, o.body.pos.y + o.render.y - o.y);
+        ctx.translate(o.body.pos.x + o.render.x - o.x + o.body.calcPoints[0].x, o.body.pos.y + o.render.y - o.y + o.body.calcPoints[0].y);
 
         ctx.font = `${o.fontSize}px Inter`;
         ctx.textBaseline = 'top';
@@ -71,7 +71,7 @@ const renderShapeMap = {
 
         ctx.rotate(-o.render.rotation/2);
 
-        ctx.translate(-o.body.pos.x - o.render.x + o.x, -o.body.pos.y - o.render.y + o.y)
+        ctx.translate(-o.body.pos.x - o.render.x + o.x - o.body.calcPoints[0].x, -o.body.pos.y - o.render.y + o.y - o.body.calcPoints[0].y)
 
         // // bounding box is the best we can do
         if(ctx.toClip === true){

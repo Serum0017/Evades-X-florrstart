@@ -44,17 +44,19 @@ export default class SelectionManager {
         setInterval(this.run.bind(this), 1000/60);
     }
     run(){
+        if(this.selectionRect !== null){
+            this.selectionRect.end = this.screenToWorld(this.mouse.pos);
+        }
         this.updateTransforms();
     }
     updateTransforms(){
         const mousePos = this.screenToWorld(this.mouse.pos);
-        const lastMousePos = this.screenToWorld(this.mouse.last);
-        this.mouse.delta = {x: mousePos.x - lastMousePos.x, y: mousePos.y - lastMousePos.y};
+        this.mouse.delta = {x: mousePos.x - this.mouse.last.x, y: mousePos.y - this.mouse.last.y};
         const stw = this.screenToWorld(this.mouse.pos);
         if(this.toSnap === true && (this.previewObstacle !== null || this.transformActive === true)){
             this.snapDifference = {
-                x: Math.round(stw.x / this.snapDistance) * this.snapDistance - Math.round(lastMousePos.x / this.snapDistance) * this.snapDistance,
-                y: Math.round(stw.y / this.snapDistance) * this.snapDistance - Math.round(lastMousePos.y / this.snapDistance) * this.snapDistance
+                x: Math.round(stw.x / this.snapDistance) * this.snapDistance - Math.round(this.mouse.last.x / this.snapDistance) * this.snapDistance,
+                y: Math.round(stw.y / this.snapDistance) * this.snapDistance - Math.round(this.mouse.last.y / this.snapDistance) * this.snapDistance
             }
         }
         if(this.previewObstacle !== null){
@@ -87,7 +89,9 @@ export default class SelectionManager {
                 }
             }
         }
-        this.mouse.last = {x: this.mouse.pos.x, y: this.mouse.pos.y};
+
+        // relative to world, unlike this.mouse.pos which is relative to screen
+        this.mouse.last = this.screenToWorld(this.mouse.pos);
     }
     addEventListeners(){
         this.mouse = {pos: {x: 0, y: 0}, delta: {x: 0, y: 0}, last: {x: 0, y: 0}};
@@ -105,10 +109,7 @@ export default class SelectionManager {
         }
         window.onmousemove = (event) => {
             this.mouse.pos = {x: event.pageX, y: event.pageY};
-            if(this.selectionRect !== null){
-                this.selectionRect.end = this.screenToWorld(this.mouse.pos);
-            }
-            this.updateTransforms();
+            this.run();
         },
         Ref.canvas.onmousedown = (event) => {
             if(this.previewObstacle !== null){
@@ -191,8 +192,9 @@ export default class SelectionManager {
     selectObstacles({x,y,w,h}){
         const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w, h});
         this.selectedObstacles = [];
+        // TODO: spatial hash this so that larger maps dont lag exponentially more
         for(let i = 0; i < this.map.obstacles.length; i++){
-            if(Collide(this.map.obstacles[i], selectionObstacle) !== false){
+            if(this.collideWithFirstEnabled(this.map.obstacles[i], selectionObstacle) !== false){
                 this.selectedObstacles.push(this.map.obstacles[i]);
             }
         }
@@ -202,7 +204,7 @@ export default class SelectionManager {
     collidingWithSelectedObstacle({x,y}){
         const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w: 0.1, h: 0.1});
         for(let i = 0; i < this.selectedObstacles.length; i++){
-            if(Collide(this.selectedObstacles[i], selectionObstacle) !== false){
+            if(this.collideWithFirstEnabled(this.selectedObstacles[i], selectionObstacle) !== false){
                 return this.selectedObstacles[i];
             }
         }
@@ -211,11 +213,23 @@ export default class SelectionManager {
     collidingWithObstacle({x,y}){
         const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w: 0.1, h: 0.1});
         for(let i = 0; i < this.map.obstacles.length; i++){
-            if(Collide(this.map.obstacles[i], selectionObstacle) !== false){
+            if(this.collideWithFirstEnabled(this.map.obstacles[i], selectionObstacle) !== false){
                 return this.map.obstacles[i];
             }
         }
         return false;
+    }
+    collideWithFirstEnabled(object1, object2){
+        let resetFirst = false;
+        if(object1.shapeCollidable === false){
+            object1.shapeCollidable = true;
+            resetFirst = true;
+        }
+        const response = Collide(object1, object2);
+        if(resetFirst){
+            object1.shapeCollidable = false;
+        }
+        return response;
     }
     deleteSelectedObstacles(){
         for(let i = 0; i < this.selectedObstacles.length; i++){

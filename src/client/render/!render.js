@@ -272,6 +272,7 @@ export default class Renderer {
         // rendering blue outline around selected obstacles
         for(let i = 0; i < this.client.selectionManager.selectedObstacles.length; i++){
             const selectedObstacle = this.client.selectionManager.selectedObstacles[i];
+            if(selectedObstacle.toRender === false)continue;
             ctx.toStroke = true;
             ctx.toFill = false;
             ctx.toClip = false;

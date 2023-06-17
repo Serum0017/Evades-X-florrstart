@@ -49,7 +49,10 @@ class Collision {
 
         for(let key in this.collisionMap){
             this.addCollisionMap('text', key, (text, otherObj) => {
-                return false;
+                if(text.shapeCollidable === false){
+                    return false;
+                }
+                return this.collisionMap['poly'][otherObj.shape](text, otherObj);
             });
         }
     }
