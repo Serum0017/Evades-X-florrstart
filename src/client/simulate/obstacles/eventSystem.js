@@ -112,7 +112,7 @@ const eventRecieverMap = {
         }
 
         // TODO: make sure all of the preceeding assignments are numbers as well
-        if(Number.isFinite(value) === true && reciever.equation !== undefined){
+        if(Number.isFinite(value) === true && typeof reciever.equation === 'string'){
             value = solve(reciever.equation, value);
         }
 

@@ -73,8 +73,7 @@ function newEvade(map, isSerialized=false){
         x: map.playerSpawn.x,
         y: map.playerSpawn.y,
         w: 1, h: 1,
-        tileColor: map.bgColor,
-        backgroundColor: map.tileColor
+        colorsToChange: {tile: map.bgColor, background: map.tileColor}
     })
     
     // handling other types like safes and texts

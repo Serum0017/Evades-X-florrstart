@@ -63,9 +63,9 @@ const initEffectMap = {
     },
     changeColor: (obs, init) => {
         obs.colorsToChange = {
-            tile: toHex(init.tileColor, '#0d0d0d'),// the stroke and outside of arena
-            background: toHex(init.backgroundColor, '#383838'),// the fillcolor
-            safe: toHex(init.safeColor, '#8c8c8c'),// the safe
+            tile: toHex(init?.colorsToChange?.tile, '#0d0d0d'),// the stroke and outside of arena
+            background: toHex(init?.colorsToChange?.background, '#383838'),// the fillcolor
+            safe: toHex(init?.colorsToChange?.safe, '#8c8c8c'),// the safe
         }
     },
     changeSpeed: (obs, init) => {

@@ -386,7 +386,8 @@ class ColorChange {
         return {
             type: 'square-normal-changeColor',
             x:x+w/2, y:y+h/2, w,h,
-            backgroundColor: tileColor, tileColor: bgColor
+            colorsToChange: {background: tileColor, tile: bgColor}
+            // backgroundColor: tileColor, tileColor: bgColor
         }
     }
 }
