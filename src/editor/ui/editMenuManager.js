@@ -85,10 +85,16 @@ export default class editMenuManager {
                 // label.appendChild(span);
                 // property.appendChild(label);
             },
-            object: (key, value, {input, property, obstacle}) => {
-                // TODO: make sure that sub-object folders sync with their props like x and y do (they change whenever the obs changes and vice versa)
-                // // /// // / / / // / / //// /// /// /// // // /// // // // // // // / // stop whatever ur doing rn and do this! /// // // /// // /// /// /// /// /// //// //// /// // / /// /// /// // //// /// // // //
-                property.appendChild(this.createObstacleProperties(value, key));
+            object: (key, subObject, {input, property, obstacle}) => {
+                if(obstacle._parentObstacle !== undefined){
+                    // for nested objects
+                    subObject._parentObstacle = obstacle._parentObstacle;
+                    subObject._parentKeyChain = [...obstacle._parentKeyChain, key];
+                } else {
+                    subObject._parentObstacle = obstacle;
+                    subObject._parentKeyChain = [key];
+                }
+                property.appendChild(this.createObstacleProperties(subObject, key));
             },
             color: (key, value, {input, property, obstacle}) => {
                 input.classList.add('property-color-input');
@@ -139,7 +145,8 @@ export default class editMenuManager {
 
         this.excludedProps = [
             'shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
-            'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym'
+            'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
+            '_parentObstacle','_parentKeyChain'
         ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
@@ -158,7 +165,7 @@ export default class editMenuManager {
         }
     }
     createEditorProperties(){
-        const obstacle = {editorPropertyReferences: {}, specialKeyNames: {}};
+        const obstacle = {editorPropertyReferences: {}, specialKeyNames: {}, isEditorProperties: true};
         for(let i = 0; i < this.editorProperties.length; i++){
             obstacle[this.editorProperties[i].key] = this.editorProperties[i].object[this.editorProperties[i].key];
             obstacle.editorPropertyReferences[this.editorProperties[i].key] = this.editorProperties[i].object;
@@ -250,7 +257,13 @@ export default class editMenuManager {
             } else {
                 obstacle[key] = parseFloat(event.target.value);
             }
-            this.regenerateObstacle(obstacle);
+            if(obstacle._parentObstacle !== undefined){
+                // handling sub-objects
+                applyToKeyChain(obstacle._parentObstacle, obstacle._parentKeyChain, obstacle[key]);
+                this.regenerateObstacle(obstacle._parentObstacle);// biterr...
+            } else {
+                this.regenerateObstacle(obstacle);
+            }
         }).bind(this);
 
         // running the configuration function hashmap
@@ -267,7 +280,7 @@ export default class editMenuManager {
 
         return property;
     }
-    regenerateObstacle(obstacle, isRegeneratable=obstacle.effect!==undefined) {
+    regenerateObstacle(obstacle, isRegeneratable=obstacle.isEditorProperties===undefined) {
         if(isRegeneratable === false){
             this.regenerateMapProperty(obstacle);
             return;
@@ -276,11 +289,38 @@ export default class editMenuManager {
         const newObstacle = window.initObstacle(obstacle);
         for(let key in newObstacle){
             obstacle[key] = newObstacle[key];
+
+            // reconnecting obstacle pointers because they get lost somehow
+            if(typeof newObstacle[key] === 'object'){
+                if(this.excludedProperties[key] === true){
+                    continue;
+                }
+                this.refreshParentObstaclePointer(newObstacle, key, newObstacle[key]);
+            }
+        }
+        console.log(newObstacle);
+    }
+    refreshParentObstaclePointer(obstacle, key, subObject){
+        if(obstacle._parentObstacle !== undefined){
+            // for nested objects
+            subObject._parentObstacle = obstacle._parentObstacle;
+            subObject._parentKeyChain = [...obstacle._parentKeyChain, key];
+        } else {
+            subObject._parentObstacle = obstacle;
+            subObject._parentKeyChain = [key];
+        }
+        for(let subKey in subObject){
+            if(typeof subObject[subKey] === 'object'){
+                if(this.excludedProperties[subKey] === true){
+                    continue;
+                }
+                this.refreshParentObstaclePointer(subObject, subKey, subObject[subKey]);
+            }
         }
     }
     regenerateMapProperty(mapReferences){
         for(let key in mapReferences){
-            if(key === '_properties' || key === 'editorPropertyReferences' || key === 'specialKeyNames'){
+            if(key === '_properties' || key === 'editorPropertyReferences' || key === 'specialKeyNames' || key === 'isEditorProperties'){
                 continue;
             }
             
@@ -485,3 +525,24 @@ export default class editMenuManager {
         return name;
     }
 } 
+
+// TODO: make these a window obj because i think they're defined globally in /shared in minpack
+// function applyToKeyChain(obj, chain, value){
+//     const last = chain.pop();
+//     chain.reduce((acc, k) => acc[k], obj)[last] = value;
+// }
+
+// function deleteKeyChain(obj, chain){
+//     const last = chain.pop();
+//     delete chain.reduce((acc, k) => acc[k], obj)[last];
+// }
+function applyToKeyChain(obj, chain, value){
+    let lookUpString = '';
+    for(let i = 0; i < chain.length; i++){
+        lookUpString += "['" + chain[i].replaceAll(']','') + "']";
+    }
+    
+    try {
+        eval(`obj${lookUpString} = value;`);// TODO: ENSURE THIS IS SAFE!
+    } catch(e){}
+}

@@ -1,5 +1,10 @@
 const flip = fn => (b, a) => fn(a, b);
 
+// enlightened by a conversation had with elseif on the first days of OHS, i think that a lot of these can be oneliners.
+// if i ever touch this file again (i probably wont) then maybe do so?
+// but on the other hand there's readability concerns. I want the code to be maintainable and easily readable, even if
+// i'm the only one working on the game.
+
 // we want to be able to call Collisions.collide(poly)(circle)
 class Collision {
     constructor(){
@@ -19,9 +24,9 @@ class Collision {
         });
 
         this.addCollisionMap('circle', 'poly', (circle, poly) => {
-            // if(!intersectingBoundingBox(circle, poly)){
-            //     return false;
-            // }
+            if(!intersectingBoundingBox(circle, poly)){
+                return false;
+            }
             
             const res = new SAT.Response();
             if (SAT.testPolygonCircle(poly.body, circle.body, res)) {

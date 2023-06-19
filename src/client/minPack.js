@@ -1,3 +1,4 @@
+// TODO: sync this with shared stuff bc idk why its still here
 function minPack(last, v){
     if(Array.isArray(v) === true && Array.isArray(last) === true){
         const toSend = {};
