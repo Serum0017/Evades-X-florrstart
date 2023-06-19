@@ -86,14 +86,14 @@ export default class editMenuManager {
                 // property.appendChild(label);
             },
             object: (key, subObject, {input, property, obstacle}) => {
-                if(obstacle._parentObstacle !== undefined){
-                    // for nested objects
-                    subObject._parentObstacle = obstacle._parentObstacle;
-                    subObject._parentKeyChain = [...obstacle._parentKeyChain, key];
-                } else {
-                    subObject._parentObstacle = obstacle;
-                    subObject._parentKeyChain = [key];
-                }
+                // if(obstacle._parentObstacle !== undefined){
+                //     // for nested objects
+                //     subObject._parentObstacle = obstacle._parentObstacle;
+                //     subObject._parentKeyChain = [...obstacle._parentKeyChain, key];
+                // } else {
+                //     subObject._parentObstacle = obstacle;
+                //     subObject._parentKeyChain = [key];
+                // }
                 property.appendChild(this.createObstacleProperties(subObject, key));
             },
             color: (key, value, {input, property, obstacle}) => {
@@ -146,7 +146,6 @@ export default class editMenuManager {
         this.excludedProps = [
             'shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
             'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
-            '_parentObstacle','_parentKeyChain'
         ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
@@ -257,13 +256,7 @@ export default class editMenuManager {
             } else {
                 obstacle[key] = parseFloat(event.target.value);
             }
-            if(obstacle._parentObstacle !== undefined){
-                // handling sub-objects
-                applyToKeyChain(obstacle._parentObstacle, obstacle._parentKeyChain, obstacle[key]);
-                this.regenerateObstacle(obstacle._parentObstacle);// biterr...
-            } else {
-                this.regenerateObstacle(obstacle);
-            }
+            this.regenerateObstacle(obstacle);
         }).bind(this);
 
         // running the configuration function hashmap
@@ -289,33 +282,6 @@ export default class editMenuManager {
         const newObstacle = window.initObstacle(obstacle);
         for(let key in newObstacle){
             obstacle[key] = newObstacle[key];
-
-            // reconnecting obstacle pointers because they get lost somehow
-            if(typeof newObstacle[key] === 'object'){
-                if(this.excludedProperties[key] === true){
-                    continue;
-                }
-                this.refreshParentObstaclePointer(newObstacle, key, newObstacle[key]);
-            }
-        }
-        console.log(newObstacle);
-    }
-    refreshParentObstaclePointer(obstacle, key, subObject){
-        if(obstacle._parentObstacle !== undefined){
-            // for nested objects
-            subObject._parentObstacle = obstacle._parentObstacle;
-            subObject._parentKeyChain = [...obstacle._parentKeyChain, key];
-        } else {
-            subObject._parentObstacle = obstacle;
-            subObject._parentKeyChain = [key];
-        }
-        for(let subKey in subObject){
-            if(typeof subObject[subKey] === 'object'){
-                if(this.excludedProperties[subKey] === true){
-                    continue;
-                }
-                this.refreshParentObstaclePointer(subObject, subKey, subObject[subKey]);
-            }
         }
     }
     regenerateMapProperty(mapReferences){
