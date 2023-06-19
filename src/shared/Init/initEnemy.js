@@ -1,3 +1,4 @@
+var satFactory = satFactory ?? require('./satFactory.js');
 if(typeof require !== 'undefined'){
     var {toBoolean, toNumber, toString, toHex, toStructure} = require('./convertType.js');
 } else {
@@ -37,16 +38,22 @@ function initPosition(e, init){
         w: toNumber(init?.bound?.w, 250),
         h: toNumber(init?.bound?.h, 250),
     };
-    if(toNumber(init.x, 'undef') !== 'undef'){
-        e.x = init.x;
+    if(toNumber(init?.enemyPos?.x, 'undef') !== 'undef'){
+        e.x = init.enemyPos.x;
     } else {
         e.x = init.bound.x + init.difference.x/2 + Math.random() * (init.bound.w - init.difference.x);
     }
     
-    if(toNumber(init.y, 'undef') !== 'undef'){
-        e.y = init.y;
+    if(toNumber(init?.enemyPos?.y, 'undef') !== 'undef'){
+        e.y = init.enemyPos.y;
     } else {
         e.y = init.bound.y + init.difference.y/2 + Math.random() * (init.bound.h - init.difference.y);
+    }
+}
+
+function assign(prev, next){
+    for(let key in next){
+        prev[key] = next[key];
     }
 }
 

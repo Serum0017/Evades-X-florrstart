@@ -1,5 +1,6 @@
 import transformBody from "./transformBody.js";
 import satFactory from "./satFactory.js";
+import solve from "./mathSolver.js";
 
 const eventEmitterMap = {
     parameterEqualTo: (event, obstacle) => {
@@ -105,24 +106,14 @@ const eventRecieverMap = {
             value = reciever.setValue;
         }
 
+        // this sets the parameter to a key in the emitter governed by the parameter.
         if(Array.isArray(emitter.changeParameterKeyChain) !== false){
             value = keyChain(obstacleEmitter, emitter.changeParameterKeyChain);
         }
 
         // TODO: make sure all of the preceeding assignments are numbers as well
-        if(Number.isFinite(value)){
-            if(reciever.addValue !== undefined){
-                value += reciever.addValue;
-            }
-            if(reciever.addRandomValue !== undefined){
-                value += Math.random() * reciever.addRandomValue;
-            }
-            if(reciever.multiplyValue !== undefined){
-                value *= reciever.multiplyValue;
-            }
-            if(reciever.exponentiateValue !== undefined){
-                value = value ** reciever.multiplyValue;
-            }
+        if(Number.isFinite(value) === true && reciever.equation !== undefined){
+            value = solve(reciever.equation, value);
         }
 
         applyToKeyChain(obstacle, reciever.keyChain, value);

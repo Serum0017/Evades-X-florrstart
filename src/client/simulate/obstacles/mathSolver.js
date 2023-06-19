@@ -1,4 +1,4 @@
-/*export default*/ function solve(string='sin(x)', x){
+export default function solve(string='sin(x)', x){
     string = string.replaceAll(' ','').replaceAll('PI',Math.PI.toString()).replaceAll('var',x);
     // TODO: make sure the fn cant provide errors or crash the game
     // find the first closing parenthesis while also seeing the last open parenthesis
@@ -120,5 +120,3 @@
 function replaceAt(string, start, end, replaceText=""){
     return string.slice(0, start) + replaceText + string.slice(end, string.length);
 }
-
-// solve('cos(2+2)', 2)
