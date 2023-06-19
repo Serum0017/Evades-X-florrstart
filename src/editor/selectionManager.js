@@ -119,7 +119,8 @@ export default class SelectionManager {
                 const collidingObstacle = this.collidingWithObstacle(this.screenToWorld(this.mouse.pos));
                 if(event.altKey === true && collidingObstacle !== false){
                     // if the alt key is pressed, initiate an alt drag
-                    this.addPreviewObstacle({...collidingObstacle, shape: collidingObstacle.renderFlag === 'square' ? 'square' : collidingObstacle.shape});
+                    console.log(collidingObstacle);
+                    this.addPreviewObstacle(this.structuredCloneWithoutKey({...collidingObstacle, shape: collidingObstacle.renderFlag === 'square' ? 'square' : collidingObstacle.shape}, ['_inputRef']));
                 } else if(this.collidingWithSelectedObstacle(this.screenToWorld(this.mouse.pos)) !== false){
                     // if we already have a selection, drag those
                     this.transformActive = true;
@@ -241,8 +242,47 @@ export default class SelectionManager {
     }
     copy(){
         // TODO: make offsetting by 25px both directions a setting (on by default, most ppl will turn it off)
-        this.clipboard = this.selectedObstacles.map(o => window.initObstacle({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape}));
+        if(this.selectedObstacles.length === 0){
+            return;
+        }
+        this.clipboard = [];
+        for(let i = 0; i < this.selectedObstacles.length; i++){
+            const o = this.selectedObstacles[i];
+            console.log({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape});
+            this.clipboard.push(
+                window.initObstacle(this.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape}, ['_inputRef']))
+            );
+        }
         console.log(this.clipboard);
+    }
+    structuredCloneWithoutKey(o, keyNames=[]){
+        if(typeof o === 'object'){
+            if(Array.isArray(o) === true){
+                // array
+                const clone = [];
+                for(let i = 0; i < o.length; i++){
+                    if(keyNames.includes(i) === true){
+                        clone[i] = undefined;
+                        continue;
+                    }
+                    clone[i] = this.structuredCloneWithoutKey(o[i], keyNames);
+                }
+                return clone;
+            } else {
+                // object
+                const clone = {};
+                for(let key in o){
+                    if(keyNames.includes(key) === true){
+                        continue;
+                    }
+                    clone[key] = this.structuredCloneWithoutKey(o[key], keyNames);
+                }
+                return clone;
+            }
+        } else {
+            // primitive
+            return o;
+        }
     }
     paste(){
         if(this.clipboard === undefined){

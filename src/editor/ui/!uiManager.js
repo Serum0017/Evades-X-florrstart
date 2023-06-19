@@ -44,8 +44,8 @@ export default class UIManager {
                 this.renderer.camera.setScale(1);
             } else {
                 if(this.renderer.lastCamera !== undefined){
-                    this.renderer.camera.setRotate(this.renderer.lastCamera.rotation);
                     this.renderer.camera.setScale(this.renderer.lastCamera.scalar);
+                    this.renderer.camera.setRotate(this.renderer.lastCamera.rotation);
                     delete this.renderer.lastCamera;
                 }
                 this.client.me.dead = false;

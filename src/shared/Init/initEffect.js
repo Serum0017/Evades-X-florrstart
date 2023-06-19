@@ -7,6 +7,7 @@ if(typeof require !== 'undefined'){
 
 
 const initEffectMap = {
+    normal: (obs, init) => {},
     lava: (obs, init) => {
         obs.solid = toBoolean(init.solid, true);
     },

@@ -238,6 +238,9 @@ export default class Renderer {
         }
     }
     renderEditorObstacleOutline(o, ctx, advanced){
+        if(this.client.playerActive === true){
+            return;
+        }
         ctx.globalAlpha = (Math.sin(performance.now()/300) + 1)/2;
         ctx.toStroke = true;
         ctx.strokeStyle = 'yellow';
@@ -250,17 +253,6 @@ export default class Renderer {
         if(this.client.clientType !== 'editor'){
             return;
         }
-        // TODO
-        // if(this.client.inputHandler.input.zoomin === true){
-        //     ctx.translate(canvas.width/2, canvas.height/2);
-        //     ctx.scale(1.01, 1.01);
-        //     ctx.translate(-canvas.width/2, -canvas.height/2);
-        // }
-        // if(this.client.inputHandler.input.zoomout === true){
-        //     ctx.translate(canvas.width/2, canvas.height/2);
-        //     ctx.scale(1 / 1.01, 1 / 1.01);
-        //     ctx.translate(-canvas.width/2, -canvas.height/2);
-        // }
 
         // rendering tranparent preview obs
         if(this.client.selectionManager.previewObstacle !== null){

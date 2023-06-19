@@ -146,7 +146,7 @@ export default class editMenuManager {
         this.excludedProps = [
             'shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
             'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
-            '_parentKeyChain','_parentObstacle','visible'
+            '_parentKeyChain','_parentObstacle','_inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion'
         ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
@@ -234,6 +234,7 @@ export default class editMenuManager {
         input.maxLength = 500;
         input.spellcheck = 'false';
         input.value = value;
+        obstacle._inputRef = input;
 
         if(obstacle._properties === undefined){
             obstacle._properties = {};
@@ -287,6 +288,7 @@ export default class editMenuManager {
         obstacle.shape = obstacle.renderFlag ?? obstacle.shape;
         const newObstacle = window.initObstacle(obstacle);
         for(let key in newObstacle){
+            if(key === 'spatialHash')continue;
             obstacle[key] = newObstacle[key];
             if(typeof newObstacle[key] === 'object' && this.excludedProperties[key] !== true){
                 this.regenerateGettersAndSetters(newObstacle[key]);
@@ -294,7 +296,7 @@ export default class editMenuManager {
         }
     }
     regenerateGettersAndSetters(obstacle){
-        // when obstacles are regenerated, they lose all of their getters and setters... we need to refresh those
+        // when sub-obstacles are regenerated, they lose all of their getters and setters... we need to refresh those
         if(obstacle._properties === undefined){
             obstacle._properties = {};
         }
@@ -306,7 +308,7 @@ export default class editMenuManager {
             Object.defineProperty(obstacle, key, {
                 set(value) {
                     obstacle._properties[key] = value;
-                    input.value = value;
+                    obstacle._inputRef.value = value;
                 },
                 get() {
                     return obstacle._properties[key];
