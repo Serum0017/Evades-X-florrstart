@@ -65,25 +65,15 @@ export default class editMenuManager {
                     event.preventDefault();
                     input.checked = !input.checked;
                     obstacle[key] = input.checked;
-                    this.regenerateObstacle(obstacle);
                     if(input.checked == true){
                         span.classList.add('inputChecked'); 
                     } else {
-                        span.classList.remove('inputChecked'); 
+                        span.classList.remove('inputChecked');
                     }
+                    this.regenerateObstacle(obstacle);
                 });
 
                 property.appendChild(label);
-
-                // const label = createEl('label');
-                // label.classList.add('switch');
-                // input.checked = value; // can u help fix css xd ooh theres a checkboxc ok
-                // label.classList.add('property-checkbox-input');
-                // label.appendChild(input);
-                // const span = createEl('span');
-                // span.classList.add('slider');
-                // label.appendChild(span);
-                // property.appendChild(label);
             },
             object: (key, subObject, {input, property, obstacle}) => {
                 if(obstacle._parentObstacle !== undefined){
@@ -153,7 +143,7 @@ export default class editMenuManager {
             this.excludedProperties[this.excludedProps[i]] = true;
         }
         delete this.excludedProps;
-        this.editorProperties = [{object: this.client.selectionManager, key: 'snapDistance'}, {object: this.client.selectionManager, key: 'toSnap'}, {object: this.client.game.map.settings.dimensions, key: 'x', keyName: 'map width'}, {object: this.client.game.map.settings.dimensions, key: 'y', keyName: 'map height'}];
+        this.editorProperties = [{object: this.client.selectionManager, key: 'snapDistance'}, {object: this.client.selectionManager, key: 'toSnap'}, {object: this.client.game.map.settings.dimensions, key: 'x', keyName: 'map width'}, {object: this.client.game.map.settings.dimensions, key: 'y', keyName: 'map height'}, {object: window, key: 'isFullScreen', keyName: 'toggle full screen'}];
     }
     reloadMenu(){
         while(Ref.gui.firstChild){
@@ -329,7 +319,7 @@ export default class editMenuManager {
     }
     regenerateMapProperty(mapReferences){
         for(let key in mapReferences){
-            if(key === '_properties' || key === 'editorPropertyReferences' || key === 'specialKeyNames' || key === 'isEditorProperties'){
+            if(key === '_properties' || key === 'editorPropertyReferences' || key === 'specialKeyNames' || key === 'isEditorProperties' || key === '_inputRef'){
                 continue;
             }
             

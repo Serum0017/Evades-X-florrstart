@@ -49,6 +49,19 @@ export default class SelectionManager {
         }
         this.updateTransforms();
     }
+    includePoint({x, y}, margin=100){
+        const me = this.client.me();
+        if(x > window.innerWidth - margin){
+            me.x += 8 / Ref.canvas.zoom;
+        } else if(x < margin) {
+            me.x -= 8 / Ref.canvas.zoom;
+        }
+        if(y > window.innerHeight - margin){
+            me.y += 8 / Ref.canvas.zoom;
+        } else if(y < margin) {
+            me.y -= 8 / Ref.canvas.zoom;
+        }
+    }
     updateTransforms(){
         const mousePos = this.screenToWorld(this.mouse.pos);
         this.mouse.delta = {x: mousePos.x - this.mouse.last.x, y: mousePos.y - this.mouse.last.y};
@@ -119,14 +132,26 @@ export default class SelectionManager {
                 const collidingObstacle = this.collidingWithObstacle(this.screenToWorld(this.mouse.pos));
                 if(event.altKey === true && collidingObstacle !== false){
                     // if the alt key is pressed, initiate an alt drag
-                    console.log(collidingObstacle);
                     this.addPreviewObstacle(this.structuredCloneWithoutKey({...collidingObstacle, shape: collidingObstacle.renderFlag === 'square' ? 'square' : collidingObstacle.shape}, ['_inputRef']));
+                } else if(event.shiftKey === true && collidingObstacle !== false){
+                    // initiate a shift click
+                    this.selectAllOfType(collidingObstacle);
+                    this.transformActive = true;
                 } else if(this.collidingWithSelectedObstacle(this.screenToWorld(this.mouse.pos)) !== false){
+                    // if we're pressing the ctrl key, then deselect this obstacle
+                    if(event.ctrlKey === true){
+                        this.selectedObstacles = this.selectedObstacles.filter(s => s !== this.collidingWithSelectedObstacle(this.screenToWorld(this.mouse.pos)));
+                        return;
+                    }
                     // if we already have a selection, drag those
                     this.transformActive = true;
                 } else if(collidingObstacle !== false){
                     // if we're immediately intersecting something, start the drag
-                    this.selectedObstacles = [collidingObstacle];
+                    if(event.ctrlKey === true){
+                        this.selectedObstacles.push(collidingObstacle);
+                    } else {
+                        this.selectedObstacles = [collidingObstacle];
+                    }
                     this.transformActive = true;
                 } else {
                     // otherwise, start multi select
@@ -189,7 +214,34 @@ export default class SelectionManager {
     startSelectionDrag({x,y}){
         this.selectionRect = {start: this.screenToWorld({x,y}), end: this.screenToWorld({x,y})};
     }
-
+    selectAll(){
+        this.selectedObstacles = [];
+        for(let i = 0; i < this.map.obstacles.length; i++){
+            this.selectedObstacles.push(this.map.obstacles[i]);
+        }
+        this.selectedObstacles = this.selectedObstacles;
+    }
+    selectAllOfType({shape, simulate, effect, renderFlag}){
+        this.selectedObstacles = [];
+        for(let i = 0; i < this.map.obstacles.length; i++){
+            if(this.map.obstacles[i].shape === shape && this.arrayEquals(this.map.obstacles[i].simulate, simulate) === true && this.map.obstacles[i].effect === effect){
+                // special poly thing
+                if(this.map.obstacles[i].shape === 'poly' && (this.map.obstacles[i].renderFlag !== renderFlag)){
+                    continue;
+                }
+                this.selectedObstacles.push(this.map.obstacles[i]);
+            }
+        }
+        this.selectedObstacles = this.selectedObstacles;
+    }
+    arrayEquals(arr1, arr2){
+        for(let i = 0; i < arr1.length; i++){
+            if(arr1[i] !== arr2[i]){
+                return false;
+            }
+        }
+        return true;
+    }
     selectObstacles({x,y,w,h}){
         const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w, h});
         this.selectedObstacles = [];
@@ -253,7 +305,6 @@ export default class SelectionManager {
                 window.initObstacle(this.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape}, ['_inputRef']))
             );
         }
-        console.log(this.clipboard);
     }
     structuredCloneWithoutKey(o, keyNames=[]){
         if(typeof o === 'object'){

@@ -19,6 +19,8 @@ const editorKeyCodes = {
     Delete: 'delete',
     KeyC: 'copy',
     KeyV: 'paste',
+    Digit0: 'toCenter',
+    Digit1: 'toCenterAndZoom',
     ControlLeft: 'ctrl',
     ControlRight: 'ctrl'
 }
@@ -117,6 +119,30 @@ export default class InputHandler {
                     return;
                 }
                 this.client.selectionManager.paste();
+            },
+            // a in ctrl a is also the left key. Defined this way to avoid intersections
+            /*highlightall*/left: (e) => {
+                if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
+                    return;
+                }
+                this.client.selectionManager.selectAll();
+            },
+            toCenter: (e) => {
+                if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
+                    return;
+                }
+                this.client.me().x = this.client.game.map.settings.dimensions.x/2;
+                this.client.me().y = this.client.game.map.settings.dimensions.y/2;
+                return e.preventDefault();
+            },
+            toCenterAndZoom: (e) => {
+                if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
+                    return;
+                }
+                this.client.me().x = this.client.game.map.settings.dimensions.x/2;
+                this.client.me().y = this.client.game.map.settings.dimensions.y/2;
+                this.client.game.renderer.camera.setScale(1);
+                return e.preventDefault();
             },
         }        
     }

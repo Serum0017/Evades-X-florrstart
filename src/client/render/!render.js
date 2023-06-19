@@ -192,6 +192,9 @@ export default class Renderer {
         // out of bounds borders
         ctx.strokeStyle = this.colors.tile;
         ctx.lineWidth = Math.max(canvas.w, canvas.h);
+        if(this.client.clientType === 'editor'){
+            ctx.lineWidth = Math.max(canvas.w + Math.abs(this.client.me().x), canvas.h + Math.abs(this.client.me().y));
+        }
         ctx.strokeRect(-ctx.lineWidth/2, -ctx.lineWidth/2, map.settings.dimensions.x + ctx.lineWidth, map.settings.dimensions.y + ctx.lineWidth);
         ctx.lineWidth = 3;
     }
@@ -300,6 +303,8 @@ export default class Renderer {
             ctx.globalAlpha = 1;
             ctx.stroke();
             ctx.closePath();
+
+            this.client.selectionManager.includePoint(this.client.selectionManager.mouse.pos);
         }
     }
     renderDisconnectedText(){
