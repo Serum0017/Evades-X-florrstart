@@ -243,11 +243,19 @@ export default class editMenuManager {
         });
 
         input.oninput = ((event) => {
-            if(isNaN(parseFloat(event.target.value)) === true){
-                obstacle[key] = event.target.value;
-            } else {
-                obstacle[key] = parseFloat(event.target.value);
+            const targetValue = typeof obstacle[key] === 'number' ? parseFloat(event.target.value) : event.target.value;
+
+            // preventing invalid inputs from resetting back to default
+            if(typeof obstacle[key] === 'number' || typeof obstacle[key] === 'string'){
+                if(window.initObstacle({...obstacle, [key]: targetValue})[key] !== targetValue){
+                    return;
+                }
+                if(typeof obstacle[key] === 'number' && targetValue.toString() !== event.target.value){
+                    return;
+                }
             }
+
+            obstacle[key] = targetValue;
             if(obstacle._parentObstacle !== undefined){
                 applyToKeyChain(obstacle._parentObstacle, obstacle._parentKeyChain, obstacle);
                 this.regenerateObstacle(obstacle._parentObstacle);

@@ -77,10 +77,13 @@ const SimulateMap = {
 
 export default function Simulate(player, o, other){
     // const last = {x: o.x, y: o.y, rotation: o.rotation, pivot: o.pivot/*TODO*/};
-    const bound = o.body.getBoundingBox();
-    o.x = bound.pos.x + bound.w/2;
-    o.y = bound.pos.y + bound.h/2;
-    o.difference = {x: bound.w, y: bound.h};
+    if(o.simulate.length !== 1 || o.simulate[0] !== 'normal'){
+        const bound = o.body.getBoundingBox();
+        o.x = bound.pos.x + bound.w/2;
+        o.y = bound.pos.y + bound.h/2;
+        o.difference = {x: bound.w, y: bound.h};
+    }
+    
     const last = {x: o.x, y: o.y, rotation: o.rotation};
 
     for(let i = 0; i < o.simulate.length; i++){

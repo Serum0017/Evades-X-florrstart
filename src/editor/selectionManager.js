@@ -41,6 +41,8 @@ export default class SelectionManager {
 
         this.addEventListeners();
 
+        // this.defineResizeMap();
+
         setInterval(this.run.bind(this), 1000/60);
     }
     run(){
@@ -65,13 +67,22 @@ export default class SelectionManager {
     updateTransforms(){
         const mousePos = this.screenToWorld(this.mouse.pos);
         this.mouse.delta = {x: mousePos.x - this.mouse.last.x, y: mousePos.y - this.mouse.last.y};
+        if(this.mouse.delta.x === 0 && this.mouse.delta.y === 0){
+            this.mouse.last = this.screenToWorld(this.mouse.pos);
+            return;
+        }
         const stw = this.screenToWorld(this.mouse.pos);
         if(this.toSnap === true && (this.previewObstacle !== null || this.transformActive === true)){
             this.snapDifference = {
                 x: Math.round(stw.x / this.snapDistance) * this.snapDistance - Math.round(this.mouse.last.x / this.snapDistance) * this.snapDistance,
                 y: Math.round(stw.y / this.snapDistance) * this.snapDistance - Math.round(this.mouse.last.y / this.snapDistance) * this.snapDistance
             }
+            if(this.snapDifference.x === 0 && this.snapDifference.y === 0){
+                this.mouse.last = this.screenToWorld(this.mouse.pos);
+                return;
+            }
         }
+        
         if(this.previewObstacle !== null){
             if(this.toSnap === true){
                 this.transformPreviewObstacle(this.snapDifference);
@@ -81,7 +92,6 @@ export default class SelectionManager {
                     y: this.mouse.delta.y
                 })
             }
-            
         }
         if(this.transformActive === true){
             for(let i = 0; i < this.selectedObstacles.length; i++){
@@ -189,10 +199,16 @@ export default class SelectionManager {
         this.transformPreviewObstacle({x: mousePos.x - this.previewObstacle.x, y: mousePos.y - this.previewObstacle.y});
     }
     transformPreviewObstacle({x,y}){
+        if(x === 0 && y === 0){
+            return;
+        }
         if(this.toSnap === true){
             const difference = {
                 x: Math.round((x + this.previewObstacle.x) / this.snapDistance) * this.snapDistance - this.previewObstacle.x,
                 y: Math.round((y + this.previewObstacle.y) / this.snapDistance) * this.snapDistance - this.previewObstacle.y,
+            }
+            if(difference.x === 0 && difference.y === 0){
+                return;
             }
             transformBody(this.previewObstacle, {
                 x: difference.x,
@@ -315,12 +331,25 @@ export default class SelectionManager {
         }
         this.selectedObstacles = [];
         for(let i = 0; i < this.clipboard.length; i++){
+            this.defineScalingPoints(this.clipboard[i]);
             this.map.addObstacle(this.clipboard[i]);
             this.client.uiManager.addInitObstacle(this.clipboard[i]);
             this.selectedObstacles.push(this.map.obstacles[this.map.obstacles.length-1]);
         }
         this.clipboard = window.structuredClone(this.clipboard);
     }
+
+    // TODO:
+    // defineResizeMap(){
+    //     this.resizeMap = {
+    //         square: (obstacle) => {
+
+    //         }
+    //     }
+    // }
+    // defineScalingPoints(obstacle){
+        
+    // }
 
     screenToWorld({x,y}){
         return {
