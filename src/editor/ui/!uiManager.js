@@ -60,13 +60,100 @@ export default class UIManager {
             }
         }
 
+        Ref.canvas.onwheel = (e) => {
+            this.renderer.camera.scale(1 - e.deltaY/2000);
+            if(this.renderer.camera.scalar > 5){
+                this.renderer.camera.setScale(5);
+            } else if(this.renderer.camera.scalar < 0.2){
+                this.renderer.camera.setScale(0.2);
+            }
+        };
+
         Ref.deleteButton.onclick = (event) => {
             this.client.selectionManager.deleteSelectedObstacles();
             this.client.selectionManager.previewObstacle = null;
             event.stopPropagation();
             return event.preventDefault();
         }
+
+        this.mapInitData = {};
+        this.mapInitId = 0;
+        Ref.resyncButton.onclick = (event) => {
+            this.importMap(this.exportMap());
+        }
+
+        Ref.importButton.onclick = (event) => {
+            navigator.clipboard.readText()
+                .then((clipboardText) => {
+                    const toOverride = confirm('Override data? (OK) or add to existing (CANCEL)');
+                    this.importMap(clipboardText, toOverride);
+                })
+                .catch((e) => {
+                    console.error('Failed to read clipboard contents! ', e);
+                    return;
+                });
+            
+        }
+
+        Ref.exportButton.onclick = (event) => {
+            // copy JSON.stringify(this.mapInitData) to clipboard
+            navigator.clipboard.writeText(this.exportMap());
+        }
     }
+    addInitObstacle(o){
+        const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['_inputRef','_parentObstacle']);
+
+        o.mapInitId = this.mapInitId++;
+        this.mapInitData[o.mapInitId] = deepObstacle;
+    }
+    updateInitObstacle(o){
+        this.deleteInitObstacle(o);
+        this.addInitObstacle(o);
+    }
+    deleteInitObstacle(o){
+        delete this.mapInitData[o.mapInitId];
+        delete o.mapInitId;
+    }
+    refreshMapInit(obstacles){
+        this.mapInitData = {};
+        this.mapInitId = 0;
+        for(let i = 0; i < obstacles.length; i++){
+            delete obstacles[i].mapInitId;
+            this.addInitObstacle(obstacles[i]);
+        }
+    }
+
+    importMap(mapText, toOverride=true){
+        try {
+            this.client.selectionManager.selectedObstacles = [];
+            const mapData = JSON.parse(mapText);
+            if(toOverride === true){
+                mapData.selfId = this.map.selfId;
+                this.map.init(mapData);
+                this.refreshMapInit(this.map.obstacles);
+            } else {
+                if(!Array.isArray(mapData.obstacles)){
+                    return;
+                }
+                for(let i = 0; i < mapData.obstacles.length; i++){
+                    if(typeof mapData.obstacles[i] !== 'object'){
+                        return;
+                    }
+                    this.map.addObstacle(mapData.obstacles[i]);
+                    this.client.selectionManager.selectedObstacles.push(this.map.obstacles[i]);
+                }
+                this.client.selectionManager.selectedObstacles = this.client.selectionManager.selectedObstacles;
+            }
+        } catch(e){
+            console.error('Map importing error! ', e);
+            console.warn('here is happy face to make you feel better :D');
+            return;
+        }
+    }
+    exportMap(){
+        return JSON.stringify({...this.map.initPack(), players: undefined, obstacles: Object.values(this.mapInitData)});
+    }
+
     hideMenuUnlessHover(){
         // Ref.allGui.classList.add('hidden');
         // window.addEventListener("mousemove", this.hideMenuUnlessHoverEventListener);

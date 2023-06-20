@@ -100,6 +100,7 @@ export default class SelectionManager {
                         rotation: 0
                     })
                 }
+                this.client.uiManager.updateInitObstacle(this.selectedObstacles[i]);
             }
         }
 
@@ -132,7 +133,8 @@ export default class SelectionManager {
                 const collidingObstacle = this.collidingWithObstacle(this.screenToWorld(this.mouse.pos));
                 if(event.altKey === true && collidingObstacle !== false){
                     // if the alt key is pressed, initiate an alt drag
-                    this.addPreviewObstacle(this.structuredCloneWithoutKey({...collidingObstacle, shape: collidingObstacle.renderFlag === 'square' ? 'square' : collidingObstacle.shape}, ['_inputRef']));
+                    // TODO: add multiple obstacles and start a transform if multiple are selected (move this if statement after this.collidingWithSelectedObstacles)
+                    this.addPreviewObstacle(window.structuredCloneWithoutKey({...collidingObstacle, shape: collidingObstacle.renderFlag === 'square' ? 'square' : collidingObstacle.shape}, ['_inputRef']));
                 } else if(event.shiftKey === true && collidingObstacle !== false){
                     // initiate a shift click
                     this.selectAllOfType(collidingObstacle);
@@ -208,6 +210,7 @@ export default class SelectionManager {
     }
     placePreviewObstacle(){
         this.map.addObstacle(this.previewObstacle);
+        this.client.uiManager.addInitObstacle(this.previewObstacle)
         this.previewObstacle = null;
     }
 
@@ -287,6 +290,7 @@ export default class SelectionManager {
     deleteSelectedObstacles(){
         for(let i = 0; i < this.selectedObstacles.length; i++){
             this.selectedObstacles[i].toRemoveSelector = true;
+            this.client.uiManager.deleteInitObstacle(this.selectedObstacles[i]);
         }
         
         this.map.obstacles = this.map.obstacles.filter(o => o.toRemoveSelector !== true);
@@ -300,39 +304,9 @@ export default class SelectionManager {
         this.clipboard = [];
         for(let i = 0; i < this.selectedObstacles.length; i++){
             const o = this.selectedObstacles[i];
-            console.log({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape});
             this.clipboard.push(
-                window.initObstacle(this.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape}, ['_inputRef']))
+                window.initObstacle(window.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape}, ['_inputRef']))
             );
-        }
-    }
-    structuredCloneWithoutKey(o, keyNames=[]){
-        if(typeof o === 'object'){
-            if(Array.isArray(o) === true){
-                // array
-                const clone = [];
-                for(let i = 0; i < o.length; i++){
-                    if(keyNames.includes(i) === true){
-                        clone[i] = undefined;
-                        continue;
-                    }
-                    clone[i] = this.structuredCloneWithoutKey(o[i], keyNames);
-                }
-                return clone;
-            } else {
-                // object
-                const clone = {};
-                for(let key in o){
-                    if(keyNames.includes(key) === true){
-                        continue;
-                    }
-                    clone[key] = this.structuredCloneWithoutKey(o[key], keyNames);
-                }
-                return clone;
-            }
-        } else {
-            // primitive
-            return o;
         }
     }
     paste(){
@@ -342,6 +316,7 @@ export default class SelectionManager {
         this.selectedObstacles = [];
         for(let i = 0; i < this.clipboard.length; i++){
             this.map.addObstacle(this.clipboard[i]);
+            this.client.uiManager.addInitObstacle(this.clipboard[i]);
             this.selectedObstacles.push(this.map.obstacles[this.map.obstacles.length-1]);
         }
         this.clipboard = window.structuredClone(this.clipboard);

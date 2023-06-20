@@ -112,7 +112,7 @@ export default class Renderer {
         this.camera.resetTranslate();
 
         // TODO: uncomment this and make it cached because vinete drawing is really laggy
-        this.renderOverlay(me);
+        // this.renderOverlay(me);
     }
     renderOverlay(me){
         if (me.dead === true){

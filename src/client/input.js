@@ -144,7 +144,7 @@ export default class InputHandler {
                 this.client.game.renderer.camera.setScale(1);
                 return e.preventDefault();
             },
-        }        
+        }
     }
     handleKey(e){
         // make sure the user hasn't selected / deselected the chat between inputs

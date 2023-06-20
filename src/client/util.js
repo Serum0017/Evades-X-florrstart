@@ -28,44 +28,43 @@ for(let i = 0; i < difficultyFileNames.length; i++){
 const arrowImg = new Image();
 arrowImg.src = '../client/gfx/arrow.png';
 
-// TODO: fix this! really janky on both chrome and firefox lmao
-window.toggleFullScreen = (elem=document.body) => {
-  // ## The below if statement seems to work better ## if ((document.fullScreenElement && document.fullScreenElement !== null) || (document.msfullscreenElement && document.msfullscreenElement !== null) || (!document.mozFullScreen && !document.webkitIsFullScreen)) {
-  if ((document.fullScreenElement !== undefined && document.fullScreenElement === null) || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null) || (document.mozFullScreen !== undefined && !document.mozFullScreen) || (document.webkitIsFullScreen !== undefined && !document.webkitIsFullScreen)) {
-    console.log('calling');
-    if (elem.requestFullScreen) {
-      elem.requestFullScreen();
-    } else if (elem.mozRequestFullScreen) {
-      elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullScreen) {
-      elem.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-    } else if (elem.msRequestFullscreen) {
-      elem.msRequestFullscreen();
-    }
-  } else {
-    if (document.cancelFullScreen) {
-      document.cancelFullScreen();
-    } else if (document.mozCancelFullScreen) {
-      document.mozCancelFullScreen();
-    } else if (document.webkitCancelFullScreen) {
-      document.webkitCancelFullScreen();
-    } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
-    }
-  }
-}
-window._isFullScreen = false;
-Object.defineProperty(window, 'isFullScreen', {
-  set(value){
-    if(value !== window._isFullScreen){
-      window.toggleFullScreen();
-      window._isFullScreen = value;
-    }
-  },
-  get(){
-    return window._isFullScreen;
-  }
-})
+// // TODO: fix this! really janky on both chrome and firefox lmao
+// window.toggleFullScreen = (elem=document.body) => {
+//   // ## The below if statement seems to work better ## if ((document.fullScreenElement && document.fullScreenElement !== null) || (document.msfullscreenElement && document.msfullscreenElement !== null) || (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+//   if ((document.fullScreenElement !== undefined && document.fullScreenElement === null) || (document.msFullscreenElement !== undefined && document.msFullscreenElement === null) || (document.mozFullScreen !== undefined && !document.mozFullScreen) || (document.webkitIsFullScreen !== undefined && !document.webkitIsFullScreen)) {
+//     if (elem.requestFullScreen) {
+//       elem.requestFullScreen();
+//     } else if (elem.mozRequestFullScreen) {
+//       elem.mozRequestFullScreen();
+//     } else if (elem.webkitRequestFullScreen) {
+//       elem.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+//     } else if (elem.msRequestFullscreen) {
+//       elem.msRequestFullscreen();
+//     }
+//   } else {
+//     if (document.cancelFullScreen) {
+//       document.cancelFullScreen();
+//     } else if (document.mozCancelFullScreen) {
+//       document.mozCancelFullScreen();
+//     } else if (document.webkitCancelFullScreen) {
+//       document.webkitCancelFullScreen();
+//     } else if (document.msExitFullscreen) {
+//       document.msExitFullscreen();
+//     }
+//   }
+// }
+// window._isFullScreen = false;
+// Object.defineProperty(window, 'isFullScreen', {
+//   set(value){
+//     if(value !== window._isFullScreen){
+//       window.toggleFullScreen();
+//       window._isFullScreen = value;
+//     }
+//   },
+//   get(){
+//     return window._isFullScreen;
+//   }
+// })
 
 // window.onresize = function (event) {
 //   var maxHeight = window.screen.height,
@@ -73,12 +72,42 @@ Object.defineProperty(window, 'isFullScreen', {
 //     curHeight = window.innerHeight,
 //     curWidth = window.innerWidth;
 
-//   if (maxWidth == curWidth && maxHeight == curHeight) {
-//     window.isFullScreen = true;
-//   } else { 
-//     window.isFullScreen = false;
+//   if (maxHeight == curHeight) {
+//     window._isFullScreen = true;
+//   } else {
+//     window._isFullScreen = false;
 //   }
 // }
+
+window.structuredCloneWithoutKey = (o, keyNames=[]) => {
+  if(typeof o === 'object'){
+      if(Array.isArray(o) === true){
+          // array
+          const clone = [];
+          for(let i = 0; i < o.length; i++){
+              if(keyNames.includes(i) === true){
+                  clone[i] = undefined;
+                  continue;
+              }
+              clone[i] = window.structuredCloneWithoutKey(o[i], keyNames);
+          }
+          return clone;
+      } else {
+          // object
+          const clone = {};
+          for(let key in o){
+              if(keyNames.includes(key) === true){
+                  continue;
+              }
+              clone[key] = window.structuredCloneWithoutKey(o[key], keyNames);
+          }
+          return clone;
+      }
+  } else {
+      // primitive
+      return o;
+  }
+}
 
 // fallback for performance.now on older browsers
 window.performance = window.performance || {}; performance.now = (function() {return performance.now || performance.mozNow || performance.msNow || performance.oNow || performance.webkitNow || function() { return new Date().getTime();};})();
