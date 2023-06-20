@@ -138,17 +138,18 @@ export default class Renderer {
         }
     }
     renderObstacles(obstacles, players, player){
+        const advanced = {canvas, obstacles, players, player, colors: this.colors}
         for(let o of obstacles){
             ctx.toStroke = false;
             ctx.toFill = true;
             ctx.toClip = false;
 
-            this.renderGlobal(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+            this.renderGlobal(o, ctx, advanced);
 
-            EffectManager.renderEffect(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
-            renderShape(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+            EffectManager.renderEffect(o, ctx, advanced);
+            renderShape(o, ctx, advanced);
             if(EffectManager.renderEffectAfterShapeMap[o.effect] !== undefined){
-                EffectManager.renderEffectAfterShape(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+                EffectManager.renderEffectAfterShape(o, ctx, advanced);
             }
 
             ctx.globalAlpha = 1;
@@ -214,30 +215,103 @@ export default class Renderer {
         }
     }
     renderEditorObstacles(obstacles, players, player){
+        const advanced = {canvas, obstacles, players, player, colors: this.colors}
         for(let o of obstacles){
             ctx.toStroke = false;
             ctx.toFill = true;
             ctx.toClip = false;
 
-            this.renderGlobal(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
-            EffectManager.renderEffect(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+            this.renderGlobal(o, ctx, advanced);
+            EffectManager.renderEffect(o, ctx, advanced);
 
             if(ctx.toFill === false && ctx.toStroke === false || ctx.globalAlpha === 0){
-                this.renderEditorObstacleOutline(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+                this.renderEditorObstacleOutline(o, ctx, advanced);
                 o.visible = false;
             }
 
-            renderShape(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+            renderShape(o, ctx, advanced);
             if(EffectManager.renderEffectAfterShapeMap[o.effect] !== undefined){
-                EffectManager.renderEffectAfterShape(o, ctx, {canvas, obstacles, players, player, colors: this.colors});
+                EffectManager.renderEffectAfterShape(o, ctx, advanced);
             }
 
             if(o.visible === false){
                 ctx.setLineDash([]);
-                ctx.lineCap = 'butt';
+                ctx.lineCap = 'square';
+            }
+
+            if(this.client.selectionManager.transformMode === 'resize' && this.client.playerActive === false){
+                this.renderResizePoints(o, ctx, advanced);
             }
 
             ctx.globalAlpha = 1;
+        }
+    }
+    renderEditor(){
+        if(this.client.clientType !== 'editor'){
+            return;
+        }
+
+        const selectionManager = this.client.selectionManager;
+
+        // rendering tranparent preview obs
+        if(selectionManager.previewObstacle !== null){
+            ctx.globalAlpha = 0.5;
+            selectionManager.previewObstacle.render = selectionManager.previewObstacle;
+            this.renderObstacles([selectionManager.previewObstacle], this.client.game.players, this.client.map.self);
+        }
+
+        // rendering blue outline around selected obstacles
+        for(let i = 0; i < selectionManager.selectedObstacles.length; i++){
+            const selectedObstacle = selectionManager.selectedObstacles[i];
+            if(selectedObstacle.toRender === false)continue;
+            ctx.toStroke = true;
+            ctx.toFill = false;
+            ctx.toClip = false;
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 4;
+            if(selectedObstacle.visible === false){
+                ctx.translate(selectedObstacle.x, selectedObstacle.y);
+                ctx.scale((selectedObstacle.difference.x + 8) / selectedObstacle.difference.x, (selectedObstacle.difference.y + 8) / selectedObstacle.difference.y);
+                ctx.translate(-selectedObstacle.x, -selectedObstacle.y);
+            }
+
+            renderShape(selectedObstacle, ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
+
+            if(selectedObstacle.visible === false){
+                ctx.translate(selectedObstacle.x, selectedObstacle.y);
+                ctx.scale(selectedObstacle.difference.x / (selectedObstacle.difference.x + 8), selectedObstacle.difference.y / (selectedObstacle.difference.y + 8));
+                ctx.translate(-selectedObstacle.x, -selectedObstacle.y);
+            }
+
+            ctx.globalAlpha = 1;
+        }
+
+        // rendering blue outlines around selected points
+        for(let i = 0; i < selectionManager.selectedResizePoints.length; i++){
+            const resizePoint = selectionManager.selectedResizePoints[i];
+            ctx.beginPath();
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 4;
+            ctx.arc(resizePoint.parentObstacle.x + resizePoint.x, resizePoint.parentObstacle.y + resizePoint.y, 12.5, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.closePath();
+        }
+
+        // rendering selection rect
+        const selectionRect = selectionManager.selectionRect;
+        if(selectionRect !== null){
+            ctx.beginPath();
+            ctx.fillStyle = 'black';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.rect(selectionRect.start.x, selectionRect.start.y, selectionRect.end.x - selectionRect.start.x, selectionRect.end.y - selectionRect.start.y);
+            ctx.globalAlpha = 0.3;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.stroke();
+            ctx.closePath();
+
+            selectionManager.includePoint(selectionManager.mouse.pos);
         }
     }
     renderEditorObstacleOutline(o, ctx, advanced){
@@ -252,61 +326,26 @@ export default class Renderer {
         ctx.lineDashOffset = -performance.now() / 25;
         ctx.lineCap = 'round';
     }
-    renderEditor(){
-        if(this.client.clientType !== 'editor'){
+    renderResizePoints(o, ctx, advanced){
+        if(o === this.client.selectionManager.previewObstacle){
             return;
         }
-
-        // rendering tranparent preview obs
-        if(this.client.selectionManager.previewObstacle !== null){
-            ctx.globalAlpha = 0.5;
-            this.client.selectionManager.previewObstacle.render = this.client.selectionManager.previewObstacle;
-            this.renderObstacles([this.client.selectionManager.previewObstacle], this.client.game.players, this.client.map.self);
-        }
-
-        // rendering blue outline around selected obstacles
-        for(let i = 0; i < this.client.selectionManager.selectedObstacles.length; i++){
-            const selectedObstacle = this.client.selectionManager.selectedObstacles[i];
-            if(selectedObstacle.toRender === false)continue;
-            ctx.toStroke = true;
-            ctx.toFill = false;
-            ctx.toClip = false;
-            ctx.strokeStyle = 'blue';
-            ctx.lineWidth = 4;
-            if(selectedObstacle.visible === false){
-                ctx.translate(selectedObstacle.x, selectedObstacle.y);
-                ctx.scale((selectedObstacle.difference.x + 8) / selectedObstacle.difference.x, (selectedObstacle.difference.y + 8) / selectedObstacle.difference.y);
-                ctx.translate(-selectedObstacle.x, -selectedObstacle.y);
-            }
-
-            renderShape(this.client.selectionManager.selectedObstacles[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
-
-            if(selectedObstacle.visible === false){
-                ctx.translate(selectedObstacle.x, selectedObstacle.y);
-                ctx.scale(selectedObstacle.difference.x / (selectedObstacle.difference.x + 8), selectedObstacle.difference.y / (selectedObstacle.difference.y + 8));
-                ctx.translate(-selectedObstacle.x, -selectedObstacle.y);
-            }
-
-            ctx.globalAlpha = 1;
-        }
-
-        // rendering selection rect
-        const selectionRect = this.client.selectionManager.selectionRect;
-        if(selectionRect !== null){
-            ctx.beginPath();
+        ctx.globalAlpha *= 0.7;
+        for(let i = 0; i < o.resizePoints.length; i++){
             ctx.fillStyle = 'black';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 3;
-            ctx.rect(selectionRect.start.x, selectionRect.start.y, selectionRect.end.x - selectionRect.start.x, selectionRect.end.y - selectionRect.start.y);
-            ctx.globalAlpha = 0.3;
+            ctx.beginPath();
+            ctx.arc(o.x + o.resizePoints[i].x, o.y + o.resizePoints[i].y, 12.5, 0, Math.PI*2);
             ctx.fill();
-            ctx.globalAlpha = 1;
-            ctx.stroke();
             ctx.closePath();
 
-            this.client.selectionManager.includePoint(this.client.selectionManager.mouse.pos);
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(i + 1, o.x + o.resizePoints[i].x, o.y + o.resizePoints[i].y);
         }
     }
+
     renderDisconnectedText(){
         ctx.fillStyle = 'white';
         ctx.font = '40px Inter';

@@ -42,6 +42,8 @@ const initSimulateMap = {
             obs.x = obs.pointOn.x;
             obs.y = obs.pointOn.y;
         }
+        obs.x = toNumber(init.x, obs.x);
+        obs.y = toNumber(init.y, obs.y);
     },
     rotate: (obs, init) => {
         // init.x and y are the midpoint

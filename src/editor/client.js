@@ -34,4 +34,21 @@ export default class EditorClient {
     me() {
         return this.map.self;
     }
+    // shared methods for handling common things
+    initObstacle(o){
+        this.uiManager.addInitObstacle(o);
+        this.selectionManager.defineResizePoints(o);
+    }
+    addObstacle(o){
+        this.game.map.addObstacle(o);
+        this.initObstacle(o);
+    }
+    updateObstacle(o){
+        this.uiManager.editMenuManager.regenerateObstacle(o);
+        this.uiManager.updateInitObstacle(o);
+    }
+    deleteObstacle(o){
+        // note: this just updates the removal but doesn't actually remove the obstacle from the map
+        this.uiManager.deleteInitObstacle(o);
+    }
 }

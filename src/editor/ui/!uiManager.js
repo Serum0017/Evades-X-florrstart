@@ -101,7 +101,7 @@ export default class UIManager {
         }
     }
     addInitObstacle(o){
-        const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['_inputRef','_parentObstacle']);
+        const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['_parentObstacle','resizePoints','_inputRef']);
 
         o.mapInitId = this.mapInitId++;
         this.mapInitData[o.mapInitId] = deepObstacle;
@@ -119,7 +119,7 @@ export default class UIManager {
         this.mapInitId = 0;
         for(let i = 0; i < obstacles.length; i++){
             delete obstacles[i].mapInitId;
-            this.addInitObstacle(obstacles[i]);
+            this.client.initObstacle(obstacles[i]);
         }
     }
 
@@ -131,6 +131,7 @@ export default class UIManager {
                 mapData.selfId = this.map.selfId;
                 this.map.init(mapData);
                 this.refreshMapInit(this.map.obstacles);
+                this.client.selectionManager.selectedObstacles = [];
             } else {
                 if(!Array.isArray(mapData.obstacles)){
                     return;
@@ -139,11 +140,14 @@ export default class UIManager {
                     if(typeof mapData.obstacles[i] !== 'object'){
                         return;
                     }
-                    this.map.addObstacle(mapData.obstacles[i]);
-                    this.client.selectionManager.selectedObstacles.push(this.map.obstacles[i]);
+                    this.client.addObstacle(mapData.obstacles[i]);
+                    this.client.selectionManager.selectedObstacles.push(this.map.obstacles[this.map.obstacles.length-1]);
                 }
                 this.client.selectionManager.selectedObstacles = this.client.selectionManager.selectedObstacles;
             }
+            this.client.selectionManager.selectedResizePoints = [];
+            this.client.selectionManager.transformActive = false;
+            this.client.selectionManager.transformResizePointsActive = false;
         } catch(e){
             console.error('Map importing error! ', e);
             console.warn('here is happy face to make you feel better :D');

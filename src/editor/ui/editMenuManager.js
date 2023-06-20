@@ -136,7 +136,7 @@ export default class editMenuManager {
         this.excludedProps = [
             'shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
             'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
-            '_parentKeyChain','_parentObstacle','_inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId'
+            '_parentKeyChain','_parentObstacle','_inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints'
         ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
@@ -246,8 +246,9 @@ export default class editMenuManager {
             const targetValue = typeof obstacle[key] === 'number' ? parseFloat(event.target.value) : event.target.value;
 
             // preventing invalid inputs from resetting back to default
-            if(typeof obstacle[key] === 'number' || typeof obstacle[key] === 'string'){
+            if(obstacle._parentObstacle === undefined/*TODO: apply this to subobjects as well*/ && (typeof obstacle[key] === 'number' || typeof obstacle[key] === 'string')){
                 if(window.initObstacle({...obstacle, [key]: targetValue})[key] !== targetValue){
+                    console.log(obstacle._parentObstacle);
                     return;
                 }
                 if(typeof obstacle[key] === 'number' && targetValue.toString() !== event.target.value){
@@ -258,9 +259,9 @@ export default class editMenuManager {
             obstacle[key] = targetValue;
             if(obstacle._parentObstacle !== undefined){
                 applyToKeyChain(obstacle._parentObstacle, obstacle._parentKeyChain, obstacle);
-                this.regenerateObstacle(obstacle._parentObstacle);
+                this.client.updateObstacle(obstacle._parentObstacle);
             } else {
-                this.regenerateObstacle(obstacle);
+                this.client.updateObstacle(obstacle);
             }
         }).bind(this);
 
@@ -292,7 +293,6 @@ export default class editMenuManager {
                 this.regenerateGettersAndSetters(newObstacle[key]);
             }
         }
-        this.client.uiManager.updateInitObstacle(obstacle);
     }
     regenerateGettersAndSetters(obstacle){
         // when sub-obstacles are regenerated, they lose all of their getters and setters... we need to refresh those
