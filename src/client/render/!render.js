@@ -235,8 +235,7 @@ export default class Renderer {
             }
 
             if(o.visible === false){
-                ctx.setLineDash([]);
-                ctx.lineCap = 'square';
+                this.resetEditorObstacleOutline(o, ctx, advanced);
             }
 
             if(this.client.selectionManager.transformMode === 'resize' && this.client.playerActive === false){
@@ -269,19 +268,8 @@ export default class Renderer {
             ctx.toClip = false;
             ctx.strokeStyle = 'blue';
             ctx.lineWidth = 4;
-            if(selectedObstacle.visible === false){
-                ctx.translate(selectedObstacle.x, selectedObstacle.y);
-                ctx.scale((selectedObstacle.difference.x + 8) / selectedObstacle.difference.x, (selectedObstacle.difference.y + 8) / selectedObstacle.difference.y);
-                ctx.translate(-selectedObstacle.x, -selectedObstacle.y);
-            }
 
             renderShape(selectedObstacle, ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
-
-            if(selectedObstacle.visible === false){
-                ctx.translate(selectedObstacle.x, selectedObstacle.y);
-                ctx.scale(selectedObstacle.difference.x / (selectedObstacle.difference.x + 8), selectedObstacle.difference.y / (selectedObstacle.difference.y + 8));
-                ctx.translate(-selectedObstacle.x, -selectedObstacle.y);
-            }
 
             ctx.globalAlpha = 1;
         }
@@ -325,6 +313,21 @@ export default class Renderer {
         ctx.setLineDash([15,25]);
         ctx.lineDashOffset = -performance.now() / 25;
         ctx.lineCap = 'round';
+
+        if(o.isSelected === true){
+            ctx.translate(o.x, o.y);
+            ctx.scale(Math.max(0.1, o.difference.x - 8) / o.difference.x, Math.max(0.1, o.difference.y - 8) / o.difference.y);
+            ctx.translate(-o.x, -o.y);
+        }
+    }
+    resetEditorObstacleOutline(o, ctx, advanced) {
+        if(o.isSelected === true){
+            ctx.translate(o.x, o.y);
+            ctx.scale(o.difference.x / Math.max(0.1, o.difference.x - 8), o.difference.y / Math.max(0.1, o.difference.y - 8));
+            ctx.translate(-o.x, -o.y);
+        }
+        ctx.setLineDash([]);
+        ctx.lineCap = 'square';
     }
     renderResizePoints(o, ctx, advanced){
         if(o === this.client.selectionManager.previewObstacle){

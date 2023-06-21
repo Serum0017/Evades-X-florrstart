@@ -183,9 +183,9 @@ const initEffectMap = {
     platformer: (obs, init) => {
         obs.platformerForce = toNumber(init.platformerForce, 1);
         obs.platformerAngle = toNumber(init.platformerAngle, 90);
-        obs.platformerAngle *= Math.PI/180;
+        if(init.refresh === undefined)obs.platformerAngle *= Math.PI/180;
         obs.platformerAngleRotateSpeed = toNumber(init.platformerAngleRotateSpeed, 0);
-        obs.platformerAngleRotateSpeed *= Math.PI/180;
+        if(init.refresh === undefined)obs.platformerAngleRotateSpeed *= Math.PI/180;
         obs.platformerFriction = toNumber(init.platformerFriction, 0.875);
 
         obs.maxJumps = toNumber(init.maxJumps, 1);// TODO: IMPLEMENT JUMPS. also TODO: add a preserve jump parameter that makes jumps conserve even if you are not bounded that frame. If disabled, platformer only lets you jump when you're on a plat THAT FRAME
@@ -200,9 +200,9 @@ const initEffectMap = {
     conveyor: (obs, init) => {
         obs.conveyorForce = toNumber(init.conveyorForce, 0.3);
         obs.conveyorAngle = toNumber(init.conveyorAngle, 0);
-        obs.conveyorAngle *= Math.PI/180;
+        if(init.refresh === undefined)obs.conveyorAngle *= Math.PI/180;
         obs.conveyorAngleRotateSpeed = toNumber(init.conveyorAngleRotateSpeed, 0);
-        obs.conveyorAngleRotateSpeed *= Math.PI/180;
+        if(init.refresh === undefined)obs.conveyorAngleRotateSpeed *= Math.PI/180;
         obs.conveyorFriction = toNumber(init.conveyorFriction, 0.8);
     },
     hole: (obs, init) => {
@@ -211,9 +211,9 @@ const initEffectMap = {
     rotateMovement: (obs, init) => {
         obs.axisSpeedMult = toNumber(init.axisSpeedMult, 1);
         obs.rotateMovementAngle = toNumber(init.rotateMovementAngle, 45);
-        obs.rotateMovementAngle *= Math.PI/180;
+        if(init.refresh === undefined)obs.rotateMovementAngle *= Math.PI/180;
         obs.rotateMovementAngleRotateSpeed = toNumber(init.rotateMovementAngleRotateSpeed, 0);
-        obs.rotateMovementAngleRotateSpeed *= Math.PI/180;
+        if(init.refresh === undefined)obs.rotateMovementAngleRotateSpeed *= Math.PI/180;
     },
     restrictAxis: (obs, init) => {
         obs.axisSpeedMults = {
@@ -233,9 +233,9 @@ const initEffectMap = {
         obs.maxSnapCooldown = toNumber(init.snapCooldown, 40);
         obs.snapCooldown = obs.maxSnapCooldown;
         obs.snapAngle = toNumber(init.snapAngle, 0);
-        obs.snapAngle *= Math.PI/180;
+        if(init.refresh === undefined)obs.snapAngle *= Math.PI/180;
         obs.snapAngleRotateSpeed = toNumber(init.snapAngleRotateSpeed, 0);
-        obs.snapAngleRotateSpeed *= Math.PI/180;
+        if(init.refresh === undefined)obs.snapAngleRotateSpeed *= Math.PI/180;
         obs.interpolatePlayerData = {};
         // obs.snapDistance.x = Math.max(35, obs.snapDistance.x);
         // obs.snapDistance.y = Math.max(35, obs.snapDistance.y);

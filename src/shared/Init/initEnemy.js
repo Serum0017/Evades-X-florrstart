@@ -27,7 +27,7 @@ const initEnemyMap = {
         e.wavyEnemyPeriod = toNumber(init.wavyEnemyPeriod, 20);// we can actually implement this later, rn this is just an example
         e.wavyEnemyTimer = e.wavyEnemyPeriod //* Math.random();
         e.wavyEnemyRotateSpeed = toNumber(init.wavyEnemyWaveLength, 6);
-        e.wavyEnemyRotateSpeed *= Math.PI / 180;
+        if(init.refresh === undefined)e.wavyEnemyRotateSpeed *= Math.PI / 180;
     },
 };
 

@@ -29,7 +29,13 @@ export default class SelectionManager {
         this._selectedObstacles = [];
         Object.defineProperty(this, "selectedObstacles", {
             set(value) {
+                for(let i = 0; i < this._selectedObstacles.length; i++){
+                    delete this._selectedObstacles[i].isSelected;
+                }
                 this._selectedObstacles = value;
+                for(let i = 0; i < this._selectedObstacles.length; i++){
+                    this._selectedObstacles[i].isSelected = true;
+                }
                 if(Ref.toggleGui.isOpen === true){
                     this.client.uiManager?.editMenuManager?.reloadMenu();
                 }
@@ -140,7 +146,7 @@ export default class SelectionManager {
                         x: this.toSnap === true ? this.snapDifference.x : this.mouse.delta.x,
                         y: this.toSnap === true ? this.snapDifference.y : this.mouse.delta.y
                     }
-                    if(parentObstacle.shape === 'poly' && parentObstacle.renderFlag === 'square'){
+                    if((parentObstacle.shape === 'poly' && parentObstacle.renderFlag === 'square') || parentObstacle.shape === 'text'){
                         transformDelta.x /= 2;
                         transformDelta.y /= 2;
                     }
@@ -214,7 +220,7 @@ export default class SelectionManager {
                     // if the alt key is pressed, initiate an alt drag
 
                     // TODO: add multiple obstacles and start a transform if multiple are selected (move this if statement after this.collidingWithSelectedObstacles)
-                    this.addPreviewObstacle(window.structuredCloneWithoutKey({...collidingObstacle, shape: collidingObstacle.renderFlag === 'square' ? 'square' : collidingObstacle.shape}, ['resizePoints','_inputRef']));
+                    this.addPreviewObstacle(window.structuredCloneWithoutKey({...collidingObstacle, shape: collidingObstacle.renderFlag === 'square' ? 'square' : collidingObstacle.shape}, ['resizePoints','inputRef']));
                 } else if(event.shiftKey === true && collidingObstacle !== false){
                     // initiate a shift click
                     this.selectAllOfType(collidingObstacle);
@@ -383,9 +389,13 @@ export default class SelectionManager {
     deleteSelectedObstacles(){
         for(let i = 0; i < this.selectedObstacles.length; i++){
             this.selectedObstacles[i].toRemoveSelector = true;
+            for(let j = 0; j < this.selectedObstacles[i].resizePoints.length; j++){
+                this.selectedObstacles[i].resizePoints[j].toRemoveSelector = true;   
+            }
             this.client.deleteObstacle(this.selectedObstacles[i]);
         }
         
+        this.selectedResizePoints = this.selectedResizePoints.filter(p => p.toRemoveSelector !== true);
         this.map.obstacles = this.map.obstacles.filter(o => o.toRemoveSelector !== true);
         this.selectedObstacles = [];
     }
@@ -398,7 +408,7 @@ export default class SelectionManager {
         for(let i = 0; i < this.selectedObstacles.length; i++){
             const o = this.selectedObstacles[i];
             this.clipboard.push(
-                window.initObstacle(window.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape}, ['resizePoints','_inputRef']))
+                window.initObstacle(window.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape}, ['resizePoints','inputRef']))
             );
         }
     }
@@ -444,10 +454,8 @@ export default class SelectionManager {
             },
             text: (o) => {
                 o.resizePoints = [
-                    {x: o.difference.x/2, y: o.difference.y/2},
-                    {x: -o.difference.x/2, y: o.difference.y/2},
-                    {x: o.difference.x/2, y: -o.difference.y/2},
-                    {x: -o.difference.x/2, y: -o.difference.y/2},
+                    {x: o.difference.x/2, y: 0},
+                    {x: -o.difference.x/2, y: 0},
                 ];
             }
         }
@@ -473,8 +481,9 @@ export default class SelectionManager {
                 // points[index] = new SAT.Vector(pt.x, pt.y);
                 // o.body.setPoints(points);
                 // console.log(o);
-                // o.points[index][0] = pt.x;
-                // o.points[index][1] = pt.y;
+                o.points[index][0] = pt.x;
+                o.points[index][1] = pt.y;
+                // console.log(o.inputRef);
                 // console.log(o.points[index]);
             },
             // TODO: update this to be maintainable when scaling is a thing
@@ -496,8 +505,20 @@ export default class SelectionManager {
                 this.client.updateObstacle(o);
             },
             text: (o, pt, index, delta) => {
-                this.resizeTransformMap.square(o, pt, index, delta);
-                // TODO: update fontsize prop as well
+                o.resizePoints[0].y = 0;
+                o.resizePoints[1].y = 0;
+
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+
+                ctx.font = `1px Inter`;
+                o.fontSize = Math.abs(o.resizePoints[0].x - o.resizePoints[1].x) / ctx.measureText(o.text).width;
+                // o.x += delta.x;
+                // o.y += delta.y;
+                this.client.updateObstacle(o);
+
+                o.resizePoints[0].x = o.difference.x / 2;
+                o.resizePoints[1].x = -o.difference.x / 2;
             },
             oval: (o, pt, index) => {
                 o.rw = Math.abs(pt.x);
@@ -591,6 +612,11 @@ export default class SelectionManager {
     }
     exitPlayMode(){
         this.client.game.renderer.renderScale = this.client.game.renderer.lastRenderScale;
+        for(let i = 0; i < this.map.obstacles.length; i++){
+            if(this.map.obstacles[i].parametersToReset !== undefined){
+                this.map.resetObstacleParameters(this.map.obstacles[i], this.map.obstacles[i].parametersToReset);
+            }
+        }
     }
     // ok so this can do 2 things
     // a) manage click and drag selection box (like in the old editor)

@@ -48,7 +48,7 @@ const initSimulateMap = {
     rotate: (obs, init) => {
         // init.x and y are the midpoint
 		obs.rotateSpeed = toNumber(init.rotateSpeed, 1);
-        obs.rotateSpeed *= Math.PI/180;
+        if(init.refresh === undefined)obs.rotateSpeed *= Math.PI/180;
     },
     enemy: (obs, init) => {
         //{type: 'circle-enemy-normal', bound: {x: 0, y: 0, w: 100, h: 100}, /*optional x and y params {x: 0, y: 0}*/ enemyType: 'normal' /*other enemy-specific parameters*/}

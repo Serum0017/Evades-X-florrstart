@@ -136,7 +136,8 @@ export default class editMenuManager {
         this.excludedProps = [
             'shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
             'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
-            '_parentKeyChain','_parentObstacle','_inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints'
+            '_parentKeyChain','_parentObstacle','inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
+            'refresh'
         ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
@@ -224,7 +225,17 @@ export default class editMenuManager {
         input.maxLength = 500;
         input.spellcheck = 'false';
         input.value = value;
-        obstacle._inputRef = input;
+
+        if(obstacle.inputRef === undefined){
+            obstacle.inputRef = {};
+        }
+        Object.defineProperty(obstacle.inputRef, key, {
+            get() {
+                return input;
+            },
+            enumerable: false,
+            configurable: true,
+        });
 
         if(obstacle._properties === undefined){
             obstacle._properties = {};
@@ -233,7 +244,9 @@ export default class editMenuManager {
         Object.defineProperty(obstacle, key, {
             set(value) {
                 obstacle._properties[key] = value;
-                input.value = value;
+                if(obstacle.inputRef !== undefined){
+                    obstacle.inputRef[key].value = value;
+                }
             },
             get() {
                 return obstacle._properties[key];
@@ -248,7 +261,6 @@ export default class editMenuManager {
             // preventing invalid inputs from resetting back to default
             if(obstacle._parentObstacle === undefined/*TODO: apply this to subobjects as well*/ && (typeof obstacle[key] === 'number' || typeof obstacle[key] === 'string')){
                 if(window.initObstacle({...obstacle, [key]: targetValue})[key] !== targetValue){
-                    console.log(obstacle._parentObstacle);
                     return;
                 }
                 if(typeof obstacle[key] === 'number' && targetValue.toString() !== event.target.value){
@@ -285,6 +297,7 @@ export default class editMenuManager {
             return;
         }
         obstacle.shape = obstacle.renderFlag ?? obstacle.shape;
+        obstacle.refresh = true;
         const newObstacle = window.initObstacle(obstacle);
         for(let key in newObstacle){
             if(key === 'spatialHash')continue;
@@ -307,7 +320,9 @@ export default class editMenuManager {
             Object.defineProperty(obstacle, key, {
                 set(value) {
                     obstacle._properties[key] = value;
-                    obstacle._inputRef.value = value;
+                    if(obstacle.inputRef !== undefined){
+                        obstacle.inputRef[key].value = value;
+                    }
                 },
                 get() {
                     return obstacle._properties[key];
@@ -328,7 +343,7 @@ export default class editMenuManager {
     }
     regenerateMapProperty(mapReferences){
         for(let key in mapReferences){
-            if(key === '_properties' || key === 'editorPropertyReferences' || key === 'specialKeyNames' || key === 'isEditorProperties' || key === '_inputRef'){
+            if(key === '_properties' || key === 'editorPropertyReferences' || key === 'specialKeyNames' || key === 'isEditorProperties' || key === 'inputRef'){
                 continue;
             }
             

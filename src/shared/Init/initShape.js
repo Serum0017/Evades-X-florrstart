@@ -35,9 +35,9 @@ const initShapeMap = {
     //     obs.r = toNumber(init.r, 25);
     //     obs.innerR = toNumber(init.innerR, 15);
     //     obs.startAngle = toNumber(init.startAngle, 0);
-    //     obs.startAngle *= Math.PI/180;
+    //     if(init.refresh === undefined)obs.startAngle *= Math.PI/180;
     //     obs.endAngle = toNumber(init.endAngle, Math.PI);
-    //     obs.endAngle *= Math.PI/180;
+    //     if(init.refresh === undefined)obs.endAngle *= Math.PI/180;
     // }
     text: (obs, init) => {
         obs.text = toString(init.text, `Evades ${Math.ceil(Math.random()*10) === 10 ? 'X' : Math.ceil(Math.random()*9)}`);
