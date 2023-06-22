@@ -33,6 +33,10 @@ const initSimulateMap = {
 
         obs.timeRemain = Math.sqrt((obs.pointOn.x - obs.pointTo.x)**2 + (obs.pointOn.y - obs.pointTo.y)**2) / obs.speed;
 
+        if(init.refresh === true){
+            return;   
+        }
+        
         const fractionalPointOffset = toNumber(init.currentPoint, 0) % 1;
         if(fractionalPointOffset !== 0){
             obs.timeRemain *= 1 - fractionalPointOffset;// 0.8 of the way there means timeRemain should be divided by 5
@@ -42,8 +46,6 @@ const initSimulateMap = {
             obs.x = obs.pointOn.x;
             obs.y = obs.pointOn.y;
         }
-        obs.x = toNumber(init.x, obs.x);
-        obs.y = toNumber(init.y, obs.y);
     },
     rotate: (obs, init) => {
         // init.x and y are the midpoint

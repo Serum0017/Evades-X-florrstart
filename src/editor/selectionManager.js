@@ -1,78 +1,122 @@
 import Ref from './editorRef.js';
 import transformBody from '../client/simulate/obstacles/transformBody.js';
 import Collide from '../client/simulate/obstacles/collisionManager.js';
-import satFactory from '../client/simulate/obstacles/satFactory.js';
-// TODO:
-// basically in order to move obstacles, we want to be able to select things. Now how do we do this? 
-// we treat the mouse like an object in the environment. When it's intersecting with an obstacle and
-// mouse is down, then we check for collisions. We loop backwards through obstacles (to select the
-// one that appears last on the render order) and activate drag if so. Drag will have snap system
-// but for now we can just keep track of the delta and move the obstacle accordingly. Mouse positon
-// should be updated if either the camera or the mouse moves.
+import transformationManagers from './transformManagers.js';
+const {SelectionTransformManager, SelectionRotateManager, SelectionScaleManager} = transformationManagers;
 
+const classNames = ['dragManager','previewManager','collisionManager','inputManager','transformManager','rotateManager','scaleManager']
+function defineOtherClasses(obj, classNameToExclude){
+    for(let i = 0; i < classNames.length; i++){
+        if(classNames[i] !== classNameToExclude){
+            obj[classNames[i]] = obj.selectionManager[classNames[i]];
+        }
+    }
+    obj.game = obj.selectionManager.game;
+    obj.map = obj.selectionManager.map;
+    obj.renderer = obj.selectionManager.renderer;
+}
+
+function initClass(obj, client, selectionManager){
+    obj.client = client;
+    obj.selectionManager = selectionManager;
+}
+
+// the manager of all the subclasses
 export default class SelectionManager {
     constructor(client){
         this.client = client;
-        this.previewObstacle = null;
-        this.selectionRect = null;
+        this.dragManager = new SelectionDragManager(client, this);
+        this.previewManager = new SelectionPreviewManager(client, this);
+        this.collisionManager = new SelectionCollisionManager(client, this);
+        this.inputManager = new SelectionInputManager(client, this);
+
+        this.transformManager = new SelectionTransformManager(client, this);
+        this.rotateManager = new SelectionRotateManager(client, this);
+        this.scaleManager = new SelectionScaleManager(client, this);
+
+        this.settings = {
+            snapDistance: 25,
+            toSnap: true,
+        };
+
         this.transformMode = 'select';
-        this.transformResizePointsActive = false;
-        this.transformActive = false;
-        this.snapDistance = 25;
-        this.toSnap = true;
     }
     start(){
         this.game = this.client.game;
         this.map = this.client.game.map;
         this.renderer = this.client.game.renderer;
 
-        this._selectedObstacles = [];
-        Object.defineProperty(this, "selectedObstacles", {
-            set(value) {
-                for(let i = 0; i < this._selectedObstacles.length; i++){
-                    delete this._selectedObstacles[i].isSelected;
-                }
-                this._selectedObstacles = value;
-                for(let i = 0; i < this._selectedObstacles.length; i++){
-                    this._selectedObstacles[i].isSelected = true;
-                }
-                if(Ref.toggleGui.isOpen === true){
-                    this.client.uiManager?.editMenuManager?.reloadMenu();
-                }
-            },
-            get() {
-                return this._selectedObstacles;
-            },
-            enumerable: true,
-            configurable: true,
-        });
+        this.forEachSubClass('start');
+    }
 
-        this._selectedResizePoints = [];
-        Object.defineProperty(this, "selectedResizePoints", {
-            set(value) {
-                this._selectedResizePoints = value;
-                if(Ref.toggleGui.isOpen === true){
-                    this.client.uiManager?.editMenuManager?.reloadMenu();
-                }
-            },
-            get() {
-                return this._selectedResizePoints;
-            },
-            enumerable: true,
-            configurable: true,
-        });
+    forEachSubClass(functionName, params=[]){
+        for(let i = 0; i < classNames.length; i++){
+            if(this[classNames[i]][functionName] === undefined){
+                continue;
+            }
+            this[classNames[i]][functionName](...params);
+        }
+    }
 
-        this.addEventListeners();
+    screenToWorld({x,y}){
+        return {
+            x: this.client.me().render.x - Ref.canvas.w / 2 + x * (Ref.canvas.w / window.innerWidth),
+            y: this.client.me().render.y - Ref.canvas.h / 2 + y * (Ref.canvas.h / window.innerHeight)
+        }
+    }
 
-        this.defineResizeMap();
+    enterPlayMode(){
+        // reset params
+        this.forEachSubClass('enterPlayMode');
+        
+        this.client.game.renderer.lastRenderScale = this.client.game.renderer.renderScale;
+        this.client.game.renderer.renderScale = 1;
+    }
+
+    exitPlayMode(){
+        this.forEachSubClass('exitPlayMode');
+
+        this.client.game.renderer.renderScale = this.client.game.renderer.lastRenderScale;
+
+        for(let i = 0; i < this.map.obstacles.length; i++){
+            if(this.map.obstacles[i].parametersToReset !== undefined){
+                this.map.resetObstacleParameters(this.map.obstacles[i], this.map.obstacles[i].parametersToReset);
+            }
+        }   
+    }
+    // ok so this can do 2 things
+    // a) manage click and drag selection box (like in the old editor)
+    // and move/rotate/scale those things
+    // b) manage preview obs + snap it to mouse pos that's 
+    // interesting idea: c) if you hover over a parameter it will make the obs .5 opaq and show 2 variations of it. For example, if the parameter is a number it would render the parameter as 2x and 0.5x its size. Also for strings it can render "Hello World" or "abc" for example
+}
+
+// manages the drag rectangle
+class SelectionDragManager {
+    constructor(client, selectionManager){
+        initClass(this, client, selectionManager);
+
+        this.selectionRect = null;
+    }
+    start(){
+        defineOtherClasses(this, 'dragManager');
+
+        this.defineEventListeners();
 
         setInterval(this.run.bind(this), 1000/60);
     }
+    defineEventListeners(){
+        document.onvisibilitychange = (event) => {
+            this.selectionRect = null;
+        }
+    }
     run(){
         if(this.selectionRect !== null){
-            this.selectionRect.end = this.screenToWorld(this.mouse.pos);
+            this.selectionRect.end = this.selectionManager.screenToWorld(this.inputManager.mouse.pos);
         }
-        this.updateTransforms();
+    }
+    startSelectionDrag({x,y}){
+        this.selectionRect = {start: this.selectionManager.screenToWorld({x,y}), end: this.selectionManager.screenToWorld({x,y})};
     }
     includePoint({x, y}, margin=100){
         const me = this.client.me();
@@ -87,254 +131,155 @@ export default class SelectionManager {
             me.y -= 8 / Ref.canvas.zoom;
         }
     }
-    updateTransforms(){
-        const mousePos = this.screenToWorld(this.mouse.pos);
-        this.mouse.delta = {x: mousePos.x - this.mouse.last.x, y: mousePos.y - this.mouse.last.y};
-        if(this.mouse.delta.x === 0 && this.mouse.delta.y === 0){
-            this.mouse.last = this.screenToWorld(this.mouse.pos);
+    onMouseUp(event){
+        // TODO: make a setting so that stuff can be selected while u drag. This wont be that laggy once spatial hash is implemented?
+        if(this.selectionRect === null){
             return;
         }
-        const stw = this.screenToWorld(this.mouse.pos);
-        if(this.toSnap === true && (this.previewObstacle !== null || this.transformActive === true || this.transformResizePointsActive === true)){
-            this.snapDifference = {
-                x: Math.round(stw.x / this.snapDistance) * this.snapDistance - Math.round(this.mouse.last.x / this.snapDistance) * this.snapDistance,
-                y: Math.round(stw.y / this.snapDistance) * this.snapDistance - Math.round(this.mouse.last.y / this.snapDistance) * this.snapDistance
-            }
-            if(this.snapDifference.x === 0 && this.snapDifference.y === 0){
-                this.mouse.last = this.screenToWorld(this.mouse.pos);
-                return;
-            }
-        }
-        
-        if(this.previewObstacle !== null){
-            if(this.toSnap === true){
-                this.transformPreviewObstacle(this.snapDifference);
-            } else {
-                this.transformPreviewObstacle({
-                    x: this.mouse.delta.x,
-                    y: this.mouse.delta.y
-                })
-            }
-        }
-        if(this.transformActive === true){
-            for(let i = 0; i < this.selectedObstacles.length; i++){
-                if(this.toSnap === true){
-                    transformBody(this.selectedObstacles[i], {
-                        x: this.snapDifference.x,
-                        y: this.snapDifference.y,
-                        rotation: 0
-                    })
-                    this.selectedObstacles[i].x += this.snapDifference.x;
-                    this.selectedObstacles[i].y += this.snapDifference.y;
-                } else {
-                    transformBody(this.selectedObstacles[i], {
-                        x: this.mouse.delta.x,
-                        y: this.mouse.delta.y,
-                        rotation: 0
-                    })
-                }
-                this.client.updateObstacle(this.selectedObstacles[i]);
-            }
+        this.collisionManager.selectObstacles({
+            x: (this.selectionRect.end.x + this.selectionRect.start.x)/2,
+            y: (this.selectionRect.end.y + this.selectionRect.start.y)/2,
+            w: Math.max(0.1, Math.abs(this.selectionRect.end.x - this.selectionRect.start.x)),
+            h: Math.max(0.1, Math.abs(this.selectionRect.end.y - this.selectionRect.start.y))
+        });
+
+        if(this.selectionManager.transformMode === 'resize'){
+            this.scaleManager.selectResizePoints({
+                x: (this.selectionRect.end.x + this.selectionRect.start.x)/2,
+                y: (this.selectionRect.end.y + this.selectionRect.start.y)/2,
+                w: Math.max(0.1, Math.abs(this.selectionRect.end.x - this.selectionRect.start.x)),
+                h: Math.max(0.1, Math.abs(this.selectionRect.end.y - this.selectionRect.start.y))
+            });
         }
 
-        if(this.transformMode === 'resize'){
-            if(this.transformResizePointsActive === true){
-                for(let i = 0; i < this.selectedResizePoints.length; i++){
-                    const resizePoint = this.selectedResizePoints[i];
-                    const parentObstacle = resizePoint.parentObstacle;
-                    const transformDelta = {
-                        x: this.toSnap === true ? this.snapDifference.x : this.mouse.delta.x,
-                        y: this.toSnap === true ? this.snapDifference.y : this.mouse.delta.y
-                    }
-                    if((parentObstacle.shape === 'poly' && parentObstacle.renderFlag === 'square') || parentObstacle.shape === 'text'){
-                        transformDelta.x /= 2;
-                        transformDelta.y /= 2;
-                    }
-                    resizePoint.x += transformDelta.x;
-                    resizePoint.y += transformDelta.y;
-                    this.resizeTransformMap[parentObstacle.shape](parentObstacle, resizePoint, resizePoint.parentIndex, transformDelta);
-                    this.client.updateObstacle(parentObstacle);
-                }
-            }
-            for(let i = 0; i < this.map.obstacles.length; i++){
-                this.updateResizePoints(this.map.obstacles[i]);
-            }
-        }
-
-        // relative to world, unlike this.mouse.pos which is relative to screen
-        this.mouse.last = this.screenToWorld(this.mouse.pos);
+        this.selectionRect = null;
     }
-    addEventListeners(){
-        this.mouse = {pos: {x: 0, y: 0}, delta: {x: 0, y: 0}, last: {x: 0, y: 0}};
-        Ref.canvas.onmouseup = (event) => {
-            if(this.selectionRect !== null){
-                this.selectObstacles({
-                    x: (this.selectionRect.end.x + this.selectionRect.start.x)/2,
-                    y: (this.selectionRect.end.y + this.selectionRect.start.y)/2,
-                    w: Math.max(0.1, Math.abs(this.selectionRect.end.x - this.selectionRect.start.x)),
-                    h: Math.max(0.1, Math.abs(this.selectionRect.end.y - this.selectionRect.start.y))
-                });
-                if(this.transformMode === 'resize'){
-                    this.selectResizePoints({
-                        x: (this.selectionRect.end.x + this.selectionRect.start.x)/2,
-                        y: (this.selectionRect.end.y + this.selectionRect.start.y)/2,
-                        w: Math.max(0.1, Math.abs(this.selectionRect.end.x - this.selectionRect.start.x)),
-                        h: Math.max(0.1, Math.abs(this.selectionRect.end.y - this.selectionRect.start.y))
-                    });
-                }
-                this.selectionRect = null;
-            }
-            this.transformActive = false;
-            this.transformResizePointsActive = false;
-        }
-        window.onmousemove = (event) => {
-            this.mouse.pos = {x: event.pageX, y: event.pageY};
-            this.run();
-        },
-        Ref.canvas.onmousedown = (event) => {
-            if(this.previewObstacle !== null){
-                this.placePreviewObstacle();
-                return;
-            } else if(this.client.playerActive === false){
-                if(this.transformMode === 'resize'){
-                    // TODO: we really need to spatial hash this since its gonna be hella expensive
-                    const collidingPoint = this.collidingWithResizePoints(this.screenToWorld(this.mouse.pos));
-                    if(collidingPoint !== false){
-                        const obstacle = collidingPoint.obstacle;
-                        const point = collidingPoint.point;
-                        
-                        if(obstacle.shape === 'poly' && obstacle.renderFlag === undefined && event.ctrlKey === true){
-                            // if the obstacle is a poly then we can multiselect
-                            this.selectedResizePoints.push(point);
-                        } else {
-                            // otherwise just select one point
-                            this.selectedResizePoints = [point];
-                        }
+}
 
-                        this.transformResizePointsActive = true;
-                        return;
-                    }
-                }
-                const collidingObstacle = this.collidingWithObstacle(this.screenToWorld(this.mouse.pos));
-                if(event.altKey === true && collidingObstacle !== false){
-                    // if the alt key is pressed, initiate an alt drag
+// manages the preview obstacle before its placed
+class SelectionPreviewManager {
+    constructor(client, selectionManager){
+        initClass(this, client, selectionManager);
 
-                    // TODO: add multiple obstacles and start a transform if multiple are selected (move this if statement after this.collidingWithSelectedObstacles)
-                    this.addPreviewObstacle(window.structuredCloneWithoutKey({...collidingObstacle, shape: collidingObstacle.renderFlag === 'square' ? 'square' : collidingObstacle.shape}, ['resizePoints','inputRef']));
-                } else if(event.shiftKey === true && collidingObstacle !== false){
-                    // initiate a shift click
-                    this.selectAllOfType(collidingObstacle);
-                    this.transformActive = true;
-                } else if(this.collidingWithSelectedObstacle(this.screenToWorld(this.mouse.pos)) !== false){
-                    // if we're pressing the ctrl key, then deselect this obstacle
-                    if(event.ctrlKey === true){
-                        this.selectedObstacles = this.selectedObstacles.filter(s => s !== this.collidingWithSelectedObstacle(this.screenToWorld(this.mouse.pos)));
-                        return;
-                    }
-                    // if we already have a selection, drag those
-                    this.transformActive = true;
-                } else if(collidingObstacle !== false){
-                    // if we're immediately intersecting something, start the drag
-                    if(event.ctrlKey === true){
-                        this.selectedObstacles.push(collidingObstacle);
-                    } else {
-                        this.selectedObstacles = [collidingObstacle];
-                    }
-                    this.transformActive = true;
-                } else {
-                    // otherwise, start multi select
-                    this.startSelectionDrag(this.mouse.pos);
-                }
-            }
-        }
-        document.onvisibilitychange = (event) => {
-            this.selectionRect = null;
-        }
-        Ref.selectButton.onmousedown = (event) => {
-            this.transformMode = 'select';
-            Ref.selectText.classList.add('red');
-            Ref.resizeText.classList.remove('red');
-            Ref.rotateText.classList.remove('red');
-            this.transformResizePointsActive = false;
-            this.selectedResizePoints = [];
-        }
-        Ref.rotateButton.onmousedown = (event) => {
-            this.transformMode = 'rotate';
-            Ref.rotateText.classList.add('red');
-            Ref.selectText.classList.remove('red');
-            Ref.resizeText.classList.remove('red');
-            this.transformResizePointsActive = false;
-            this.selectedResizePoints = [];
-        }
-        Ref.resizeButton.onmousedown = (event) => {
-            this.transformMode = 'resize';
-            Ref.resizeText.classList.add('red');
-            Ref.rotateText.classList.remove('red');
-            Ref.selectText.classList.remove('red');
-        }
-        Ref.duplicateButton.onmousedown = (event) => {
-            this.copy();
-            this.paste();
-        }
+        this.previewObstacle = null;
+    }
+    start(){
+        defineOtherClasses(this, 'previewObstacleManager');
     }
     addPreviewObstacle(obj){
         this.previewObstacle = window.initObstacle(obj);
-        const mousePos = this.screenToWorld(this.mouse.pos);
-        this.transformPreviewObstacle({x: mousePos.x - this.previewObstacle.x, y: mousePos.y - this.previewObstacle.y});
-    }
-    transformPreviewObstacle({x,y}){
-        if(x === 0 && y === 0){
-            return;
-        }
-        if(this.toSnap === true){
-            const difference = {
-                x: Math.round((x + this.previewObstacle.x) / this.snapDistance) * this.snapDistance - this.previewObstacle.x,
-                y: Math.round((y + this.previewObstacle.y) / this.snapDistance) * this.snapDistance - this.previewObstacle.y,
-            }
-            if(difference.x === 0 && difference.y === 0){
-                return;
-            }
-            transformBody(this.previewObstacle, {
-                x: difference.x,
-                y: difference.y,
-                rotation: 0
-            })
-            this.previewObstacle.x += difference.x;
-            this.previewObstacle.y += difference.y;
-        } else {
-            this.previewObstacle.x += x;
-            this.previewObstacle.y += y;
-            transformBody(this.previewObstacle, {x, y, rotation: 0});
-        }
-        // console.log(this.previewObstacle.x, this.previewObstacle.y);
+
+        const worldMousePos = this.selectionManager.screenToWorld(this.inputManager.mouse.pos);
+        this.selectionManager.transformManager.transformObstacle(this.previewObstacle, {x: worldMousePos.x - this.previewObstacle.x, y: worldMousePos.y - this.previewObstacle.y});
     }
     placePreviewObstacle(){
         this.client.addObstacle(this.previewObstacle);
         this.previewObstacle = null;
     }
+}
 
-    startSelectionDrag({x,y}){
-        this.selectionRect = {start: this.screenToWorld({x,y}), end: this.screenToWorld({x,y})};
-    }
-    selectAll(){
+// selectionCollisionManager manages selectedObstacles
+class SelectionCollisionManager {
+    constructor(client, selectionManager){
+        initClass(this, client, selectionManager);
+
         this.selectedObstacles = [];
-        for(let i = 0; i < this.map.obstacles.length; i++){
-            this.selectedObstacles.push(this.map.obstacles[i]);
+        Object.defineProperty(this, 'selectedObstaclesChanged', {
+            set(value) {
+                this.reloadMenu();
+            }
+        })
+    }
+    start(){
+        defineOtherClasses(this, 'collisionManager');
+
+        this.clipboardManager = new CollisionClipboardManager(this.client, this);
+    }
+
+    collideWithEnabled(object1, object2){
+        let resetFirst = false;
+        let resetSecond = false;
+        if(object1.shapeCollidable === false){
+            object1.shapeCollidable = true;
+            resetFirst = true;
         }
-        this.selectedObstacles = this.selectedObstacles;
+        if(object2.shapeCollidable === false){
+            object2.shapeCollidable = true;
+            resetSecond = true;
+        }
+        const response = Collide(object1, object2);
+
+        if(resetFirst === true)object1.shapeCollidable = false;
+        if(resetSecond === true)object2.shapeCollidable = false;
+        return response;
     }
-    selectAllOfType({shape, simulate, effect, renderFlag}){
-        this.selectedObstacles = [];
-        for(let i = 0; i < this.map.obstacles.length; i++){
-            if(this.map.obstacles[i].shape === shape && this.arrayEquals(this.map.obstacles[i].simulate, simulate) === true && this.map.obstacles[i].effect === effect){
-                // special poly thing
-                if(this.map.obstacles[i].shape === 'poly' && (this.map.obstacles[i].renderFlag !== renderFlag)){
-                    continue;
-                }
-                this.selectedObstacles.push(this.map.obstacles[i]);
+
+    findFirstCollision({x,y,w=0.01,h=0.01}, obstacles=this.selectionManager.map.obstacles){
+        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w, h});
+
+        for(let i = obstacles.length-1; i >= 0; i--){
+            if(this.collideWithEnabled(obstacles[i], selectionObstacle) !== false){
+                return obstacles[i];
             }
         }
-        this.selectedObstacles = this.selectedObstacles;
+        return false;
+    }
+
+    findAllCollisionsAsObject({x,y,w=0.01,h=0.01}, obstacles=this.selectionManager.map.obstacles){
+        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w, h});
+
+        const collision = {};
+        for(let i = 0; i < obstacles.length; i++){
+            if(this.collideWithEnabled(obstacles[i], selectionObstacle) !== false){
+                collision[i] = obstacles[i];
+            }
+        }
+        return collision;
+    }
+    findAllCollisions({x,y,w=0.1,h=0.1}, obstacles=this.selectionManager.map.obstacles){
+        return Object.values(this.findAllCollisionsAsObject({x,y,w,h}, obstacles));
+    }
+
+    selectObstacles({x,y,w=0.1,h=0.1}){
+        // TODO: spatial hash
+        this.selectedObstacles = [];
+        this.selectedObstacles.push(...this.findAllCollisions({x,y,w,h}));
+        this.selectedObstaclesChanged = true;
+    }
+    findFirstSelectedCollision({x,y,w=0.1,h=0.1}){
+        return this.findFirstCollision({x,y,w,h}, this.selectedObstacles);
+    }
+    findAllSelectedCollisionsAsObject({x,y,w=0.1,h=0.1}){
+        return this.findAllCollisionsAsObject({x,y,w,h}, this.selectedObstacles);
+    }
+    findAllSelectedCollisions({x,y,w=0.1,h=0.1}){
+        return this.findFirstCollision(selectionObstacle, {x,y,w,h}, this.selectedObstacles);
+    }
+    
+    deleteSelectedObstacles(){
+        for(let i = 0; i < this.selectedObstacles.length; i++){
+            this.selectedObstacles[i].toRemoveSelector = true;
+            this.client.deleteObstacle(this.selectedObstacles[i]);
+        }
+
+        this.map.obstacles = this.map.obstacles.filter(o => o.toRemoveSelector !== true);
+
+        this.selectedObstacles = [];
+        this.selectedObstaclesChanged = true;
+    }
+
+    selectAll(obstacles=this.selectionManager.map.obstacles){
+        this.selectedObstacles = [];
+        this.selectedObstacles.push(...obstacles);
+        this.selectedObstaclesChanged = true;
+    }
+    selectAllOfType({shape, simulate, effect}, obstacles=this.selectionManager.map.obstacles){
+        this.selectedObstacles = [];
+        this.selectedObstacles.push(...obstacles.filter(o => this.typesEqual({shape, simulate, effect}, o) === true))
+        this.selectedObstaclesChanged = true;
+    }
+    typesEqual(o1, o2){
+        return o1.initialShape === o2.shape && this.arrayEquals(o1.simulate, o2.simulate) === true && o1.effect === o2.effect;
     }
     arrayEquals(arr1, arr2){
         for(let i = 0; i < arr1.length; i++){
@@ -344,283 +289,157 @@ export default class SelectionManager {
         }
         return true;
     }
-    selectObstacles({x,y,w,h}){
-        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w, h});
-        this.selectedObstacles = [];
-        // TODO: spatial hash this so that larger maps dont lag exponentially more
-        for(let i = 0; i < this.map.obstacles.length; i++){
-            if(this.collideWithFirstEnabled(this.map.obstacles[i], selectionObstacle) !== false){
-                this.selectedObstacles.push(this.map.obstacles[i]);
+
+    handleSpecialKeyOnClick(event, firstCollision){
+        if(event.altKey === true && firstCollision !== false){
+            // alt drag
+            this.previewManager.addPreviewObstacle({...firstCollision, shape: firstCollision.initialShape});// TODO: add multiple obstacles and start a transform if multiple are selected
+            // window.structuredCloneWithoutKey({...firstCollision, shape: firstCollision.initialShape}, ['resizePoints','inputRef'])
+        } else if(event.shiftKey === true){
+            // shift click
+            this.selectAllOfType(firstCollision);
+            this.transformManager.transformActive = true;
+        }
+    }
+    deselectFirstObstacle(event, firstCollision, {x,y,w=0.01,h=0.01}){
+        // ctrl click
+        const firstSelectedCollision = this.findFirstSelectedCollision(this.screenToWorld(this.inputManager.mouse.pos));
+        this.selectedObstacles.forEach((o, i) => {
+            if(o === firstSelectedCollision){
+                this.selectedObstacles.splice(i, 1);
+                return;
             }
-        }
-        // in order to trigger the "set"
-        this.selectedObstacles = this.selectedObstacles;
+        })
+        this.selectedObstaclesChanged = true;
     }
-    collidingWithSelectedObstacle({x,y}){
-        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w: 0.1, h: 0.1});
-        for(let i = 0; i < this.selectedObstacles.length; i++){
-            if(this.collideWithFirstEnabled(this.selectedObstacles[i], selectionObstacle) !== false){
-                return this.selectedObstacles[i];
-            }
+    handleDirectClick(event, firstCollision){
+        if(event.ctrlKey === true){
+            this.selectedObstacles.push(firstCollision);
+        } else {
+            this.selectedObstacles = [firstCollision];
         }
-        return false;
+        this.selectedObstaclesChanged = true;
     }
-    collidingWithObstacle({x,y}){
-        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w: 0.1, h: 0.1});
-        for(let i = 0; i < this.map.obstacles.length; i++){
-            if(this.collideWithFirstEnabled(this.map.obstacles[i], selectionObstacle) !== false){
-                return this.map.obstacles[i];
-            }
-        }
-        return false;
+
+    reloadMenu(){
+        this.selectionManager.client.uiManager.editMenuManager.editMenuGenerator.reloadMenu();
     }
-    collideWithFirstEnabled(object1, object2){
-        let resetFirst = false;
-        if(object1.shapeCollidable === false){
-            object1.shapeCollidable = true;
-            resetFirst = true;
-        }
-        const response = Collide(object1, object2);
-        if(resetFirst){
-            object1.shapeCollidable = false;
-        }
-        return response;
-    }
-    deleteSelectedObstacles(){
-        for(let i = 0; i < this.selectedObstacles.length; i++){
-            this.selectedObstacles[i].toRemoveSelector = true;
-            for(let j = 0; j < this.selectedObstacles[i].resizePoints.length; j++){
-                this.selectedObstacles[i].resizePoints[j].toRemoveSelector = true;   
-            }
-            this.client.deleteObstacle(this.selectedObstacles[i]);
-        }
-        
-        this.selectedResizePoints = this.selectedResizePoints.filter(p => p.toRemoveSelector !== true);
-        this.map.obstacles = this.map.obstacles.filter(o => o.toRemoveSelector !== true);
-        this.selectedObstacles = [];
-    }
-    copy(){
-        // TODO: make offsetting by 25px both directions a setting (on by default, most ppl will turn it off)
-        if(this.selectedObstacles.length === 0){
-            return;
-        }
+}
+
+// helper class to collisionManager that manages clipboard
+class CollisionClipboardManager {
+    constructor(client, collisionManager){
+        this.client = client;
+        this.collisionManager = collisionManager;
+
         this.clipboard = [];
-        for(let i = 0; i < this.selectedObstacles.length; i++){
-            const o = this.selectedObstacles[i];
-            this.clipboard.push(
-                window.initObstacle(window.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.renderFlag === 'square' ? 'square' : o.shape}, ['resizePoints','inputRef']))
-            );
-        }
+        this.clientSettings = this.collisionManager.client.settings;
+    }
+    copy(selectedObstacles){
+        if(selectedObstacles.length === 0)return;
+        this.clipboard = [];
+        for(let i = 0; i < selectedObstacles.length; i++){
+            const o = selectedObstacles[i];
+            this.clipboard.push(window.initObstacle({
+                ...o,
+                x: o.x + this.clientSettings.snapDistance,
+                y: o.y + this.clientSettings.snapDistance,
+                shape: o.initialShape
+                /*window.initObstacle(window.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.initialShape}, ['resizePoints','inputRef']))*/
+            }));
+        }// TODO: make offsetting by 25px a setting on by default
     }
     paste(){
-        if(this.clipboard === undefined){
-            return;
-        }
-        this.selectedObstacles = [];
+        this.collisionManager.selectedObstacles = [];
         for(let i = 0; i < this.clipboard.length; i++){
             this.client.addObstacle(this.clipboard[i]);
-            this.selectedObstacles.push(this.map.obstacles[this.map.obstacles.length-1]);
+            this.collisionManager.selectedObstacles.push(this.map.obstacles[this.map.obstacles.length-1]);
         }
+        this.collisionManager.selectedObstaclesChanged = true;
+
         this.clipboard = window.structuredClone(this.clipboard);
+
+        for(let i = 0; i < this.clipboard.length; i++){
+            this.clipboard[i].x += this.clientSettings.snapDistance;
+            this.clipboard[i].y += this.clientSettings.snapDistance;
+            transformBody(this.clipboard[i], {x: this.clientSettings.snapDistance, y: this.clientSettings.snapDistance});
+        }
     }
+}
 
-    defineResizeMap(){
-        this.resizeMap = {
-            poly: (o) => {
-                if(o.renderFlag !== undefined){
-                    this.resizeMap[o.renderFlag](o);
-                    return;
-                }
-                o.resizePoints = o.body.calcPoints.map(c => {return {x: c.x - o.x, y: c.y - o.y}})
-            },
-            circle: (o) => {
-                o.resizePoints = [{x: 0, y: o.difference.y/2}];
-            },
-            square: (o) => {
-                o.resizePoints = [
-                    {x: o.difference.x/2, y: o.difference.y/2},
-                    {x: -o.difference.x/2, y: o.difference.y/2},
-                    {x: o.difference.x/2, y: -o.difference.y/2},
-                    {x: -o.difference.x/2, y: -o.difference.y/2},
-                ];
-            },
-            oval: (o) => {
-                o.resizePoints = [
-                    {x: o.difference.x/2, y: o.difference.y/2},
-                    {x: -o.difference.x/2, y: o.difference.y/2},
-                    {x: o.difference.x/2, y: -o.difference.y/2},
-                    {x: -o.difference.x/2, y: -o.difference.y/2},
-                ];
-            },
-            text: (o) => {
-                o.resizePoints = [
-                    {x: o.difference.x/2, y: 0},
-                    {x: -o.difference.x/2, y: 0},
-                ];
-            }
+class SelectionInputManager {
+    constructor(client, selectionManager){
+        initClass(this, client, selectionManager);
+
+        this.mouse = {pos: {x: 0, y: 0}, worldDelta: {x: 0, y: 0}, worldLast: {x: 0, y: 0}};
+    }
+    start(){
+        defineOtherClasses(this, 'inputManager');
+
+        this.addEventListeners();
+    }
+    addEventListeners(){
+        this.addMouseEventListeners();
+    }
+    addMouseEventListeners(){
+        Ref.canvas.onmouseup = (event) => {
+            this.dragManager.onMouseUp(event);
+
+            this.transformManager.transformActive = false;
+            this.scaleManager.transformActive = false;
         }
-        this.resizeUpdateMap = {
-            circle: (o) => {
-                if(this.transformResizePointsActive === true){
-                    return;
-                }
-                const stw = this.screenToWorld(this.mouse.pos)
-                const angle = Math.atan2(stw.y - o.y, stw.x - o.x);
-
-                o.resizePoints[0].x = Math.cos(angle) * o.body.r;
-                o.resizePoints[0].y = Math.sin(angle) * o.body.r;
-            }
-        }
-        this.resizeTransformMap = {
-            poly: (o, pt, index, delta) => {
-                if(o.renderFlag !== undefined){
-                    this.resizeTransformMap[o.renderFlag](o, pt, index, delta);
-                    return;
-                }
-                // const points = o.body.points;
-                // points[index] = new SAT.Vector(pt.x, pt.y);
-                // o.body.setPoints(points);
-                // console.log(o);
-                o.points[index][0] = pt.x;
-                o.points[index][1] = pt.y;
-                // console.log(o.inputRef);
-                // console.log(o.points[index]);
-            },
-            // TODO: update this to be maintainable when scaling is a thing
-            circle: (o, pt, index) => {
-                const dist = Math.sqrt(pt.x**2+pt.y**2);
-                o.body.r = dist;
-                o.r = dist;
-            },
-            square: (o, pt, index, delta) => {
-                o.x += delta.x;
-                o.y += delta.y;
-                o.w = Math.abs(pt.x) * 2;
-                o.h = Math.abs(pt.y) * 2;
-
-                o.difference = {x: o.w, y: o.h};
-
-                this.defineResizePoints(o);
-
-                this.client.updateObstacle(o);
-            },
-            text: (o, pt, index, delta) => {
-                o.resizePoints[0].y = 0;
-                o.resizePoints[1].y = 0;
-
-                const canvas = document.getElementById('canvas');
-                const ctx = canvas.getContext('2d');
-
-                ctx.font = `1px Inter`;
-                o.fontSize = Math.abs(o.resizePoints[0].x - o.resizePoints[1].x) / ctx.measureText(o.text).width;
-                // o.x += delta.x;
-                // o.y += delta.y;
-                this.client.updateObstacle(o);
-
-                o.resizePoints[0].x = o.difference.x / 2;
-                o.resizePoints[1].x = -o.difference.x / 2;
-            },
-            oval: (o, pt, index) => {
-                o.rw = Math.abs(pt.x);
-                o.rh = Math.abs(pt.y);
-                o.difference = {x: o.rw*2, y: o.rh*2};
-
-                this.defineResizePoints(o);
-
-                // updating resize points
-                this.client.updateObstacle(o);
+        window.onmousemove = (event) => {
+            this.mouse.pos = {x: event.pageX, y: event.pageY};
+            this.selectionManager.forEachSubClass('run');
+        },
+        Ref.canvas.onmousedown = (event) => {
+            if(this.previewManager.previewObstacle !== null){
+                this.previewManager.placePreviewObstacle();
+            } else if(this.client.playerActive === false){
+                this.handleSelectionClick(event);
             }
         }
     }
+    handleSelectionClick(event) {
+        const worldMousePos = this.selectionManager.screenToWorld(this.mouse.pos);
+        const firstCollision = this.collisionManager.findFirstCollision(worldMousePos);
+        const firstPointCollision = this.selectionManager.transformMode === 'resize' ? this.scaleManager.findFirstCollision(worldMousePos) : false;
 
-    defineResizePoints(o) {
-        if(this.resizeMap[o.shape] === undefined){
-            console.error('shape does not have a resizemap definition! selectionManager.js');
-        }
-        this.resizeMap[o.shape](o);
-        for(let i = 0; i < o.resizePoints.length; i++){
-            o.resizePoints[i].parentObstacle = o;
-            o.resizePoints[i].parentIndex = i;
-        }
-    }
-    updateResizePoints(o) {
-        if(this.resizeUpdateMap[o.shape] !== undefined){
-            this.resizeUpdateMap[o.shape](o);
-        }
-    }
-    collidingWithResizePoints({x,y}){
-        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w: 0.1, h: 0.1});
-        for(let i = 0; i < this.map.obstacles.length; i++){
-            const obstacle = this.map.obstacles[i];
-            for(let j = 0; j < obstacle.resizePoints.length; j++){
-                const resizePoint = obstacle.resizePoints[j];
-                const resizePointObstacle = window.initObstacle({type: 'circle-normal-normal', x: resizePoint.x + obstacle.x, y: resizePoint.y + obstacle.y, r: 12.5});
-                if(Collide(selectionObstacle, resizePointObstacle) !== false){
-                    return {obstacle: obstacle, point: resizePoint}; 
-                }
+        if((event.altKey === true || event.shiftKey === true) && (firstCollision !== false || firstPointCollision !== false)){
+            this.handleSpecialKeyOnClick(event, firstCollision, firstPointCollision);
+        } else if(this.collisionManager.findFirstSelectedCollision(worldMousePos) !== false){
+            if(event.ctrlKey === true){
+                this.deselectFirstPoint(event, firstCollision, firstPointCollision, worldMousePos);
+            } else {
+                this.setTransformActive();
             }
-        }
-        return false;
-    }
-    selectResizePoints({x,y,w,h}){
-        const selectionObstacle = window.initObstacle({type: 'square-normal-normal', x, y, w, h});
-        this.selectedResizePoints = [];
-        // TODO: spatial hash this so that larger maps dont lag exponentially more
-        outerLoop: for(let i = 0; i < this.map.obstacles.length; i++){
-            const obstacle = this.map.obstacles[i];
-            const obstacleSelectedResizePoints = [];
-            innerLoop: for(let j = 0; j < obstacle.resizePoints.length; j++){
-                const resizePoint = obstacle.resizePoints[j];
-                const resizePointObstacle = window.initObstacle({type: 'circle-normal-normal', x: resizePoint.x + obstacle.x, y: resizePoint.y + obstacle.y, r: 12.5});
-
-                if(Collide(resizePointObstacle, selectionObstacle) !== false){
-                    obstacleSelectedResizePoints.push(resizePoint);
-                    if(obstacle.shape !== 'poly' || obstacle.renderFlag !== undefined){
-                        // we can't select multiple points because the shape is not a poly. Push the singular selected point and continue
-                        this.selectedResizePoints.push(obstacleSelectedResizePoints[0]);
-                        continue outerLoop;
-                    }
-                }
-            }
-            // we are a poly or something with no intersections. Either way, push all points
-            for(let k = 0; k < obstacleSelectedResizePoints.length; k++){
-                this.selectedResizePoints.push(obstacleSelectedResizePoints[k]);
-            }
-        }
-        // in order to trigger the "set"
-        this.selectedResizePoints = this.selectedResizePoints;
-    }
-
-    screenToWorld({x,y}){
-        return {
-            x: this.client.me().render.x - Ref.canvas.w / 2 + x * (Ref.canvas.w / window.innerWidth),
-            y: this.client.me().render.y - Ref.canvas.h / 2 + y * (Ref.canvas.h / window.innerHeight)
+        } else if(firstPointCollision !== false){
+            this.scaleManager.handleDirectClick(event, firstPointCollision);
+            this.scaleManager.transformActive = true;
+        } else if(firstCollision !== false){
+            this.collisionManager.handleDirectClick(event, firstCollision);
+            this.transformManager.transformActive = true;
+        } else {
+            this.dragManager.startSelectionDrag(this.mouse.pos);
         }
     }
 
-    enterPlayMode(){
-        // reset params
-        // previewObstacle excluded because we want ppl to be able to create stuff while playing :D
-        // this.previewObstacle = null;
-        this.selectedObstacles = [];
-        this.selectionRect = null;
-        this.transformActive = false;
-        this.selectedResizePoints = [];
-        this.transformResizePointsActive = false;
-        this.client.game.renderer.lastRenderScale = this.client.game.renderer.renderScale;
-        this.client.game.renderer.renderScale = 1;
+    handleSpecialKeyOnClick(event, firstCollision, firstPointCollision){
+        this.scaleManager.handleSpecialKeyOnClick(event, firstPointCollision);
+        this.collisionManager.handleSpecialKeyOnClick(event, firstCollision);
     }
-    exitPlayMode(){
-        this.client.game.renderer.renderScale = this.client.game.renderer.lastRenderScale;
-        for(let i = 0; i < this.map.obstacles.length; i++){
-            if(this.map.obstacles[i].parametersToReset !== undefined){
-                this.map.resetObstacleParameters(this.map.obstacles[i], this.map.obstacles[i].parametersToReset);
-            }
+    deselectFirstPoint(event, firstCollision, firstPointCollision, worldMousePos){
+        if(this.selectionManager.transformMode === 'resize' && this.scaleManager.selectedPoints.length > 0){
+            this.scaleManager.deselectFirstPoint(event, firstPointCollision, worldMousePos);
+        } else {
+            this.collisionManager.deselectFirstObstacle(event, firstCollision, worldMousePos);
         }
     }
-    // ok so this can do 2 things
-    // a) manage click and drag selection box (like in the old editor)
-    // and move/rotate/scale those things
-    // b) manage preview obs + snap it to mouse pos that's 
-    // interesting idea: c) if you hover over a parameter it will make the obs .5 opaq and show 2 variations of it. For example, if the parameter is a number it would render the parameter as 2x and 0.5x its size. Also for strings it can render "Hello World" or "abc" for example
+    setTransformActive(){
+        if(this.selectionManager.transformMode === 'resize' && this.scaleManager.selectedPoints.length > 0){
+            this.scaleManager.transformActive = true;
+        } else {
+            this.transformManager.transformActive = true;
+        }
+    }
 }

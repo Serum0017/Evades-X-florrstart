@@ -1,16 +1,36 @@
 import Ref from '../editorRef.js';
 
 // right side menu that can be used to edit obstacles and their parameters after they have been placed
-export default class editMenuManager {
+
+// this class manages the obstacles and their relations with the html (linking)
+export default class EditMenuManager {
     constructor(client){
         this.client = client;
+
+        this.editMenuGenerator = new EditMenuGenerator(client, this);
     }
     start(){
         this.selectionManager = this.client.selectionManager;
 
-        this.defineObstaclePropertyMap();
+        this.editMenuGenerator.start();
 
         this.defineEventListeners();
+
+        this.defineExcluded();
+    }
+    defineExcluded(){
+        this.excludedProps = [
+            'shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
+            'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
+            '_parentKeyChain','_parentObstacle','inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
+            'refresh','initialShape','hasParent'
+        ];
+        this.excludedProperties = {};
+        for(let i = 0; i < this.excludedProps.length; i++){
+            this.excludedProperties[this.excludedProps[i]] = true;
+        }
+        delete this.excludedProps;
+        this.editorProperties = [{object: this.client.selectionManager.settings, key: 'snapDistance'}, {object: this.client.selectionManager.settings, key: 'toSnap'}, {object: this.client.game.map.settings.dimensions, key: 'x', keyName: 'map width'}, {object: this.client.game.map.settings.dimensions, key: 'y', keyName: 'map height'}/*, {object: window, key: 'isFullScreen', keyName: 'toggle full screen'}*/];
     }
     defineEventListeners(){
         Ref.toggleGui.isOpen = false;
@@ -21,7 +41,7 @@ export default class editMenuManager {
                 Ref.toggleGui.dataset.usage = 'on';
                 Ref.gui.classList.remove('hidden');
                 Ref.guiContainer.classList.add('gui-on');
-                this.reloadMenu();
+                this.editMenuGenerator.reloadMenu();
             } else {
                 Ref.toggleGui.innerText = 'Open Menu';
                 Ref.toggleGui.dataset.usage = 'off';
@@ -30,6 +50,129 @@ export default class editMenuManager {
             }
             event.preventDefault();
         }
+    }
+    // the function to rule them all!
+    link(object, input, key, value){
+        if(object.inputRef === undefined){
+            this.defineAsUnEnumerable(object, 'inputRef', {});
+        }
+        Object.defineProperty(object.inputRef, key, {
+            get() {
+                return input;
+            },
+            enumerable: false,
+            configurable: true,
+        });
+
+        object.hasParent = object._parentObstacle !== undefined;
+
+        if(object._properties === undefined){
+            this.defineAsUnEnumerable(object, '_properties', {});
+        }
+        object._properties[key] = value;
+        Object.defineProperty(object, key, {
+            set(value) {
+                object._properties[key] = value;
+                if(object.inputRef !== undefined){
+                    object.inputRef[key].value = value;
+                }
+            },
+            get() {
+                return object._properties[key];
+            },
+            enumerable: true,
+            configurable: true,
+        });
+
+        input.oninput = ((event) => {
+            const targetValue = typeof object[key] === 'number' ? parseFloat(event.target.value) : event.target.value;
+
+            // preventing invalid inputs from resetting back to default
+            if(object.hasParent === false/*TODO: apply this to subobjects as well*/ && ((typeof object[key] === 'number' && isNaN(object[key]) === false) || typeof object[key] === 'string')){
+                if(window.initObstacle({...object, [key]: targetValue})[key] !== targetValue){
+                    return;
+                }
+                if(typeof object[key] === 'number' && targetValue.toString() !== event.target.value){
+                    return;
+                }
+            }
+
+            object[key] = targetValue;
+            if(object.hasParent === true){
+                applyToKeyChain(object._parentObstacle, object._parentKeyChain, object);
+                this.client.updateObstacle(object._parentObstacle);
+            } else {
+                this.client.updateObstacle(object);
+            }
+        }).bind(this);
+    }
+    defineAsUnEnumerable(object, keyName, value){
+        Object.defineProperty(object, keyName, {
+            value,
+            enumerable: false,
+            configurable: true,
+            writable: true
+        });
+    }
+    regenerateObstacle(obstacle, isRegeneratable=obstacle.isEditorProperties===undefined) {
+        if(isRegeneratable === false){
+            this.editMenuGenerator.regenerateMapProperty(obstacle);
+            return;
+        }
+        obstacle.shape = obstacle.initialShape;
+        obstacle.refresh = true;
+        const newObstacle = window.initObstacle(obstacle);
+        for(let key in newObstacle){
+            if(key === 'spatialHash')continue;
+            obstacle[key] = newObstacle[key];
+            if(typeof newObstacle[key] === 'object' && this.excludedProperties[key] !== true){
+                this.regenerateGettersAndSetters(newObstacle[key]);
+            }
+        }
+    }
+    regenerateGettersAndSetters(obstacle){
+        // when sub-obstacles are regenerated, they lose all of their getters and setters... we need to refresh those
+        if(obstacle._properties === undefined){
+            obstacle._properties = {};
+        }
+        for(let key in obstacle){
+            if(this.excludedProperties[key] === true){
+                continue;
+            }
+            obstacle._properties[key] = obstacle[key];
+            Object.defineProperty(obstacle, key, {
+                set(value) {
+                    obstacle._properties[key] = value;
+                    if(obstacle.inputRef !== undefined){
+                        obstacle.inputRef[key].value = value;
+                    }
+                },
+                get() {
+                    return obstacle._properties[key];
+                },
+                enumerable: true,
+                configurable: true,
+            });
+        }
+
+        for(let key in obstacle){
+            if(this.excludedProperties[key] !== true && typeof obstacle[key] === 'object'){
+                this.regenerateGettersAndSetters(obstacle[key]);
+            }
+        }
+    }
+}
+
+// this class handles the html, while the main class handles obstacles and their links with the main.
+class EditMenuGenerator {
+    constructor(client, editMenuManager){
+        this.client = client;
+        this.editMenuManager = editMenuManager;
+    }
+    start(){
+        this.selectionManager = this.editMenuManager.client.selectionManager;
+
+        this.defineObstaclePropertyMap();
     }
     defineObstaclePropertyMap(){
         this.id = 0;
@@ -70,7 +213,7 @@ export default class editMenuManager {
                     } else {
                         span.classList.remove('inputChecked');
                     }
-                    this.regenerateObstacle(obstacle);
+                    this.editMenuManager.regenerateObstacle(obstacle);
                 });
 
                 property.appendChild(label);
@@ -132,36 +275,27 @@ export default class editMenuManager {
                 property.appendChild(input);
             }
         }
-
-        this.excludedProps = [
-            'shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
-            'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
-            '_parentKeyChain','_parentObstacle','inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
-            'refresh'
-        ];
-        this.excludedProperties = {};
-        for(let i = 0; i < this.excludedProps.length; i++){
-            this.excludedProperties[this.excludedProps[i]] = true;
-        }
-        delete this.excludedProps;
-        this.editorProperties = [{object: this.client.selectionManager, key: 'snapDistance'}, {object: this.client.selectionManager, key: 'toSnap'}, {object: this.client.game.map.settings.dimensions, key: 'x', keyName: 'map width'}, {object: this.client.game.map.settings.dimensions, key: 'y', keyName: 'map height'}/*, {object: window, key: 'isFullScreen', keyName: 'toggle full screen'}*/];
     }
     reloadMenu(){
         while(Ref.gui.firstChild){
             Ref.gui.removeChild(Ref.gui.firstChild);
         }
         Ref.gui.appendChild(this.createEditorProperties());
-        for(let i = 0; i < this.selectionManager.selectedObstacles.length; i++){
-            Ref.gui.appendChild(this.createObstacleProperties(this.selectionManager.selectedObstacles[i]));
+        const selectedObstacles = this.selectionManager.collisionManager.selectedObstacles;
+        for(let i = 0; i < selectedObstacles.length; i++){
+            Ref.gui.appendChild(this.createObstacleProperties(selectedObstacles[i]));
         }
     }
+
     createEditorProperties(){
         const obstacle = {editorPropertyReferences: {}, specialKeyNames: {}, isEditorProperties: true};
-        for(let i = 0; i < this.editorProperties.length; i++){
-            obstacle[this.editorProperties[i].key] = this.editorProperties[i].object[this.editorProperties[i].key];
-            obstacle.editorPropertyReferences[this.editorProperties[i].key] = this.editorProperties[i].object;
-            if(this.editorProperties[i].keyName !== undefined){
-                obstacle.specialKeyNames[this.editorProperties[i].key] = this.editorProperties[i].keyName;
+        const editorProperties = this.editMenuManager.editorProperties;
+
+        for(let i = 0; i < editorProperties.length; i++){
+            obstacle[editorProperties[i].key] = editorProperties[i].object[editorProperties[i].key];
+            obstacle.editorPropertyReferences[editorProperties[i].key] = editorProperties[i].object;
+            if(editorProperties[i].keyName !== undefined){
+                obstacle.specialKeyNames[editorProperties[i].key] = editorProperties[i].keyName;
             }
         }
         return this.createObstacleProperties(obstacle, 'Editor Settings');
@@ -192,7 +326,7 @@ export default class editMenuManager {
         const folderContent = folder.getElementsByClassName('folder-content')[0];
 
         for(let key in obstacle){
-            if(this.excludedProperties[key] === true){
+            if(this.editMenuManager.excludedProperties[key] === true){
                 continue;
             }
             folderContent.appendChild(this.createObstacleProperty(obstacle, key, obstacle[key]));
@@ -203,6 +337,22 @@ export default class editMenuManager {
         }
         
         return folder;
+    }
+    clickFolder(event, folder){
+        folder.isOpen = !folder.isOpen;
+        const folderContent = folder.getElementsByClassName('folder-content')[0];
+        const folderButton = folder.getElementsByClassName('folder-button')[0];
+        if(folder.isOpen === true){
+            folderButton.innerHTML = '<span class="ro">▸</span>&nbsp;' + folder.folderName;
+            for(let i = 0; i < folderContent.children.length; i++){
+                folderContent.children[i].classList.remove('hidden');
+            }
+        } else {
+            folderButton.innerHTML = '<span class="or">▸</span>&nbsp;' + folder.folderName;
+            for(let i = 0; i < folderContent.children.length; i++){
+                folderContent.children[i].classList.add('hidden');
+            }
+        }
     }
     createObstacleProperty(obstacle, key, value){
         const property = document.createElement('div');
@@ -226,56 +376,7 @@ export default class editMenuManager {
         input.spellcheck = 'false';
         input.value = value;
 
-        if(obstacle.inputRef === undefined){
-            obstacle.inputRef = {};
-        }
-        Object.defineProperty(obstacle.inputRef, key, {
-            get() {
-                return input;
-            },
-            enumerable: false,
-            configurable: true,
-        });
-
-        if(obstacle._properties === undefined){
-            obstacle._properties = {};
-        }
-        obstacle._properties[key] = value;
-        Object.defineProperty(obstacle, key, {
-            set(value) {
-                obstacle._properties[key] = value;
-                if(obstacle.inputRef !== undefined){
-                    obstacle.inputRef[key].value = value;
-                }
-            },
-            get() {
-                return obstacle._properties[key];
-            },
-            enumerable: true,
-            configurable: true,
-        });
-
-        input.oninput = ((event) => {
-            const targetValue = typeof obstacle[key] === 'number' ? parseFloat(event.target.value) : event.target.value;
-
-            // preventing invalid inputs from resetting back to default
-            if(obstacle._parentObstacle === undefined/*TODO: apply this to subobjects as well*/ && (typeof obstacle[key] === 'number' || typeof obstacle[key] === 'string')){
-                if(window.initObstacle({...obstacle, [key]: targetValue})[key] !== targetValue){
-                    return;
-                }
-                if(typeof obstacle[key] === 'number' && targetValue.toString() !== event.target.value){
-                    return;
-                }
-            }
-
-            obstacle[key] = targetValue;
-            if(obstacle._parentObstacle !== undefined){
-                applyToKeyChain(obstacle._parentObstacle, obstacle._parentKeyChain, obstacle);
-                this.client.updateObstacle(obstacle._parentObstacle);
-            } else {
-                this.client.updateObstacle(obstacle);
-            }
-        }).bind(this);
+        this.editMenuManager.link(obstacle, input, key, value);
 
         // running the configuration function hashmap
         if(this.obstaclePropertyMap[typeof value] !== undefined){
@@ -291,85 +392,16 @@ export default class editMenuManager {
 
         return property;
     }
-    regenerateObstacle(obstacle, isRegeneratable=obstacle.isEditorProperties===undefined) {
-        if(isRegeneratable === false){
-            this.regenerateMapProperty(obstacle);
-            return;
-        }
-        obstacle.shape = obstacle.renderFlag ?? obstacle.shape;
-        obstacle.refresh = true;
-        const newObstacle = window.initObstacle(obstacle);
-        for(let key in newObstacle){
-            if(key === 'spatialHash')continue;
-            obstacle[key] = newObstacle[key];
-            if(typeof newObstacle[key] === 'object' && this.excludedProperties[key] !== true){
-                this.regenerateGettersAndSetters(newObstacle[key]);
-            }
-        }
-    }
-    regenerateGettersAndSetters(obstacle){
-        // when sub-obstacles are regenerated, they lose all of their getters and setters... we need to refresh those
-        if(obstacle._properties === undefined){
-            obstacle._properties = {};
-        }
-        for(let key in obstacle){
-            if(this.excludedProperties[key] === true){
-                continue;
-            }
-            obstacle._properties[key] = obstacle[key];
-            Object.defineProperty(obstacle, key, {
-                set(value) {
-                    obstacle._properties[key] = value;
-                    if(obstacle.inputRef !== undefined){
-                        obstacle.inputRef[key].value = value;
-                    }
-                },
-                get() {
-                    return obstacle._properties[key];
-                },
-                enumerable: true,
-                configurable: true,
-            });
-        }
-
-        for(let key in obstacle){
-            if(this.excludedProperties[key] === true){
-                continue;
-            }
-            if(typeof obstacle[key] === 'object'){
-                this.regenerateGettersAndSetters(obstacle[key]);
-            }
-        }
-    }
     regenerateMapProperty(mapReferences){
         for(let key in mapReferences){
-            if(key === '_properties' || key === 'editorPropertyReferences' || key === 'specialKeyNames' || key === 'isEditorProperties' || key === 'inputRef'){
+            if(key === 'editorPropertyReferences' || key === 'specialKeyNames' || key === 'isEditorProperties' || key === 'hasParent'){
                 continue;
             }
             
             mapReferences.editorPropertyReferences[key][key] = mapReferences[key];
         }
     }
-    clickFolder(event, folder){
-        folder.isOpen = !folder.isOpen;
-        const folderContent = folder.getElementsByClassName('folder-content')[0];
-        const folderButton = folder.getElementsByClassName('folder-button')[0];
-        if(folder.isOpen === true){
-            folderButton.innerHTML = '<span class="ro">▸</span>&nbsp;' + folder.folderName;
-            for(let i = 0; i < folderContent.children.length; i++){
-                folderContent.children[i].classList.remove('hidden');
-            }
-        } else {
-            folderButton.innerHTML = '<span class="or">▸</span>&nbsp;' + folder.folderName;
-            for(let i = 0; i < folderContent.children.length; i++){
-                folderContent.children[i].classList.add('hidden');
-            }
-        }
-        
-    }
-    generateId(){
-        return this.id++;
-    }
+
     formatName(name){
         if(name.length > 1){
             name = name[0].toUpperCase() + name.slice(1);
@@ -383,7 +415,14 @@ export default class editMenuManager {
         }
         return name;
     }
-} 
+
+    generateId(){
+        return this.id++;
+    }
+}
+
+// ok so what functions do i see that can be grouped together
+// prop sync / menu generator
 
 // TODO: make these a window obj because i think they're defined globally in /shared in minpack
 // function applyToKeyChain(obj, chain, value){

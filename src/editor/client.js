@@ -8,10 +8,9 @@ export default class EditorClient {
     constructor(){
         this.clientType = 'editor';
         this.playerActive = false;
+        this.simulateActive = true;
         
         this.defineModules();
-
-        this.start();
     }
     defineModules() {
         this.game = new Game(this);
@@ -37,7 +36,7 @@ export default class EditorClient {
     // shared methods for handling common things
     initObstacle(o){
         this.uiManager.addInitObstacle(o);
-        this.selectionManager.defineResizePoints(o);
+        this.selectionManager.scaleManager.defineResizePoints(o);
     }
     addObstacle(o){
         this.game.map.addObstacle(o);

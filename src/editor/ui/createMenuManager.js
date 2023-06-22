@@ -128,7 +128,7 @@ export default class CreateMenuManager {
         }
     
         // we shouldn't have to add any more properties because that would mean that it was unsafe to begin with
-        this.client.selectionManager.addPreviewObstacle({type: `${obsTypes.shape}-${obsTypes.simulate}-${obsTypes.effect}`});
+        this.client.selectionManager.previewManager.addPreviewObstacle({type: `${obsTypes.shape}-${obsTypes.simulate}-${obsTypes.effect}`});
     }
     formatName(name){
         if(name.length > 1){

@@ -33,6 +33,9 @@ const chatCommandMap = {
     'devmodeoN': (handler, { client }) => {
         client.me().dev = !client.me().dev;
     },
+    'export': (handler, { client }) => {
+        navigator.clipboard.writeText(JSON.stringify({...handler.map.initPack(), players: undefined}));
+    }
 }
 
 // adding / to all commands
@@ -92,7 +95,7 @@ export default class InputHandler {
 
         this.editorKeyMap = {
             delete: () => {
-                this.client.selectionManager.deleteSelectedObstacles();
+                this.client.selectionManager.collisionManager.deleteSelectedObstacles();
             },
             zoomin: (e) => {
                 if(e.type === 'keydown'){

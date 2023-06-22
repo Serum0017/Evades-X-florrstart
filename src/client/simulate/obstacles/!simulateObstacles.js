@@ -5,6 +5,9 @@ import eventSystem from './eventSystem.js';
 
 // literally just simulate obstacles, nothing else
 function simulateObstacles(player, players, obstacles, tick, client){
+    if(client.clientType === 'editor' && client.simulateActive === false){
+        return;
+    }
     
     // simulating obstacles
     for(let i = 0; i < obstacles.length; i++){

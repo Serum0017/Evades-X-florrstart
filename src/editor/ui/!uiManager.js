@@ -1,6 +1,6 @@
 import Ref from '../editorRef.js';
-import createMenuManager from './createMenuManager.js';
-import editMenuManager from './editMenuManager.js';
+import CreateMenuManager from './createMenuManager.js';
+import EditMenuManager from './editMenuManager.js';
 
 export default class UIManager {
     constructor(client){
@@ -11,10 +11,10 @@ export default class UIManager {
         this.renderer = this.client.game.renderer;
         this.map = this.client.game.map;
 
-        this.createMenuManager = new createMenuManager(this.client);
+        this.createMenuManager = new CreateMenuManager(this.client);
         this.createMenuManager.start();
 
-        this.editMenuManager = new editMenuManager(this.client);
+        this.editMenuManager = new EditMenuManager(this.client);
         this.editMenuManager.start();
 
         this.defineEventListeners();
@@ -27,7 +27,8 @@ export default class UIManager {
             const button = Ref.playButton.querySelector('.menu-button');
             const buttonText = Ref.playButton.querySelector('.menu-button-text');
             if(Ref.playButton.isPaused === true){
-                this.client.me().respawn();// TODO: reset camera also when we get zooming working
+                // pause the game
+                this.client.me().respawn();
                 this.client.me().god = false;
                 this.client.selectionManager.enterPlayMode();
                 button.innerText = '';
@@ -43,6 +44,7 @@ export default class UIManager {
                 this.renderer.lastCamera = window.structuredClone(this.renderer.camera);
                 this.renderer.camera.setScale(1);
             } else {
+                // unpause the game
                 if(this.renderer.lastCamera !== undefined){
                     this.renderer.camera.setScale(this.renderer.lastCamera.scalar);
                     this.renderer.camera.setRotate(this.renderer.lastCamera.rotation);
@@ -59,6 +61,30 @@ export default class UIManager {
                 this.showMenu();
             }
         }
+
+        Ref.simulateButton.onclick = () => {
+            this.client.simulateActive = !this.client.simulateActive;
+            Ref.simulateButton.isPaused = !Ref.simulateButton.isPaused ?? true;
+            const button = Ref.simulateButton.querySelector('.menu-button');
+            if(Ref.simulateButton.isPaused === true){
+                button.innerText = '';
+                for(let i = 0; i < 2; i++){
+                    const span = document.createElement('span');
+                    span.style.margin = '2px';
+                    span.style.fontSize = '1.4rem';
+                    span.innerText = 'l';
+                    button.appendChild(span);
+                }
+            } else {
+                while (button.firstChild) {
+                    button.removeChild(button.firstChild);
+                }
+                button.innerText = '▷';
+            }
+        }
+
+        // Ref.simulateButton.isPaused = false;
+        // Ref.simulateButton.onclick();
 
         Ref.canvas.onwheel = (e) => {
             this.renderer.camera.scale(1 - e.deltaY/2000);
@@ -99,9 +125,36 @@ export default class UIManager {
             // copy JSON.stringify(this.mapInitData) to clipboard
             navigator.clipboard.writeText(this.exportMap());
         }
+
+        Ref.selectButton.onmousedown = (event) => {
+            this.client.selectionManager.transformMode = 'select';
+            Ref.selectText.classList.add('red');
+            Ref.resizeText.classList.remove('red');
+            Ref.rotateText.classList.remove('red');
+            this.client.selectionManager.transformResizePointsActive = false;
+            this.client.selectionManager.selectedPoints = [];
+        }
+        Ref.rotateButton.onmousedown = (event) => {
+            this.client.selectionManager.transformMode = 'rotate';
+            Ref.rotateText.classList.add('red');
+            Ref.selectText.classList.remove('red');
+            Ref.resizeText.classList.remove('red');
+            this.client.selectionManager.transformResizePointsActive = false;
+            this.client.selectionManager.selectedPoints = [];
+        }
+        Ref.resizeButton.onmousedown = (event) => {
+            this.client.selectionManager.transformMode = 'resize';
+            Ref.resizeText.classList.add('red');
+            Ref.rotateText.classList.remove('red');
+            Ref.selectText.classList.remove('red');
+        }
+        Ref.duplicateButton.onmousedown = (event) => {
+            this.copy();
+            this.paste();
+        }
     }
     addInitObstacle(o){
-        const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['_parentObstacle','resizePoints','inputRef']);
+        const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['_parentObstacle','resizePoints'/*,'inputRef'*/]);
 
         o.mapInitId = this.mapInitId++;
         this.mapInitData[o.mapInitId] = deepObstacle;
@@ -145,7 +198,7 @@ export default class UIManager {
                 }
                 this.client.selectionManager.selectedObstacles = this.client.selectionManager.selectedObstacles;
             }
-            this.client.selectionManager.selectedResizePoints = [];
+            this.client.selectionManager.selectedPoints = [];
             this.client.selectionManager.transformActive = false;
             this.client.selectionManager.transformResizePointsActive = false;
         } catch(e){
