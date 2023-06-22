@@ -45,9 +45,12 @@ export default class EditorClient {
     updateObstacle(o){
         this.uiManager.editMenuManager.regenerateObstacle(o);
         this.uiManager.updateInitObstacle(o);
+        window.recalculateBound(o);
+        this.selectionManager.scaleManager.updateResizePoints(o);
     }
     deleteObstacle(o){
         // note: this just updates the removal but doesn't actually remove the obstacle from the map
+        this.game.map.spatialHash.removeEntity(o);
         this.uiManager.deleteInitObstacle(o);
     }
 }

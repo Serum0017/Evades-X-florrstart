@@ -261,31 +261,33 @@ export default class Renderer {
             this.renderObstacles([previewObstacle], this.client.game.players, this.client.map.self);
         }
 
-        // rendering blue outline around selected obstacles
-        const selectedObstacles = selectionManager.collisionManager.selectedObstacles;
-        for(let i = 0; i < selectedObstacles.length; i++){
-            if(selectedObstacles[i].toRender === false)continue;
-            ctx.toStroke = true;
-            ctx.toFill = false;
-            ctx.toClip = false;
-            ctx.strokeStyle = 'blue';
-            ctx.lineWidth = 4;
-
-            renderShape(selectedObstacles[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
-
-            ctx.globalAlpha = 1;
-        }
-
-        if(selectionManager.transformMode === 'resize'){
-            // rendering blue outlines around selected points
-            for(let i = 0; i < selectionManager.scaleManager.selectedPoints.length; i++){
-                const resizePoint = selectionManager.scaleManager.selectedPoints[i];
-                ctx.beginPath();
+        if(this.client.playerActive === false){
+            // rendering blue outline around selected obstacles
+            const selectedObstacles = selectionManager.collisionManager.selectedObstacles;
+            for(let i = 0; i < selectedObstacles.length; i++){
+                if(selectedObstacles[i].toRender === false)continue;
+                ctx.toStroke = true;
+                ctx.toFill = false;
+                ctx.toClip = false;
                 ctx.strokeStyle = 'blue';
                 ctx.lineWidth = 4;
-                ctx.arc(resizePoint.parentObstacle.x + resizePoint.x, resizePoint.parentObstacle.y + resizePoint.y, 12.5, 0, Math.PI*2);
-                ctx.stroke();
-                ctx.closePath();
+
+                renderShape(selectedObstacles[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
+
+                ctx.globalAlpha = 1;
+            }
+
+            if(selectionManager.transformMode === 'resize'){
+                // rendering blue outlines around selected points
+                for(let i = 0; i < selectionManager.scaleManager.selectedPoints.length; i++){
+                    const resizePoint = selectionManager.scaleManager.selectedPoints[i];
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'blue';
+                    ctx.lineWidth = 4;
+                    ctx.arc(resizePoint.parentObstacle.x + resizePoint.x, resizePoint.parentObstacle.y + resizePoint.y, 12.5, 0, Math.PI*2);
+                    ctx.stroke();
+                    ctx.closePath();
+                }
             }
         }
 

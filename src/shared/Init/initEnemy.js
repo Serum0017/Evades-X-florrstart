@@ -38,6 +38,11 @@ function initPosition(e, init){
         w: toNumber(init?.bound?.w, 250),
         h: toNumber(init?.bound?.h, 250),
     };
+
+    if(init.refresh === true){
+        return;
+    }
+
     if(toNumber(init?.enemyPos?.x, 'undef') !== 'undef'){
         e.x = init.enemyPos.x;
     } else {

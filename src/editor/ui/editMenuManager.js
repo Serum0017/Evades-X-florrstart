@@ -20,10 +20,10 @@ export default class EditMenuManager {
     }
     defineExcluded(){
         this.excludedProps = [
-            'shape','simulate','effect','difference','type','pivot','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
+            'shape',/*'simulate',*/'effect','difference','type','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
             'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
             '_parentKeyChain','_parentObstacle','inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
-            'refresh','initialShape','hasParent'
+            'refresh','initialShape','hasParent','specialPropsToReset'
         ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
@@ -70,42 +70,92 @@ export default class EditMenuManager {
             this.defineAsUnEnumerable(object, '_properties', {});
         }
         object._properties[key] = value;
-        Object.defineProperty(object, key, {
-            set(value) {
-                object._properties[key] = value;
-                if(object.inputRef !== undefined){
-                    object.inputRef[key].value = value;
-                }
-            },
-            get() {
-                return object._properties[key];
-            },
-            enumerable: true,
-            configurable: true,
-        });
+        if(object.isEditorProperties === undefined){
+            Object.defineProperty(object, key, {
+                set(value) {
+                    object._properties[key] = value;
+                    if(object.inputRef !== undefined){
+                        object.inputRef[key].value = value;
+                    }
+                },
+                get() {
+                    return object._properties[key];
+                },
+                enumerable: true,
+                configurable: true,
+            });
+        }
 
         input.oninput = ((event) => {
             const targetValue = typeof object[key] === 'number' ? parseFloat(event.target.value) : event.target.value;
 
             // preventing invalid inputs from resetting back to default
-            if(object.hasParent === false/*TODO: apply this to subobjects as well*/ && ((typeof object[key] === 'number' && isNaN(object[key]) === false) || typeof object[key] === 'string')){
+            if(object.isEditorProperties === undefined && object.hasParent === false/*TODO: apply this to subobjects as well*/ && ((typeof object[key] === 'number' && isNaN(object[key]) === false) || typeof object[key] === 'string')){
                 if(window.initObstacle({...object, [key]: targetValue})[key] !== targetValue){
-                    return;
+                    return event.preventDefault();
                 }
                 if(typeof object[key] === 'number' && targetValue.toString() !== event.target.value){
-                    return;
+                    return event.preventDefault();
                 }
             }
 
+            this.handleSpecialProperties(object, key, targetValue);
+
             object[key] = targetValue;
-            if(object.hasParent === true){
-                applyToKeyChain(object._parentObstacle, object._parentKeyChain, object);
-                this.client.updateObstacle(object._parentObstacle);
-            } else {
-                this.client.updateObstacle(object);
+
+            // /*const toReset = */this.handleSpecialProperties(object, key, event, targetValue);
+
+            if(object.isEditorProperties === undefined){
+                if(object.hasParent === true){
+                    applyToKeyChain(object._parentObstacle, object._parentKeyChain, object);
+                    this.client.updateObstacle(object._parentObstacle);
+                } else {
+                    this.client.updateObstacle(object);
+                }
             }
+
+            // if(toReset === true){
+            //     this.resetSpecialProperties(object, key, event, targetValue);
+            // }
+            
+            return event.preventDefault();
         }).bind(this);
     }
+    // TODO: make this system work better
+    handleSpecialProperties(object, key, value){
+        // if we change pivot param, then make rotation 0
+        // if this gets any bigger then maybe use parentKeyChain instead. Also maybe make this a map if we get >3
+        if(object._parentKeyChain !== undefined && object._parentKeyChain.length === 1 && object._parentKeyChain[0] === 'pivot'){
+            const parentObstacle = object._parentObstacle;
+            // if(parentObstacle.specialPropsToReset === undefined){
+            //     parentObstacle.specialPropsToReset = {};
+            // }
+            // parentObstacle.specialPropsToReset.rotation = parentObstacle.rotation;
+            parentObstacle.body.rotateRelative(-parentObstacle.rotation, parentObstacle.pivot);
+            parentObstacle.rotation = 0;
+            return true;
+        } else if(object._parentKeyChain === undefined && key === 'x'){
+            // change pivot by the delta that is transformed as well
+            object.pivot.x += value - object[key];
+            if(object?.pivot?.x?.inputRef !== undefined){
+                object.pivot.x.inputRef.value = value;
+            }
+        } else if(object._parentKeyChain === undefined && key === 'y'){
+            object.pivot.y += value - object[key];
+            if(object?.pivot?.y?.inputRef !== undefined){
+                object.pivot.y.inputRef.value = value;
+            }
+        }
+        // return false;
+    }
+    // resetSpecialProperties(object, key, event, targetValue){
+    //     const parentObstacle = object._parentObstacle;
+    //     for(let key in parentObstacle.specialPropsToReset){
+    //         parentObstacle[key] = parentObstacle.specialPropsToReset[key];
+    //     }
+    //     delete parentObstacle.specialPropsToReset;
+    //     this.client.updateObstacle(parentObstacle);
+    // }
     defineAsUnEnumerable(object, keyName, value){
         Object.defineProperty(object, keyName, {
             value,
@@ -116,7 +166,6 @@ export default class EditMenuManager {
     }
     regenerateObstacle(obstacle, isRegeneratable=obstacle.isEditorProperties===undefined) {
         if(isRegeneratable === false){
-            this.editMenuGenerator.regenerateMapProperty(obstacle);
             return;
         }
         obstacle.shape = obstacle.initialShape;
@@ -129,6 +178,11 @@ export default class EditMenuManager {
                 this.regenerateGettersAndSetters(newObstacle[key]);
             }
         }
+
+        const bound = obstacle.body.getBoundingBox();
+        obstacle.x = bound.pos.x + bound.w/2;
+        obstacle.y = bound.pos.y + bound.h/2;
+        obstacle.difference = {x: bound.w, y: bound.h};
     }
     regenerateGettersAndSetters(obstacle){
         // when sub-obstacles are regenerated, they lose all of their getters and setters... we need to refresh those
@@ -219,6 +273,12 @@ class EditMenuGenerator {
                 property.appendChild(label);
             },
             object: (key, subObject, {input, property, obstacle}) => {
+                // if(subObject.isAddButton === true){
+                //     // TODO
+                // } else if(subObject.isRemoveButton === true){
+
+                // }
+
                 if(obstacle._parentObstacle !== undefined){
                     // for nested objects
                     subObject._parentObstacle = obstacle._parentObstacle;
@@ -227,8 +287,15 @@ class EditMenuGenerator {
                     subObject._parentObstacle = obstacle;
                     subObject._parentKeyChain = [key];
                 }
+
+                subObject.manageProperties = {add: {isAddButton: true}, remove: {isRemoveButton: true}};
+
                 property.appendChild(this.createObstacleProperties(subObject, key));
             },
+            // addButton: (key, subObject, {input, property, obstacle}) => {
+            //     // class to add a property to an object
+            //     property.appendChild(this.createObstacleProperties(subObject, key));
+            // },
             color: (key, value, {input, property, obstacle}) => {
                 input.classList.add('property-color-input');
                 input.type = 'color';
@@ -288,15 +355,61 @@ class EditMenuGenerator {
     }
 
     createEditorProperties(){
-        const obstacle = {editorPropertyReferences: {}, specialKeyNames: {}, isEditorProperties: true};
-        const editorProperties = this.editMenuManager.editorProperties;
+        // const obstacle = {editorPropertyReferences: {}, specialKeyNames: {}, isEditorProperties: true};
+        // Object.defineProperty(obstacle, 'specialKeyValues', {
+        //     enumerable: false,
+        //     writable: true,
+        //     configurable: true,
+        //     value: {}
+        // })
+        // const editorProperties = this.editMenuManager.editorProperties;
 
-        for(let i = 0; i < editorProperties.length; i++){
-            obstacle[editorProperties[i].key] = editorProperties[i].object[editorProperties[i].key];
-            obstacle.editorPropertyReferences[editorProperties[i].key] = editorProperties[i].object;
-            if(editorProperties[i].keyName !== undefined){
-                obstacle.specialKeyNames[editorProperties[i].key] = editorProperties[i].keyName;
+        // for(let i = 0; i < editorProperties.length; i++){
+        //     obstacle[editorProperties[i].key] = editorProperties[i].object[editorProperties[i].key];
+        //     obstacle.editorPropertyReferences[editorProperties[i].key] = editorProperties[i].object;
+        //     if(editorProperties[i].keyName !== undefined){
+        //         const key = editorProperties[i].key;
+        //         Object.defineProperty(obstacle.specialKeyNames, key, {
+        //             get(){
+        //                 return obstacle.specialKeyValues[key];
+        //             },
+        //             set(value){
+        //                 if(key === 'editorPropertyReferences' || key === 'specialKeyNames' || key === 'isEditorProperties' || key === 'hasParent'){
+        //                     return;
+        //                 }
+                        
+        //                 obstacle.editorPropertyReferences[key][key] = value;
+        //             }
+        //         })
+        //         obstacle.specialKeyValues[key] = editorProperties[i].keyName;
+        //     }
+        // }
+        // console.log(obstacle);
+        
+        //this.editorProperties = [{object: this.client.selectionManager.settings, key: 'snapDistance'}, {object: this.client.selectionManager.settings, key: 'toSnap'}, {object: this.client.game.map.settings.dimensions, key: 'x', keyName: 'map width'}, {object: this.client.game.map.settings.dimensions, key: 'y', keyName: 'map height'}/*, {object: window, key: 'isFullScreen', keyName: 'toggle full screen'}*/];
+        const obstacle = {isEditorProperties: true};
+        Object.defineProperty(obstacle, 'propData', {
+            enumerable: false,
+            value: {},
+        });
+        for(let i = 0; i < this.editMenuManager.editorProperties.length; i++){
+            const prop = this.editMenuManager.editorProperties[i];
+            const key = prop.key;
+            if(prop.keyName === undefined){
+                prop.keyName = prop.key;
             }
+            obstacle.propData[prop.keyName] = prop;
+            obstacle.propData[prop.keyName].currentValue = prop.object[key];
+            Object.defineProperty(obstacle, prop.keyName, {
+                get(){
+                    return obstacle.propData[prop.keyName].currentValue;
+                },
+                set(v){
+                    obstacle.propData[prop.keyName].currentValue = v;
+                    obstacle.propData[prop.keyName].object[key] = v;
+                },
+                enumerable: true,
+            });
         }
         return this.createObstacleProperties(obstacle, 'Editor Settings');
     }
@@ -391,15 +504,6 @@ class EditMenuGenerator {
         }
 
         return property;
-    }
-    regenerateMapProperty(mapReferences){
-        for(let key in mapReferences){
-            if(key === 'editorPropertyReferences' || key === 'specialKeyNames' || key === 'isEditorProperties' || key === 'hasParent'){
-                continue;
-            }
-            
-            mapReferences.editorPropertyReferences[key][key] = mapReferences[key];
-        }
     }
 
     formatName(name){

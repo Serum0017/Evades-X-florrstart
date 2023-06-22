@@ -35,16 +35,9 @@ class MovingSafe {
 
 class RotatingSafe {
 	constructor(x, y, w, h, spd, angle=0, pivotX, pivotY, distToPivot) {
-        let pivot = {x: w/2, y: h/2};
-        // if(pivotX !== undefined && pivotY !== undefined){
-        //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
-        /*} else*/ if(distToPivot !== undefined){
-            pivot = {x: w/2-distToPivot, y: h/2};
-            x += distToPivot;
-        }
         return {
             type: 'square-rotate-safe',
-            x:x,y:y,w,h,rotateSpeed: spd/77.5,rotation: angle*Math.PI/180, pivot
+            x:x,y:y,w,h,rotateSpeed: spd/77.5,rotation: angle*Math.PI/180, pivot: {x: pivotX, y: pivotY}, 
         }
 	}
 }
@@ -63,16 +56,9 @@ class Lava extends NormalObstacle {
 
 class RotatingLava {
 	constructor(x, y, w, h, spd, angle=0, pivotX, pivotY, distToPivot, canCollide) {
-        let pivot = {x: w/2, y: h/2};
-        // if(pivotX !== undefined && pivotY !== undefined){
-        //     pivot = {x: pivotX-x+w/2, y: pivotY-y+h/2}
-        /*} else*/ if(distToPivot !== undefined){
-            pivot = {x: w/2-distToPivot, y: h/2};
-            x += distToPivot;
-        }
         return {
             type: 'square-rotate-lava',
-            x:x,y:y,w,h,rotateSpeed: spd/77.5,rotation: angle*Math.PI/180, pivot, solid: canCollide
+            x:x,y:y,w,h,rotateSpeed: spd/77.5,rotation: angle*Math.PI/180, pivot: {x: pivotX, y: pivotY}, solid: canCollide
         }
 	}
 }
@@ -97,7 +83,7 @@ class RotatingNormal{
         }
         return {
             type: 'square-rotate-normal',
-            x:x,y:y,w,h,rotateSpeed: spd/77.5,rotation: angle*Math.PI/180, pivot
+            x:x,y:y,w,h,rotateSpeed: spd/77.5,rotation: angle*Math.PI/180, pivot: {x: pivotX, y: pivotY}, 
         }
     }
 }

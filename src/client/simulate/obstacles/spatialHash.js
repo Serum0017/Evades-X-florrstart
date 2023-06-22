@@ -60,6 +60,10 @@ export default class SpatialHash {
     }
     updateEntity(entity){
         // deleting all the current hash positions
+        this.removeEntity(entity);
+        this.addEntity(entity);
+    }
+    removeEntity(entity){
         for(let point of entity.hashPositions){
             delete this.positions[point.x][point.y][entity.hashId];
             if(Object.keys(this.positions[point.x][point.y]).length === 0){
@@ -69,7 +73,6 @@ export default class SpatialHash {
                 delete this.positions[point.x];
             }
         }
-        this.addEntity(entity);
     }
     getCollisions(/*player: */entity){
         // const hashPoints = this.calculateHashPoints(entity);

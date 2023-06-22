@@ -6,6 +6,9 @@ const renderShapeMap = {
         ctx.arc(o.render.x, o.render.y, o.r, 0, Math.PI*2);
         fsin(o, ctx, advanced);
         ctx.closePath();
+
+        testRect({x: o.x - o.difference.x/2, y: o.y - o.difference.y/2, w: o.difference.x, h:o.difference.y}, ctx);
+        testPoint(o.pivot, ctx);
     },
     poly: (o, ctx, advanced) => {
         // if(o.renderFlag !== undefined){
@@ -31,15 +34,15 @@ const renderShapeMap = {
         
         ctx.closePath();
 
-        // testRect({x: o.x - o.difference.x/2, y: o.y - o.difference.y/2, w: o.difference.x, h:o.difference.y}, ctx);
-        // testPoint(o.pivot, ctx);
+        testRect({x: o.x - o.difference.x/2, y: o.y - o.difference.y/2, w: o.difference.x, h:o.difference.y}, ctx);
+        testPoint(o.pivot, ctx);
         // ctx.translate(o.x - o.render.x, o.y - o.render.y);
     },
     // TODO
     // square: (o, ctx, advanced) => {
     //     ctx.save();
     //     ctx.translate(o.body.pos.x + o.difference.x/2, o.body.pos.y + o.difference.y/2);
-    //     ctx.rotate(o.render.rotation/2);
+    //     ctx.rotate(o.render.rotation);
 
     //     ctx.beginPath();
     //     // remember to add back in + o.render.y - o.y
@@ -50,17 +53,17 @@ const renderShapeMap = {
     //     ctx.closePath();
 
     //     ctx.restore();
-    //     // ctx.rotate(-o.render.rotation/2);
+    //     // ctx.rotate(-o.render.rotation);
     //     // ctx.translate(-o.body.calcPoints[0].x - o.body.pos.x - o.difference.x/2, -o.body.calcPoints[0].y - o.body.pos.y - o.difference.x/2);
     // },
     oval: (o, ctx, advanced) => {
         ctx.beginPath();
-        ctx.ellipse(o.render.x, o.render.y, o.rw, o.rh, o.render.rotation/2, 0, Math.PI*2);
+        ctx.ellipse(o.render.x, o.render.y, o.rw, o.rh, o.render.rotation, 0, Math.PI*2);
         fsin(o, ctx, advanced);
         ctx.closePath();
         
-        // testRect({x: o.x - o.difference.x/2, y: o.y - o.difference.y/2, w: o.difference.x, h:o.difference.y}, ctx);
-        // testPoint(o.pivot, ctx);
+        testRect({x: o.x - o.difference.x/2, y: o.y - o.difference.y/2, w: o.difference.x, h:o.difference.y}, ctx);
+        testPoint(o.pivot, ctx);
     },
     text: (o, ctx, advanced) => {
         // renderShapeMap.poly(o, ctx, advanced);
@@ -70,12 +73,12 @@ const renderShapeMap = {
         ctx.font = `${o.fontSize}px Inter`;
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
-        ctx.rotate(o.render.rotation/2);
+        ctx.rotate(o.render.rotation);
 
         if(ctx.toFill === true)ctx.fillText(o.text, 0, 0);
         if(ctx.toStroke === true)ctx.strokeText(o.text, 0, 0);
 
-        ctx.rotate(-o.render.rotation/2);
+        ctx.rotate(-o.render.rotation);
 
         ctx.translate(-o.body.pos.x - o.render.x + o.x - o.body.calcPoints[0].x, -o.body.pos.y - o.render.y + o.y - o.body.calcPoints[0].y)
 
@@ -88,6 +91,9 @@ const renderShapeMap = {
             ctx.clip();
             // ctx.fill();
         }
+
+        testRect({x: o.x - o.difference.x/2, y: o.y - o.difference.y/2, w: o.difference.x, h:o.difference.y}, ctx);
+        testPoint(o.pivot, ctx);
     }
 }
 

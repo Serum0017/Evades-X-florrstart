@@ -75,19 +75,35 @@ const SATMap = {
     }
 };
 
+SAT.Vector.prototype['rotateRelative'] = function (angle, point) {
+    var x = this['x'] - point.x/2;
+    var y = this['y'] - point.y/2;
+  
+    this['x'] = x * Math.cos(angle) - y * Math.sin(angle) + point.x/2;
+    this['y'] = x * Math.sin(angle) + y * Math.cos(angle) + point.y/2;
+    return this;
+};
+
+SAT.Polygon.prototype['rotateRelative'] = function (angle, point) {
+    // this.rotation += angle;
+    var points = this['points'];
+    var len = points.length;
+    for (var i = 0; i < len; i++) {
+        points[i].rotateRelative(angle, point);
+    }
+    this.pos.rotateRelative(angle, point);
+    this._recalc();
+    return this;
+};
+
 SAT.Circle.prototype['translate'] = function (x, y) {
     this.pos.x += x;
     this.pos.y += y;
 }
 
-SAT.Circle.prototype['rotate'] = function (angle) {
-    this.angle += angle;
-    this.pos.rotate(this.angle);
-}
-
-SAT.Circle.prototype['setAngle'] = function (angle) {
-    this.pos.rotate(angle-this.angle);
-    this.angle = angle;
+SAT.Circle.prototype['rotateRelative'] = function (angle, point) {
+    // this.rotation += angle;
+    this.pos.rotateRelative(angle, point);
 }
 
 SAT.Circle.prototype['addOffset'] = function (v) {
@@ -106,43 +122,39 @@ SAT.Polygon.prototype['getBoundingBox'] = function () {
     var xMax = points[0]['x'];
     var yMax = points[0]['y'];
     for (var i = 1; i < len; i++) {
-      var point = points[i];
-      if (point['x'] < xMin) {
+        var point = points[i];
+        if (point['x'] < xMin) {
         xMin = point['x'];
-      }
-      else if (point['x'] > xMax) {
+        }
+        else if (point['x'] > xMax) {
         xMax = point['x'];
-      }
-      if (point['y'] < yMin) {
+        }
+        if (point['y'] < yMin) {
         yMin = point['y'];
-      }
-      else if (point['y'] > yMax) {
+        }
+        else if (point['y'] > yMax) {
         yMax = point['y'];
-      }
+        }
     }
     return new SAT.Box(this['pos'].clone().add(new SAT.Vector(xMin, yMin)), xMax - xMin, yMax - yMin);
-  };
-  
-  SAT.Circle.prototype['getBoundingBox'] = function () {
+};
+
+SAT.Circle.prototype['getBoundingBox'] = function () {
     var r = this['r'];
     var corner = this['pos'].clone().add(this['offset']).sub(new SAT.Vector(r, r));
     return new SAT.Box(corner, r * 2, r * 2);
-  };
+};
 
 function generateBody(obstacle) {
     const init = {};
     init.body = SATMap[obstacle.shape](obstacle);
 
-    obstacle.pivot = {x: toNumber(obstacle?.pivot?.x, obstacle.x), y: toNumber(obstacle?.pivot?.y, obstacle.y)};
+    obstacle.pivot = {x: toNumber(obstacle?.pivot?.x, obstacle.x), y: toNumber(obstacle?.pivot?.y, obstacle.y)}
+
     obstacle.rotation = toNumber(obstacle.rotation);
 
-    init.body.translate(-obstacle.pivot.x,-obstacle.pivot.y);
-    init.body.addOffset(new SAT.Vector(obstacle.pivot.x, obstacle.pivot.y));
+    init.body.rotateRelative(obstacle.rotation, obstacle.pivot);
 
-    init.body.angle = 0;
-    init.body.rotate(obstacle.rotation);
-
-    // init.body.setAngle(/*obstacle.rotation ?? */0);// TODO: replace with math.atan2 calc
     init.initialShape = obstacle.shape;
     if(obstacle.shape === 'square'){
         init.shape = 'poly';
@@ -154,24 +166,6 @@ function generateBody(obstacle) {
 
     return init;
 }
-
-// SCRAPPED - we should only do this on client side
-// function initPivot(body, pivot){
-//     if(body.translate !== undefined){
-//         body.translate(-pivot.x,-pivot.x);
-//         body.setOffset(new SAT.Vector(pivot.x, pivot.y));
-//     } else {
-//         // body.pos.x -= pivot.x;
-//         // body.pos.y -= pivot.y;
-//         body.setOffset(new SAT.Vector(pivot.x, pivot.y));
-//         body.rotate = (angle) => {
-//             let nextAngle = Math.atan2(this.offset.y, this.offset.x) + angle;
-//             let magnitude = Math.sqrt(this.offset.y**2, this.offset.x**2);
-//             this.setOffset(new SAT.Vector(Math.cos(nextAngle) * magnitude, Math.sin(nextAngle) * magnitude));
-//         }
-//         body.angle = 0;// not defined on circles so might as well do it here
-//     }
-// }
 
 const DimensionsMap = {
     square: ({w, h}) => {
@@ -239,12 +233,12 @@ function generateRotatedDimensions(obstacle){
 function generateDimensions(obstacle){
     obstacle.x = toNumber(obstacle.x);
     obstacle.y = toNumber(obstacle.y);
-    if(obstacle.rotation === 0){
+    // if(obstacle.rotation === 0){
         if(!DimensionsMap[obstacle.shape])console.log('dimensionMap not defined for: ' + JSON.stringify(obstacle.shape));
         return DimensionsMap[obstacle.shape](obstacle);
-    } else {
-        return generateRotatedDimensions(obstacle);
-    }
+    // } else {
+    //     return generateRotatedDimensions(obstacle);
+    // }
 }
 
 if(typeof module !== 'undefined'){

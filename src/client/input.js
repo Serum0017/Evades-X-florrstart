@@ -22,7 +22,9 @@ const editorKeyCodes = {
     Digit0: 'toCenter',
     Digit1: 'toCenterAndZoom',
     ControlLeft: 'ctrl',
-    ControlRight: 'ctrl'
+    ControlRight: 'ctrl',
+    KeyB: 'sendtoback',
+    KeyF: 'sendtofront'
 }
 
 const chatCommandMap = {
@@ -115,20 +117,24 @@ export default class InputHandler {
                 if(e.type !== 'keydown' || this.input.ctrl === false){
                     return;
                 }
-                this.client.selectionManager.copy();
+                this.client.selectionManager.collisionManager.clipboardManager.copy();
             },
             paste: (e) => {
                 if(e.type !== 'keydown' || this.input.ctrl === false){
                     return;
                 }
-                this.client.selectionManager.paste();
+                this.client.selectionManager.collisionManager.clipboardManager.paste();
             },
             // a in ctrl a is also the left key. Defined this way to avoid intersections
             /*highlightall*/left: (e) => {
                 if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
                     return;
                 }
-                this.client.selectionManager.selectAll();
+                this.client.selectionManager.collisionManager.selectAll();
+                if(this.client.selectionManager.transformMode === 'resize'){
+                    this.client.selectionManager.scaleManager.selectAll();
+                }
+                return e.preventDefault();
             },
             toCenter: (e) => {
                 if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
@@ -145,6 +151,13 @@ export default class InputHandler {
                 this.client.me().x = this.client.game.map.settings.dimensions.x/2;
                 this.client.me().y = this.client.game.map.settings.dimensions.y/2;
                 this.client.game.renderer.camera.setScale(1);
+                return e.preventDefault();
+            },
+            sendToFront: (e) => {
+                if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
+                    return;
+                }
+                this.client
                 return e.preventDefault();
             },
         }
@@ -226,6 +239,9 @@ export default class InputHandler {
         this.map.self.input = this.input;
     }
     handleEditorKey(e){
+        if(document.activeElement.tagName === 'INPUT'){
+            return;
+        }
         if(this.editorKeyMap[keycodes[e.code]] !== undefined){
             this.editorKeyMap[keycodes[e.code]](e);
             return;

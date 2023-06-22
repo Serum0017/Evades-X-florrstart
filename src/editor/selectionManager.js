@@ -303,7 +303,7 @@ class SelectionCollisionManager {
     }
     deselectFirstObstacle(event, firstCollision, {x,y,w=0.01,h=0.01}){
         // ctrl click
-        const firstSelectedCollision = this.findFirstSelectedCollision(this.screenToWorld(this.inputManager.mouse.pos));
+        const firstSelectedCollision = this.findFirstSelectedCollision(this.selectionManager.screenToWorld(this.inputManager.mouse.pos));
         this.selectedObstacles.forEach((o, i) => {
             if(o === firstSelectedCollision){
                 this.selectedObstacles.splice(i, 1);
@@ -335,7 +335,7 @@ class CollisionClipboardManager {
         this.clipboard = [];
         this.clientSettings = this.collisionManager.client.settings;
     }
-    copy(selectedObstacles){
+    copy(selectedObstacles=this.collisionManager.selectedObstacles){
         if(selectedObstacles.length === 0)return;
         this.clipboard = [];
         for(let i = 0; i < selectedObstacles.length; i++){
@@ -384,6 +384,7 @@ class SelectionInputManager {
     addMouseEventListeners(){
         Ref.canvas.onmouseup = (event) => {
             this.dragManager.onMouseUp(event);
+            this.scaleManager.onMouseUp(event);
 
             this.transformManager.transformActive = false;
             this.scaleManager.transformActive = false;
@@ -405,13 +406,21 @@ class SelectionInputManager {
         const firstCollision = this.collisionManager.findFirstCollision(worldMousePos);
         const firstPointCollision = this.selectionManager.transformMode === 'resize' ? this.scaleManager.findFirstCollision(worldMousePos) : false;
 
-        if((event.altKey === true || event.shiftKey === true) && (firstCollision !== false || firstPointCollision !== false)){
-            this.handleSpecialKeyOnClick(event, firstCollision, firstPointCollision);
+        if((event.altKey === true || event.shiftKey === true) && firstPointCollision !== false && this.selectionManager.transformMode === 'resize'){
+            this.scaleManager.handleSpecialKeyOnClick(event, firstPointCollision);
+        } else if((event.altKey === true || event.shiftKey === true) && firstCollision !== false){
+            this.collisionManager.handleSpecialKeyOnClick(event, firstCollision);
+        } else if(this.scaleManager.findFirstSelectedCollision(worldMousePos) !== false && this.selectionManager.transformMode === 'resize'){
+            if(event.ctrlKey === true){
+                this.scaleManager.deselectFirstPoint(event, firstPointCollision, worldMousePos);
+            } else {
+                this.scaleManager.transformActive = true;
+            }
         } else if(this.collisionManager.findFirstSelectedCollision(worldMousePos) !== false){
             if(event.ctrlKey === true){
-                this.deselectFirstPoint(event, firstCollision, firstPointCollision, worldMousePos);
+                this.collisionManager.deselectFirstObstacle(event, firstCollision, worldMousePos);
             } else {
-                this.setTransformActive();
+                this.transformManager.transformActive = true;
             }
         } else if(firstPointCollision !== false){
             this.scaleManager.handleDirectClick(event, firstPointCollision);
@@ -421,25 +430,6 @@ class SelectionInputManager {
             this.transformManager.transformActive = true;
         } else {
             this.dragManager.startSelectionDrag(this.mouse.pos);
-        }
-    }
-
-    handleSpecialKeyOnClick(event, firstCollision, firstPointCollision){
-        this.scaleManager.handleSpecialKeyOnClick(event, firstPointCollision);
-        this.collisionManager.handleSpecialKeyOnClick(event, firstCollision);
-    }
-    deselectFirstPoint(event, firstCollision, firstPointCollision, worldMousePos){
-        if(this.selectionManager.transformMode === 'resize' && this.scaleManager.selectedPoints.length > 0){
-            this.scaleManager.deselectFirstPoint(event, firstPointCollision, worldMousePos);
-        } else {
-            this.collisionManager.deselectFirstObstacle(event, firstCollision, worldMousePos);
-        }
-    }
-    setTransformActive(){
-        if(this.selectionManager.transformMode === 'resize' && this.scaleManager.selectedPoints.length > 0){
-            this.scaleManager.transformActive = true;
-        } else {
-            this.transformManager.transformActive = true;
         }
     }
 }

@@ -6,9 +6,9 @@ function transformBody(obstacle, delta){
         obstacle.pivot.y += delta.y;
     }
     if(delta.rotation !== 0){
-        obstacle.body.rotate(delta.rotation);
-        obstacle.rotation += delta.rotation;
+        obstacle.body.rotateRelative(delta.rotation, obstacle.pivot);
         obstacle.spatialHash.updateEntity(obstacle);
+        recalculateBound(obstacle);
     } else if((obstacle.x - delta.x) % hashDistance !== obstacle.x % hashDistance || (obstacle.y - delta.y) % hashDistance !== obstacle.y % hashDistance){
         obstacle.spatialHash.updateEntity(obstacle);
     }

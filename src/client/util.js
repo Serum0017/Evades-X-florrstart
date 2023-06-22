@@ -124,18 +124,43 @@ CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
   this.arcTo(x,   y,   x+w, y,   r);
 };
 
+SAT.Vector.prototype['rotateRelative'] = function (angle, point) {
+  var x = this['x'] - point.x/2;
+  var y = this['y'] - point.y/2;
+
+  this['x'] = x * Math.cos(angle) - y * Math.sin(angle) + point.x/2;
+  this['y'] = x * Math.sin(angle) + y * Math.cos(angle) + point.y/2;
+  return this;
+};
+
+SAT.Polygon.prototype['rotateRelative'] = function (angle, point) {
+  // this.rotation += angle;
+  var points = this['points'];
+  var len = points.length;
+  for (var i = 0; i < len; i++) {
+    points[i].rotateRelative(angle, point);
+  }
+  this.pos.rotateRelative(angle, point);
+  this._recalc();
+  return this;
+};
+
 SAT.Circle.prototype['translate'] = function (x, y) {
   this.pos.x += x;
   this.pos.y += y;
 }
 
-SAT.Circle.prototype['rotate'] = function (angle) {
-  this.pos.rotate(angle);
+SAT.Circle.prototype['rotateRelative'] = function (angle, point) {
+  // this.rotation += angle;
+  this.pos.rotateRelative(angle, point);
 }
 
-SAT.Circle.prototype['setAngle'] = function (angle) {
-  this.pos.rotate(angle-this.angle);
-  this.angle = angle;
+SAT.Circle.prototype['addOffset'] = function (v) {
+  return this.setOffset(new SAT.Vector(v.x + this.offset.x, v.y + this.offset.y));
+}
+
+SAT.Polygon.prototype['addOffset'] = function (v) {
+  return this.setOffset(new SAT.Vector(v.x + this.offset.x, v.y + this.offset.y));
 }
 
 SAT.Polygon.prototype['getBoundingBox'] = function () {
@@ -169,6 +194,12 @@ SAT.Circle.prototype['getBoundingBox'] = function () {
   return new SAT.Box(corner, r * 2, r * 2);
 };
 
+window.recalculateBound = (obstacle) => {
+  const bound = obstacle.body.getBoundingBox();
+  obstacle.x = bound.pos.x + bound.w/2;
+  obstacle.y = bound.pos.y + bound.h/2;
+  obstacle.difference = {x: bound.w, y: bound.h};
+}
 // CanvasRenderingContext2D.prototype.fill = function(a) {
 //     return function(a,b) {
 //         if(this.globalAlpha !== 1){
