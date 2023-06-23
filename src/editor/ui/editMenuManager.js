@@ -22,7 +22,7 @@ export default class EditMenuManager {
         this.excludedProps = [
             'shape',/*'simulate',*/'effect','difference','type','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
             'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
-            '_parentKeyChain','_parentObstacle','inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
+            '_parentKeyChain','parentObstacle','inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
             'refresh','initialShape','hasParent','specialPropsToReset','parentObject'
         ];
         this.excludedProperties = {};
@@ -55,7 +55,7 @@ export default class EditMenuManager {
     link(object, input, key, value){
         // console.log({object, input, key, value});
         if(object.inputRef === undefined){
-            this.defineAsUnEnumerable(object, 'inputRef', {});
+            defineAsUnEnumerable(object, 'inputRef', {});
         }
         Object.defineProperty(object.inputRef, key, {
             get() {
@@ -65,10 +65,10 @@ export default class EditMenuManager {
             configurable: true,
         });
 
-        object.hasParent = object._parentObstacle !== undefined;
+        object.hasParent = object.parentObstacle !== undefined;
 
         if(object._properties === undefined){
-            this.defineAsUnEnumerable(object, '_properties', {});
+            defineAsUnEnumerable(object, '_properties', {});
         }
         object._properties[key] = value;
         if(object.isEditorProperties === undefined){
@@ -108,8 +108,8 @@ export default class EditMenuManager {
 
             if(object.isEditorProperties === undefined){
                 if(object.hasParent === true){
-                    applyToKeyChain(object._parentObstacle, object._parentKeyChain, object);
-                    this.client.updateObstacle(object._parentObstacle);
+                    applyToKeyChain(object.parentObstacle, object._parentKeyChain, object);
+                    this.client.updateObstacle(object.parentObstacle);
                 } else {
                     this.client.updateObstacle(object);
                 }
@@ -122,12 +122,23 @@ export default class EditMenuManager {
             return event.preventDefault();
         }).bind(this);
     }
+    // usurping the ruling party
+    unlink(object, input, key){
+        // console.log({object, input, key, value});
+
+        // delete object._properties[key];
+        // delete object[key];
+
+        console.log('unlink:', {input, key, object});
+        input.oninput = () => {};
+        input.remove();
+    }
     // TODO: make this system work better
     handleSpecialProperties(object, key, value){
         // if we change pivot param, then make rotation 0
         // if this gets any bigger then maybe use parentKeyChain instead. Also maybe make this a map if we get >3
         if(object._parentKeyChain !== undefined && object._parentKeyChain.length === 1 && object._parentKeyChain[0] === 'pivot'){
-            const parentObstacle = object._parentObstacle;
+            const parentObstacle = object.parentObstacle;
             // if(parentObstacle.specialPropsToReset === undefined){
             //     parentObstacle.specialPropsToReset = {};
             // }
@@ -150,21 +161,13 @@ export default class EditMenuManager {
         // return false;
     }
     // resetSpecialProperties(object, key, event, targetValue){
-    //     const parentObstacle = object._parentObstacle;
+    //     const parentObstacle = object.parentObstacle;
     //     for(let key in parentObstacle.specialPropsToReset){
     //         parentObstacle[key] = parentObstacle.specialPropsToReset[key];
     //     }
     //     delete parentObstacle.specialPropsToReset;
     //     this.client.updateObstacle(parentObstacle);
     // }
-    defineAsUnEnumerable(object, keyName, value){
-        Object.defineProperty(object, keyName, {
-            value,
-            enumerable: false,
-            configurable: true,
-            writable: true
-        });
-    }
     regenerateObstacle(obstacle, isRegeneratable=obstacle.isEditorProperties===undefined) {
         if(isRegeneratable === false){
             return;
@@ -284,20 +287,24 @@ class EditMenuGenerator {
                     return;
                 }
 
-                if(obstacle._parentObstacle !== undefined){
+                if(obstacle.parentObstacle !== undefined){
                     // for nested objects
-                    subObject._parentObstacle = obstacle._parentObstacle;
+                    subObject.parentObstacle = obstacle.parentObstacle;
                     subObject._parentKeyChain = [...obstacle._parentKeyChain, key];
                 } else {
-                    subObject._parentObstacle = obstacle;
+                    subObject.parentObstacle = obstacle;
                     subObject._parentKeyChain = [key];
                 }
 
                 if(key !== 'manageProperties' && key !== 'removeProperty' && key !== 'addProperty'){
-                    subObject.manageProperties = {addProperty: {name: '', value: '', addButton: {parentObject: subObject}}, removeProperty: {name: Object.keys(subObject)[0], removeButton: {parentObject: subObject}}};
+                    subObject.manageProperties = {addProperty: {name: '', value: '', addButton: {}}, removeProperty: {name: Object.keys(subObject)[0], removeButton: {}}};
+                    defineAsUnEnumerable(subObject.manageProperties.addProperty.addButton, 'parentObject', subObject);
+                    defineAsUnEnumerable(subObject.manageProperties.removeProperty.removeButton, 'parentObject', subObject);
                 }
 
-                property.appendChild(this.createObstacleProperties(subObject, this.formatName(key)));
+                const folder = property.appendChild(this.createObstacleProperties(subObject, this.formatName(key)));
+
+                defineAsUnEnumerable(subObject, 'folderRef', folder);
             },
             addButton: (key, object, {input, property, obstacle}) => {
                 // class to add a property to an object
@@ -305,14 +312,14 @@ class EditMenuGenerator {
                 input.type = 'button';
                 input.value = 'add property';
 
-                const parentObstacle = obstacle._parentObstacle;
-                const parentObject = object.parentObject;// object with manageProperties
+                const parentObstacle = obstacle.parentObstacle;
+                const parentObject = object.parentObject;
 
                 input.onclick = () => {
                     const name = parentObject.manageProperties.addProperty.name;
                     let value = parentObject.manageProperties.addProperty.value;
                     if(value.slice(0,4) === 'JSON'){
-                        //JSON{"x":5,"y":100}
+                        //try adding JSON{"x":5,"y":100}
                         try{
                             value = JSON.parse(value.slice(4));
                         } catch(e){
@@ -320,19 +327,26 @@ class EditMenuGenerator {
                         }
                     }
 
-                    // parentObject[name] = value;
-                    // this.editMenuManager.link(parentObject, input, key, value);
-                    applyToKeyChain(parentObstacle, [...parentObject._parentKeyChain, name], value);
-                    
+                    if(parentObject[name] !== undefined){
+                        let propertyToRemove;
+                        if(parentObject[name].folderRef !== undefined){
+                            propertyToRemove = parentObject[name].folderRef;
+                        } else {
+                            propertyToRemove = parentObject.inputRef[name].parentElement;
+                        }
+                        this.removeObstacleProperty(parentObject, propertyToRemove, name);
+                    }
+
+                    parentObject[name] = value;
+                    // applyToKeyChain(parentObstacle, [...parentObject._parentKeyChain, name], value);
+
+                    // pro html
+                    const parentFolderContent = input.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+                    parentFolderContent.appendChild(this.createObstacleProperty(parentObject, name, parentObject[name]));
+
                     this.client.updateObstacle(parentObstacle);
 
-                    console.log({parentObject, keyName: Object.getOwnPropertyNames(parentObject.inputRef)[0], firstInput: parentObject.inputRef[Object.getOwnPropertyNames(parentObject.inputRef)[0]], firstParent: parentObject.inputRef[Object.getOwnPropertyNames(parentObject.inputRef)[0]].parentElement});
-                    const parentFolderContent = parentObject.inputRef[Object.getOwnPropertyNames(parentObject.inputRef)[0]].parentElement.parentElement;
-                    parentFolderContent.insertBefore(this.createObstacleProperty(parentObject, name, value), parentFolderContent.lastChild);
-
-                    // console.log({parentObstacle, keyChain: [...parentObject._parentKeyChain, name]});
-
-                    // console.log('add!', {parentObject, parentObstacle, keyChain: [...parentObject._parentKeyChain, parentObject.manageProperties.addProperty.name]});
+                    this.reloadFolder(parentObject, parentObject.folderRef, this.formatName(parentObject._parentKeyChain[parentObject._parentKeyChain.length-1]));
                 }
                 property.appendChild(input);
             },
@@ -342,20 +356,50 @@ class EditMenuGenerator {
                 input.type = 'button';
                 input.value = 'remove property';
 
-                const parentObstacle = obstacle._parentObstacle;
-                const parentObject = object.parentObject;// object with manageProperties
+                const parentObstacle = obstacle.parentObstacle;
+                const parentObject = object.parentObject;
 
                 input.onclick = () => {
-                    const name = parentObject.manageProperties.addProperty.name;
-                    // parentObject[name] = value;
-                    console.log({parentObstacle, keyChain: [...parentObject._parentKeyChain, name]});
-                    deleteKeyChain(parentObstacle, [...parentObject._parentKeyChain, name]);
+                    const name = parentObject.manageProperties.removeProperty.name;
+                    let propertyToRemove;
+                    if(parentObject[name].folderRef !== undefined){
+                        propertyToRemove = parentObject[name].folderRef;
+                    } else {
+                        propertyToRemove = parentObject.inputRef[name].parentElement;
+                    }
                     
+                    this.removeObstacleProperty(parentObject, propertyToRemove, name);
+
+                    deleteKeyChain(parentObstacle, [...parentObject._parentKeyChain, name]);
+
+                    // filtering out empty elements of arrays
+                    if(Array.isArray(parentObject) === true){
+                        let objToApply = parentObstacle;
+                        const keyChain = parentObject._parentKeyChain;
+                        for(let i = 0; i < keyChain.length; i++){
+                            objToApply = objToApply[keyChain[i]];
+                        }
+                        delete objToApply[name];
+
+                        // TODO: if we remove element 2, then element 3 in an array should become element 2 (but rn it just stays as 3)
+                        applyToKeyChain(parentObstacle, parentObject._parentKeyChain, parentObject.filter(p => p != null || p === null || p === undefined || isNaN(p) === true));
+
+                        console.log({parentObstacle, chain: [...parentObject._parentKeyChain, name], parentObject: object.parentObject, objToApply});
+                    }
+
+                    // removing empty elements from array
+                    // only removing "empty" elements
+                    // parentObject.path = parentObject.path.filter(p => p != null || p === null || p === undefined || isNaN(p) === true);
+                    // console.log(parentObstacle.path.map(p => typeof p));
+                    // console.log(parentObstacle.path);
+
                     this.client.updateObstacle(parentObstacle);
 
-                    // remove?
-                    // const parentFolderContent = parentObject.inputRef[Object.getOwnPropertyNames(parentObject.inputRef)[0]].parentElement.parentElement;
-                    // parentFolderContent.insertBefore(this.createObstacleProperty(parentObject, name, value), parentFolderContent.lastChild);
+                    this.reloadFolder(parentObject, parentObject.folderRef, this.formatName(parentObject._parentKeyChain[parentObject._parentKeyChain.length-1]));
+
+                    // console.log(parentObstacle.path);
+
+                    console.log({propertyToRemove,name, parentObject,  parentObstacle});
                 }
                 property.appendChild(input);
             },
@@ -415,6 +459,12 @@ class EditMenuGenerator {
         for(let i = 0; i < selectedObstacles.length; i++){
             Ref.gui.appendChild(this.createObstacleProperties(selectedObstacles[i]));
         }
+    }
+    reloadFolder(object, folder, name){
+        console.log(name);
+        const oldParent = folder.parentElement;
+        folder.remove();
+        oldParent.appendChild(this.createObstacleProperties(object, name));
     }
 
     createEditorProperties(){
@@ -569,6 +619,9 @@ class EditMenuGenerator {
 
         return property;
     }
+    removeObstacleProperty(object, input, key){
+        this.editMenuManager.unlink(object, input, key);
+    }
 
     formatName(name){
         if(name.length > 1){
@@ -604,7 +657,7 @@ function applyToKeyChain(obj, chain, value){
     } catch(e){}
 }
 
-function deleteKeyChain(obj, chain, value){
+function deleteKeyChain(obj, chain){
     let lookUpString = '';
     for(let i = 0; i < chain.length; i++){
         lookUpString += "['" + chain[i].replaceAll(']','') + "']";

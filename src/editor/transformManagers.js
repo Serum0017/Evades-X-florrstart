@@ -32,12 +32,18 @@ class SelectionTransformManager {
     run(){
         this.updateTransforms();
         this.inputManager.mouse.worldLast = this.selectionManager.screenToWorld(this.inputManager.mouse.pos);
+        this.inputManager.mouse.screenLast = {x: this.inputManager.mouse.pos.x, y: this.inputManager.mouse.pos.y};
     }
     updateTransforms(){
         const mouse = this.selectionManager.inputManager.mouse;
         const worldMousePos = this.selectionManager.screenToWorld(mouse.pos);
         
         mouse.worldDelta = {x: worldMousePos.x - mouse.worldLast.x, y: worldMousePos.y - mouse.worldLast.y};
+        mouse.screenDelta = {x: mouse.pos.x - mouse.screenLast.x, y: mouse.pos.y - mouse.screenLast.y};
+
+        if(this.selectionManager.dragManager.mouseTransformActive === true && !(mouse.worldDelta.x === 0 && mouse.worldDelta.y === 0)){
+            this.selectionManager.dragManager.updateMiddleClickTransform(mouse.screenDelta);
+        }
 
         if((mouse.worldDelta.x === 0 && mouse.worldDelta.y === 0) || (this.previewManager.previewObstacle === null && this.transformActive === false && this.scaleManager.transformActive === false)){
             return;
@@ -236,13 +242,13 @@ class SelectionScaleManager {
             console.error('shape does not have a resizemap definition! selectionManager.js ' + o.initialShape);
         }
         if(o.resizePoints === undefined){
-            o.resizePoints = [];
+            defineAsUnEnumerable(o, 'resizePoints', []);
         }
         
         const newResizePoints = this.resizeMap[o.initialShape](o);
         for(let i = 0; i < newResizePoints.length; i++){
             o.resizePoints[i] = newResizePoints[i];
-            o.resizePoints[i].parentObstacle = o;
+            defineAsUnEnumerable(o.resizePoints[i], 'parentObstacle', o);
             o.resizePoints[i].parentIndex = i;
         }
     }

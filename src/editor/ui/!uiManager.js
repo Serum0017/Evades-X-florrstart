@@ -97,7 +97,10 @@ export default class UIManager {
 
         Ref.deleteButton.onclick = (event) => {
             this.client.selectionManager.deleteSelectedObstacles();
-            this.client.selectionManager.previewObstacle = null;
+            if(this.client.selectionManager.previewObstacle !== null){
+                this.client.deleteObstacle(this.client.selectionManager.previewObstacle);   
+                this.client.selectionManager.previewObstacle = null;
+            }
             event.stopPropagation();
             return event.preventDefault();
         }
@@ -154,7 +157,9 @@ export default class UIManager {
         }
     }
     addInitObstacle(o){
-        const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['_parentObstacle','resizePoints','parentObject'/*,'inputRef'*/]);
+        const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['parentObstacle','resizePoints','parentObject'/*,'inputRef'*/]);
+        // const deepObstacle = window.structuredClone({...o, render: undefined, spatialHash: undefined});
+        console.log(deepObstacle);
 
         o.mapInitId = this.mapInitId++;
         this.mapInitData[o.mapInitId] = deepObstacle;
@@ -184,7 +189,8 @@ export default class UIManager {
                 mapData.selfId = this.map.selfId;
                 this.map.init(mapData);
                 this.refreshMapInit(this.map.obstacles);
-                this.client.selectionManager.selectedObstacles = [];
+                this.client.selectionManager.collisionManager.selectedObstacles = [];
+                this.client.selectionManager.collisionManager.selectedObstaclesChanged = true;
             } else {
                 if(!Array.isArray(mapData.obstacles)){
                     return;
@@ -194,13 +200,13 @@ export default class UIManager {
                         return;
                     }
                     this.client.addObstacle(mapData.obstacles[i]);
-                    this.client.selectionManager.selectedObstacles.push(this.map.obstacles[this.map.obstacles.length-1]);
+                    this.client.selectionManager.collisionManager.selectedObstacles.push(this.map.obstacles[this.map.obstacles.length-1]);
                 }
-                this.client.selectionManager.selectedObstacles = this.client.selectionManager.selectedObstacles;
+                this.client.selectionManager.collisionManager.selectedObstaclesChanged = true;
             }
-            this.client.selectionManager.selectedPoints = [];
-            this.client.selectionManager.transformActive = false;
-            this.client.selectionManager.transformResizePointsActive = false;
+            this.client.selectionManager.scaleManager.selectedPoints = [];
+            this.client.selectionManager.collisionManager.transformActive = false;
+            this.client.selectionManager.collisionManager.transformActive = false;
         } catch(e){
             console.error('Map importing error! ', e);
             console.warn('here is happy face to make you feel better :D');

@@ -97,6 +97,7 @@ class SelectionDragManager {
         initClass(this, client, selectionManager);
 
         this.selectionRect = null;
+        this.mouseTransformActive = false;
     }
     start(){
         defineOtherClasses(this, 'dragManager');
@@ -154,6 +155,26 @@ class SelectionDragManager {
 
         this.selectionRect = null;
     }
+    endMiddleClickTransform(event){
+        Ref.canvas.style.cursor = 'auto';
+        this.mouseTransformActive = false;
+        return event.preventDefault();
+    }
+    updateMiddleClickTransform(mouseScreenDelta){
+        const me = this.client.me();
+        me.x -= mouseScreenDelta.x / Ref.canvas.zoom;
+        me.y -= mouseScreenDelta.y / Ref.canvas.zoom;
+    }
+    startMiddleClickTransform(event){
+        Ref.canvas.style.cursor = 'grabbing';
+        this.mouseTransformActive = true;
+        // console.log(event.movementX)
+        // const last = this.selectionManager.screenToWorld({x: event.pageX - event.movementX, y: event.pageY - event.movementY});
+        // const next = this.selectionManager.screenToWorld({x: event.pageX, y: event.pageY});
+        // console.log({x: next.x - last.x, y: next.y - last.y});
+        
+        return event.preventDefault();
+    }
 }
 
 // manages the preview obstacle before its placed
@@ -173,6 +194,7 @@ class SelectionPreviewManager {
         this.selectionManager.transformManager.transformObstacle(this.previewObstacle, {x: worldMousePos.x - this.previewObstacle.x, y: worldMousePos.y - this.previewObstacle.y});
     }
     placePreviewObstacle(){
+        this.client.uiManager.deleteInitObstacle(this.previewObstacle);// to prevent previewObstacle from being in the exported map
         this.client.addObstacle(this.previewObstacle);
         this.previewObstacle = null;
     }
@@ -371,7 +393,7 @@ class SelectionInputManager {
     constructor(client, selectionManager){
         initClass(this, client, selectionManager);
 
-        this.mouse = {pos: {x: 0, y: 0}, worldDelta: {x: 0, y: 0}, worldLast: {x: 0, y: 0}};
+        this.mouse = {pos: {x: 0, y: 0}, worldDelta: {x: 0, y: 0}, worldLast: {x: 0, y: 0}, screenDelta: {x: 0, y: 0}, screenLast: {x: 0, y: 0}};
     }
     start(){
         defineOtherClasses(this, 'inputManager');
@@ -388,6 +410,10 @@ class SelectionInputManager {
 
             this.transformManager.transformActive = false;
             this.scaleManager.transformActive = false;
+
+            if(this.dragManager.mouseTransformActive === true){
+                this.dragManager.endMiddleClickTransform(event);
+            }
         }
         window.onmousemove = (event) => {
             this.mouse.pos = {x: event.pageX, y: event.pageY};
@@ -410,6 +436,8 @@ class SelectionInputManager {
             this.scaleManager.handleSpecialKeyOnClick(event, firstPointCollision);
         } else if((event.altKey === true || event.shiftKey === true) && firstCollision !== false){
             this.collisionManager.handleSpecialKeyOnClick(event, firstCollision);
+        } else if(event.button === 1 /*middle click*/){
+            this.dragManager.startMiddleClickTransform(event);
         } else if(this.scaleManager.findFirstSelectedCollision(worldMousePos) !== false && this.selectionManager.transformMode === 'resize'){
             if(event.ctrlKey === true){
                 this.scaleManager.deselectFirstPoint(event, firstPointCollision, worldMousePos);

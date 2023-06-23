@@ -10,6 +10,13 @@ const initSimulateMap = {
     move: (obs, init) => {
         // init: {currentPoint, path, speed, alongWith }
 		obs.currentPoint = Math.floor(toNumber(init.currentPoint));
+        // TODO: uncomment this. It was used for testing array addition/ subtraction in editor
+        // obs.path = []//init.path ?? [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 100}, {x: 0, y: 100}];
+        // init.path = init.path ?? [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 100}, {x: 0, y: 100}];
+        // for(let i = 0; i < init.path.length; i++){
+        //     if(!init.path[i])continue;
+        //     obs.path[i] = init.path[i];
+        // }
 		obs.path = toStructure({type: 'array', sub: {type: "object", keys: {x: {type: 'number'}, y: {type: 'number'}}}}, init.path, [{x: 0, y: 0}, {x: 100, y: 0}, {x: 100, y: 100}, {x: 0, y: 100}]);
         if(obs.currentPoint >= obs.path.length){
             obs.currentPoint = 0;
