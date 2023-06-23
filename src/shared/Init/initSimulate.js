@@ -49,7 +49,7 @@ const initSimulateMap = {
     },
     rotate: (obs, init) => {
         // init.x and y are the midpoint
-		obs.rotateSpeed = toNumber(init.rotateSpeed, 1);
+		obs.rotateSpeed = toNumber(init.rotateSpeed, .01);
         if(init.refresh === undefined)obs.rotateSpeed *= Math.PI/180;
     },
     enemy: (obs, init) => {

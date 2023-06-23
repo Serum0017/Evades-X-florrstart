@@ -337,6 +337,25 @@ input:checked + .slider:before {
     right: 5px;
 }
 
+.property-button-input {
+    /*padding: 5px;*/
+    width: 250px;
+    height: 27.5px;
+    color: white;
+    font-size: 0.85rem;
+    background: var(--bg);
+    cursor: pointer;
+    transition: opacity 0.1s linear;
+    border: none;
+    outline: none;
+    /*margin-right: 5%;*/
+    border-radius: 1px;
+}
+
+.property-button-input:hover {
+    background: var(--bg-hover);
+}
+
 .toggle-gui {
     cursor: pointer;
     border: none;

@@ -11,11 +11,11 @@ function toString(str, defaultString="Hello World!"){
 }
 
 function toHex(hex, defaultHex="#ff0000"){
-    if(typeof hex !== 'string'){
+    if(typeof hex !== 'string' || hex.length <= 1 || (hex.length-1)%3 !== 0 /*<- rgb, rrggbb, ...*/){
         return defaultHex;
     }
-    for(let i = 0; i < hex.length; i++){
-        if(i === 0 && hex[i] === '#')continue;
+    if(hex[0] !== '#')return defaultHex;
+    for(let i = 1; i < hex.length; i++){
         if(Number.isFinite(parseInt(hex[i], 16)) === true)continue;
         return defaultHex;
     }

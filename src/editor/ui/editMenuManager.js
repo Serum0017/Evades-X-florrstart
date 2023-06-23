@@ -23,7 +23,7 @@ export default class EditMenuManager {
             'shape',/*'simulate',*/'effect','difference','type','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
             'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
             '_parentKeyChain','_parentObstacle','inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
-            'refresh','initialShape','hasParent','specialPropsToReset'
+            'refresh','initialShape','hasParent','specialPropsToReset','parentObject'
         ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
@@ -53,6 +53,7 @@ export default class EditMenuManager {
     }
     // the function to rule them all!
     link(object, input, key, value){
+        // console.log({object, input, key, value});
         if(object.inputRef === undefined){
             this.defineAsUnEnumerable(object, 'inputRef', {});
         }
@@ -273,11 +274,15 @@ class EditMenuGenerator {
                 property.appendChild(label);
             },
             object: (key, subObject, {input, property, obstacle}) => {
-                // if(subObject.isAddButton === true){
-                //     // TODO
-                // } else if(subObject.isRemoveButton === true){
-
-                // }
+                if(key === 'addButton'){
+                    // TODO
+                    this.obstaclePropertyMap.addButton(key, subObject, {input, property, obstacle});
+                    return;
+                } else if(key === 'removeButton'){
+                    // property.appendChild(this.createObstacleProperties(subObject, this.formatName(key)));
+                    this.obstaclePropertyMap.removeButton(key, subObject, {input, property, obstacle});
+                    return;
+                }
 
                 if(obstacle._parentObstacle !== undefined){
                     // for nested objects
@@ -288,14 +293,72 @@ class EditMenuGenerator {
                     subObject._parentKeyChain = [key];
                 }
 
-                subObject.manageProperties = {add: {isAddButton: true}, remove: {isRemoveButton: true}};
+                if(key !== 'manageProperties' && key !== 'removeProperty' && key !== 'addProperty'){
+                    subObject.manageProperties = {addProperty: {name: '', value: '', addButton: {parentObject: subObject}}, removeProperty: {name: Object.keys(subObject)[0], removeButton: {parentObject: subObject}}};
+                }
 
-                property.appendChild(this.createObstacleProperties(subObject, key));
+                property.appendChild(this.createObstacleProperties(subObject, this.formatName(key)));
             },
-            // addButton: (key, subObject, {input, property, obstacle}) => {
-            //     // class to add a property to an object
-            //     property.appendChild(this.createObstacleProperties(subObject, key));
-            // },
+            addButton: (key, object, {input, property, obstacle}) => {
+                // class to add a property to an object
+                input.classList.add('property-button-input');
+                input.type = 'button';
+                input.value = 'add property';
+
+                const parentObstacle = obstacle._parentObstacle;
+                const parentObject = object.parentObject;// object with manageProperties
+
+                input.onclick = () => {
+                    const name = parentObject.manageProperties.addProperty.name;
+                    let value = parentObject.manageProperties.addProperty.value;
+                    if(value.slice(0,4) === 'JSON'){
+                        //JSON{"x":5,"y":100}
+                        try{
+                            value = JSON.parse(value.slice(4));
+                        } catch(e){
+                            value = parentObject.manageProperties.addProperty.value;
+                        }
+                    }
+
+                    // parentObject[name] = value;
+                    // this.editMenuManager.link(parentObject, input, key, value);
+                    applyToKeyChain(parentObstacle, [...parentObject._parentKeyChain, name], value);
+                    
+                    this.client.updateObstacle(parentObstacle);
+
+                    console.log({parentObject, keyName: Object.getOwnPropertyNames(parentObject.inputRef)[0], firstInput: parentObject.inputRef[Object.getOwnPropertyNames(parentObject.inputRef)[0]], firstParent: parentObject.inputRef[Object.getOwnPropertyNames(parentObject.inputRef)[0]].parentElement});
+                    const parentFolderContent = parentObject.inputRef[Object.getOwnPropertyNames(parentObject.inputRef)[0]].parentElement.parentElement;
+                    parentFolderContent.insertBefore(this.createObstacleProperty(parentObject, name, value), parentFolderContent.lastChild);
+
+                    // console.log({parentObstacle, keyChain: [...parentObject._parentKeyChain, name]});
+
+                    // console.log('add!', {parentObject, parentObstacle, keyChain: [...parentObject._parentKeyChain, parentObject.manageProperties.addProperty.name]});
+                }
+                property.appendChild(input);
+            },
+            removeButton: (key, object, {input, property, obstacle}) => {
+                // class to add a property to an object
+                input.classList.add('property-button-input');
+                input.type = 'button';
+                input.value = 'remove property';
+
+                const parentObstacle = obstacle._parentObstacle;
+                const parentObject = object.parentObject;// object with manageProperties
+
+                input.onclick = () => {
+                    const name = parentObject.manageProperties.addProperty.name;
+                    // parentObject[name] = value;
+                    console.log({parentObstacle, keyChain: [...parentObject._parentKeyChain, name]});
+                    deleteKeyChain(parentObstacle, [...parentObject._parentKeyChain, name]);
+                    
+                    this.client.updateObstacle(parentObstacle);
+
+                    // remove?
+                    // const parentFolderContent = parentObject.inputRef[Object.getOwnPropertyNames(parentObject.inputRef)[0]].parentElement.parentElement;
+                    // parentFolderContent.insertBefore(this.createObstacleProperty(parentObject, name, value), parentFolderContent.lastChild);
+                }
+                property.appendChild(input);
+            },
             color: (key, value, {input, property, obstacle}) => {
                 input.classList.add('property-color-input');
                 input.type = 'color';
@@ -487,6 +550,7 @@ class EditMenuGenerator {
         const input = document.createElement('input');
         input.maxLength = 500;
         input.spellcheck = 'false';
+
         input.value = value;
 
         this.editMenuManager.link(obstacle, input, key, value);
@@ -529,15 +593,6 @@ class EditMenuGenerator {
 // prop sync / menu generator
 
 // TODO: make these a window obj because i think they're defined globally in /shared in minpack
-// function applyToKeyChain(obj, chain, value){
-//     const last = chain.pop();
-//     chain.reduce((acc, k) => acc[k], obj)[last] = value;
-// }
-
-// function deleteKeyChain(obj, chain){
-//     const last = chain.pop();
-//     delete chain.reduce((acc, k) => acc[k], obj)[last];
-// }
 function applyToKeyChain(obj, chain, value){
     let lookUpString = '';
     for(let i = 0; i < chain.length; i++){
@@ -548,3 +603,30 @@ function applyToKeyChain(obj, chain, value){
         eval(`obj${lookUpString} = value;`);// TODO: ENSURE THIS IS SAFE!
     } catch(e){}
 }
+
+function deleteKeyChain(obj, chain, value){
+    let lookUpString = '';
+    for(let i = 0; i < chain.length; i++){
+        lookUpString += "['" + chain[i].replaceAll(']','') + "']";
+    }
+    
+    try {
+        eval(`delete obj${lookUpString}`);// TODO: ENSURE THIS IS SAFE!
+    } catch(e){}
+}
+
+// function deleteKeyChain(obj, chain){
+//     const last = chain.pop();
+//     delete chain.reduce((acc, k) => acc[k], obj)[last];
+// }
+// function applyToKeyChain(obj, chain, value){
+//     const chainWithoutLast = chain.slice(0, chain.length-1);
+//     const last = chain[chain.length-1];
+//     chainWithoutLast.reduce((acc, k) => acc[k], obj)[last] = value;
+// }
+
+// function deleteKeyChain(obj, chain){
+//     const chainWithoutLast = chain.slice(0, chain.length-1);
+//     const last = chain[chain.length-1];
+//     delete chainWithoutLast.reduce((acc, k) => acc[k], obj)[last];
+// }
