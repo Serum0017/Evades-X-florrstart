@@ -152,12 +152,20 @@ class SelectionScaleManager {
                 return [{x: 0, y: o.difference.y/2}];
             },
             square: (o) => {
+                const rotate = ({x,y}, angle) => {
+                    const dist = Math.sqrt(x**2+y**2);
+                    const newAngle = Math.atan2(y,x) + angle;
+                    return {
+                        x: dist * Math.cos(newAngle),
+                        y: dist * Math.sin(newAngle)
+                    }
+                }
                 return [
                     {x: o.difference.x/2, y: o.difference.y/2},
                     {x: -o.difference.x/2, y: o.difference.y/2},
                     {x: o.difference.x/2, y: -o.difference.y/2},
                     {x: -o.difference.x/2, y: -o.difference.y/2},
-                ];
+                ]
             },
             oval: (o) => {
                 return [
@@ -194,6 +202,7 @@ class SelectionScaleManager {
                 // console.log(o);
                 o.points[pt.bodyPointIndex][0] = pt.x;
                 o.points[pt.bodyPointIndex][1] = pt.y;
+                // window.recalculateBound(o);
                 // console.log(o.inputRef);
                 // console.log(o.points[index]);
             },
@@ -206,12 +215,75 @@ class SelectionScaleManager {
             square: (o, pt, index) => {
                 // o.x += delta.x;
                 // o.y += delta.y;
+                // const bound = {
+                //     w: Math.abs(pt.x) * 2,
+                //     h: Math.abs(pt.y) * 2
+                // }//Math.abs(pt.x * Math.cos(o.rotation) + pt.y * Math.sin(o.rotation)) * 2;
+                //Math.abs(pt.y * Math.cos(o.rotation) - pt.x * Math.sin(o.rotation)) * 2;
+
+                // solved by systems of equations:
+                // o.w * Math.cos(angle) + o.h * Math.sin(angle) = pt.x
+                // o.w * Math.sin(angle) + o.h * Math.cos(angle) = pt.y
+                // =>
+                // o.w / Math.cos(angle) + o.h / Math.sin(angle) = pt.x * 2
+                // o.w / Math.sin(angle) + o.h / Math.cos(angle) = pt.y * 2
+                // o.w / Math.cos(angle) + o.h / Math.cos(angle)^2 * sin(angle) = pt.y * 2 / cos(angle) * sin(angle)
+                // o.h = (pt.x * 2 - pt.y * 2 / cos(angle) * sin(angle)) * (1 / sin(angle) - 1 / cos(angle)^2 * sin(angle))
+                // o.w = (pt.y * 2 - o.h / Math.cos(angle)) * sin(angle)
+                // o.difference.x / 2 = pt.x;
+                // o.difference.y / 2 = pt.y;
+                // window.recalculateBound(o);
+
+                // o.w = Math.abs(pt.x * 2);
+                // o.h = Math.abs(pt.y * 2);
+
+                // our goal is to get this to be aligned with the mouse. Thus, we calculate the ratio between this and the mouse pos and apply
+                // const original = {x: pt.x, y: pt.y};
+
+                // o.difference = {x: o.w, y: o.h};
+                // const old = {x: o.w, y: o.h};
+
+                // // we want to snap the points to the bounding box. using recalculateBound of the bigger box we can find the full dimensions
+                // window.recalculateBound(o);
+
+                // // now actually set the final dimensions using the ratio
+                // o.w = Math.abs(pt.x) * 2 * old.x / o.difference.x;
+                // o.h = Math.abs(pt.y) * 2 * old.y / o.difference.y;
+
+                // solve o.w * Math.cos(angle) + 
+
+                // calculate the difference between what the rect will be
+                // const differenceRatio = {
+                //     x: o.difference.x / o.w,
+                //     y: o.difference.y / o.h
+                // }
+
+                // const bound = {
+                //     w: Math.abs(Math.cos(o.rotation) * pt.x + pt.y * Math.sin(o.rotiation)) * 2,
+                //     h: 1
+                // }
+
                 o.w = Math.abs(pt.x) * 2;
                 o.h = Math.abs(pt.y) * 2;
 
-                o.difference = {x: o.w, y: o.h};
+                // o.w *= differenceRatio;
+                // o.h *= differenceRatio;
+                // o.difference = {x: o.w, y: o.h};
+                // const firstDifference = {x: o.w, y: o.h};
+
+                window.recalculateBound(o);// TODO: make square and oval bounds right
+
+                // o.w = Math.abs(pt.x) * 2 * firstDifference.x / o.difference.x;
+                // o.h = Math.abs(pt.y) * 2 * firstDifference.y / o.difference.y;
+                // o.difference = {x: firstDifference.x, y: firstDifference.y};
+
+                // o.w = o.difference.x;
+                // o.h = o.difference.y;
 
                 this.defineResizePoints(o);
+
+                o.w = Math.abs(pt.x) * 2;
+                o.h = Math.abs(pt.y) * 2;
             },
             text: (o, pt, index) => {
                 o.resizePoints[0].y = 0;
@@ -247,7 +319,13 @@ class SelectionScaleManager {
         
         const newResizePoints = this.resizeMap[o.initialShape](o);
         for(let i = 0; i < newResizePoints.length; i++){
-            o.resizePoints[i] = newResizePoints[i];
+            if(o.resizePoints[i] === undefined){
+                o.resizePoints[i] = {};
+            }
+            for(let key in newResizePoints[i]){
+                o.resizePoints[i][key] = newResizePoints[i][key]
+            }
+            // o.resizePoints[i] = newResizePoints[i];
             defineAsUnEnumerable(o.resizePoints[i], 'parentObstacle', o);
             o.resizePoints[i].parentIndex = i;
         }
@@ -255,7 +333,7 @@ class SelectionScaleManager {
 
     transformResizePoints(parent, pt, index){
         const worldMousePos = this.selectionManager.screenToWorld(this.selectionManager.inputManager.mouse.pos)
-        const last = {x: pt.x, y: pt.y};
+        // const last = {x: pt.x, y: pt.y};
         pt.x = worldMousePos.x - parent.x;
         pt.y = worldMousePos.y - parent.y;
         if(this.selectionManager.settings.toSnap === true){
@@ -268,6 +346,9 @@ class SelectionScaleManager {
     }
 
     updateResizePoints(o) {
+        if(this.selectionManager.transformMode !== 'resize'){
+            return;
+        }
         if(this.resizeUpdateMap[o.initialShape] !== undefined){
             this.resizeUpdateMap[o.initialShape](o);
         }

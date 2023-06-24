@@ -23,7 +23,7 @@ export default class EditMenuManager {
             'shape',/*'simulate',*/'effect','difference','type','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
             'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
             '_parentKeyChain','parentObstacle','inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
-            'refresh','initialShape','hasParent','specialPropsToReset','parentObject'
+            'refresh','initialShape','hasParent','specialPropsToReset','parentObject','lastChangedKey'
         ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
@@ -74,6 +74,7 @@ export default class EditMenuManager {
         if(object.isEditorProperties === undefined){
             Object.defineProperty(object, key, {
                 set(value) {
+                    if(key !== 'lastChangedKey')object.lastChangedKey = key;
                     object._properties[key] = value;
                     if(object.inputRef !== undefined){
                         object.inputRef[key].value = value;
@@ -100,11 +101,11 @@ export default class EditMenuManager {
                 }
             }
 
-            this.handleSpecialProperties(object, key, targetValue);
+            // this.handleSpecialProperties(object, key, targetValue);
 
             object[key] = targetValue;
 
-            // /*const toReset = */this.handleSpecialProperties(object, key, event, targetValue);
+            // /*const toReset = */this.handleSpecialProperties(object, key, targetValue);
 
             if(object.isEditorProperties === undefined){
                 if(object.hasParent === true){
@@ -143,8 +144,8 @@ export default class EditMenuManager {
             //     parentObstacle.specialPropsToReset = {};
             // }
             // parentObstacle.specialPropsToReset.rotation = parentObstacle.rotation;
-            parentObstacle.body.rotateRelative(-parentObstacle.rotation, parentObstacle.pivot);
-            parentObstacle.rotation = 0;
+            // parentObstacle.body.rotateRelative(-parentObstacle.rotation, parentObstacle.pivot);
+            // parentObstacle.rotation = 0;
             return true;
         } else if(object._parentKeyChain === undefined && key === 'x'){
             // change pivot by the delta that is transformed as well
@@ -181,6 +182,12 @@ export default class EditMenuManager {
             if(typeof newObstacle[key] === 'object' && this.excludedProperties[key] !== true){
                 this.regenerateGettersAndSetters(newObstacle[key]);
             }
+        }
+
+        if(obstacle.lastChangedKey !== 'rotation'){
+            // to compensate for init rotating the other way
+            obstacle.body.rotateRelative(-obstacle.rotation, obstacle.pivot);
+            obstacle.body.rotateRelative(obstacle.rotation, {x: obstacle.x, y: obstacle.y});
         }
 
         const bound = obstacle.body.getBoundingBox();

@@ -42,7 +42,7 @@ export default class EditorClient {
         this.game.map.addObstacle(o);
         this.initObstacle(o);
     }
-    updateObstacle(o, isPreviewObstacle=false){
+    updateObstacle(o){
         this.uiManager.editMenuManager.regenerateObstacle(o);
         this.uiManager.updateInitObstacle(o);
         window.recalculateBound(o);

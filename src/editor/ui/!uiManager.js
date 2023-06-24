@@ -159,7 +159,6 @@ export default class UIManager {
     addInitObstacle(o){
         const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['parentObstacle','resizePoints','parentObject'/*,'inputRef'*/]);
         // const deepObstacle = window.structuredClone({...o, render: undefined, spatialHash: undefined});
-        console.log(deepObstacle);
 
         o.mapInitId = this.mapInitId++;
         this.mapInitData[o.mapInitId] = deepObstacle;
