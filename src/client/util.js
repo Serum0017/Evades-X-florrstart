@@ -109,15 +109,6 @@ window.structuredCloneWithoutKey = (o, keyNames=[]) => {
   }
 }
 
-window.defineAsUnEnumerable = (object, keyName, value) => {
-  Object.defineProperty(object, keyName, {
-      value,
-      enumerable: false,
-      configurable: true,
-      writable: true
-  });
-}
-
 // fallback for performance.now on older browsers
 window.performance = window.performance || {}; performance.now = (function() {return performance.now || performance.mozNow || performance.msNow || performance.oNow || performance.webkitNow || function() { return new Date().getTime();};})();
 

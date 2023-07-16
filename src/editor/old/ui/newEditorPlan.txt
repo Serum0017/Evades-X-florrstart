@@ -1,0 +1,8 @@
+ok so we need to define how the classes work together bc its getting really unmaintanable
+so we have these classes:
+
+editorManager: god class that manages global state and handles obstacle creation and deletion.
+selectionManager, resizeManager, rotateManager: all handle rotating/ resizing/ selecting respectively. Will not be implemented first.
+
+only thing that should work right now is create button (puts obstacles with default parameters), editor menu, and link between inputs and 
+

@@ -1,6 +1,8 @@
 import Ref from './editorRef.js';
 import transformBody from '../client/simulate/obstacles/transformBody.js';
 import Collide from '../client/simulate/obstacles/collisionManager.js';
+import editorUtils from './editorUtils.js';
+const {defineAsUnEnumerable} = editorUtils;
 
 const classNames = ['dragManager','previewManager','collisionManager','inputManager','transformManager','rotateManager','scaleManager']
 function defineOtherClasses(obj, classNameToExclude){
@@ -57,7 +59,7 @@ class SelectionTransformManager {
             this.transformGroup(this.collisionManager.selectedObstacles, mouse, mouse.worldDelta, worldMousePos);
         }
     }
-    transformObstacle(obstacle, {x,y}){
+    transformObstacle/*with snapDistance accounted for*/(obstacle, {x,y}){
         if(x === 0 && y === 0){
             return;
         }
@@ -152,14 +154,6 @@ class SelectionScaleManager {
                 return [{x: 0, y: o.difference.y/2}];
             },
             square: (o) => {
-                const rotate = ({x,y}, angle) => {
-                    const dist = Math.sqrt(x**2+y**2);
-                    const newAngle = Math.atan2(y,x) + angle;
-                    return {
-                        x: dist * Math.cos(newAngle),
-                        y: dist * Math.sin(newAngle)
-                    }
-                }
                 return [
                     {x: o.difference.x/2, y: o.difference.y/2},
                     {x: -o.difference.x/2, y: o.difference.y/2},
@@ -202,8 +196,11 @@ class SelectionScaleManager {
                 // console.log(o);
                 o.points[pt.bodyPointIndex][0] = pt.x;
                 o.points[pt.bodyPointIndex][1] = pt.y;
-                // window.recalculateBound(o);
-                // console.log(o.inputRef);
+                o.body.points[pt.bodyPointIndex].x = pt.x + o.x;
+                o.body.points[pt.bodyPointIndex].y = pt.y + o.y;
+                o.body._recalc();
+
+                // console.log(o.htmlRef);
                 // console.log(o.points[index]);
             },
             // TODO: update this to be maintainable when scaling is a thing
@@ -271,7 +268,7 @@ class SelectionScaleManager {
                 // o.difference = {x: o.w, y: o.h};
                 // const firstDifference = {x: o.w, y: o.h};
 
-                window.recalculateBound(o);// TODO: make square and oval bounds right
+                // window.recalculateBound(o);// TODO: make square and oval bounds right
 
                 // o.w = Math.abs(pt.x) * 2 * firstDifference.x / o.difference.x;
                 // o.h = Math.abs(pt.y) * 2 * firstDifference.y / o.difference.y;
@@ -280,10 +277,12 @@ class SelectionScaleManager {
                 // o.w = o.difference.x;
                 // o.h = o.difference.y;
 
+                o.difference = {x: o.w, y: o.h};
+
                 this.defineResizePoints(o);
 
-                o.w = Math.abs(pt.x) * 2;
-                o.h = Math.abs(pt.y) * 2;
+                // o.w = Math.abs(pt.x) * 2;
+                // o.h = Math.abs(pt.y) * 2;
             },
             text: (o, pt, index) => {
                 o.resizePoints[0].y = 0;
@@ -309,6 +308,14 @@ class SelectionScaleManager {
             }
         }
     }
+    rotate({x,y}, angle) {
+        const dist = Math.sqrt(x**2+y**2);
+        const newAngle = Math.atan2(y,x) + angle;
+        return {
+            x: dist * Math.cos(newAngle),
+            y: dist * Math.sin(newAngle)
+        }
+    }
     defineResizePoints(o) {
         if(this.resizeMap[o.initialShape] === undefined){
             console.error('shape does not have a resizemap definition! selectionManager.js ' + o.initialShape);
@@ -317,7 +324,14 @@ class SelectionScaleManager {
             defineAsUnEnumerable(o, 'resizePoints', []);
         }
         
-        const newResizePoints = this.resizeMap[o.initialShape](o);
+        let newResizePoints = this.resizeMap[o.initialShape](o);
+        if(o.rotation !== 0){
+            for(let i = 0; i < newResizePoints.length; i++){
+                const rotated = this.rotate(newResizePoints[i], o.rotation);
+                newResizePoints[i].x = rotated.x;
+                newResizePoints[i].y = rotated.y;
+            }
+        }
         for(let i = 0; i < newResizePoints.length; i++){
             if(o.resizePoints[i] === undefined){
                 o.resizePoints[i] = {};
@@ -325,24 +339,46 @@ class SelectionScaleManager {
             for(let key in newResizePoints[i]){
                 o.resizePoints[i][key] = newResizePoints[i][key]
             }
-            // o.resizePoints[i] = newResizePoints[i];
+            
             defineAsUnEnumerable(o.resizePoints[i], 'parentObstacle', o);
             o.resizePoints[i].parentIndex = i;
         }
     }
 
     transformResizePoints(parent, pt, index){
-        const worldMousePos = this.selectionManager.screenToWorld(this.selectionManager.inputManager.mouse.pos)
-        // const last = {x: pt.x, y: pt.y};
+        // rotate all points to be at 0 rotation
+        for(let i = 0; i < parent.resizePoints.length; i++){
+            const rotatedPos = new SAT.Vector(parent.resizePoints[i].x + parent.x, parent.resizePoints[i].y + parent.y).rotateRelative(parent.rotation, {x: 0, y: 0});
+            parent.resizePoints[i].x = rotatedPos.x - parent.x;
+            parent.resizePoints[i].y = rotatedPos.y - parent.y;
+        }
+
+        const worldMousePos = this.selectionManager.screenToWorld(this.selectionManager.inputManager.mouse.pos);
+
+        // make point at mouse position
         pt.x = worldMousePos.x - parent.x;
         pt.y = worldMousePos.y - parent.y;
+
+        // apply snapping
         if(this.selectionManager.settings.toSnap === true){
             const snapDistance = this.selectionManager.settings.snapDistance;
             pt.x = Math.round(pt.x / snapDistance) * snapDistance;
             pt.y = Math.round(pt.y / snapDistance) * snapDistance;
         }
+
+        // unrotate the points
+        for(let i = 0; i < parent.resizePoints.length; i++){
+            const rotatedPos = new SAT.Vector(parent.resizePoints[i].x, parent.resizePoints[i].y).rotateRelative(-parent.rotation, {x: 0, y: 0});
+            parent.resizePoints[i].x = rotatedPos.x - parent.x;
+            parent.resizePoints[i].y = rotatedPos.y - parent.y;
+        }
+
+        // apply the transforms to the shape
         this.resizeTransformMap[parent.initialShape](parent, pt, index);
-        this.client.updateObstacle(parent);
+
+        if(parent.initialShape !== 'poly'){
+            this.client.updateObstacle(parent);
+        }
     }
 
     updateResizePoints(o) {
@@ -471,6 +507,14 @@ class SelectionScaleManager {
     findAllSelectedCollisions({x,y,w=0.1,h=0.1}){
         return this.findFirstCollision(selectionObstacle, {x,y,w,h}, {resizePoints: this.selectedPoints});
     }
+    selectAll(obstacles=this.selectionManager.map.obstacles){
+        this.selectedPoints = [];
+        for(let i = 0; i < obstacles.length; i++){
+            for(let j = 0; j < obstacles[i].resizePoints.length; j++){
+                this.selectedPoints.push(obstacles[i].resizePoints[j]);
+            }
+        }
+    }
     
     deleteSelectedPoints(){
         for(let i = 0; i < this.selectedPoints.length; i++){
@@ -506,8 +550,8 @@ class SelectionScaleManager {
     handleSpecialKeyOnClick(event, firstPointCollision){
         if(event.shiftKey === true){
             // shift click
-            this.resizePoints = [];
-            this.resizePoints.push(...firstPointCollision.parentObstacle.resizePoints);
+            this.selectedPoints = [];
+            this.selectedPoints.push(...firstPointCollision.parentObstacle.resizePoints);
             this.transformActive = true;
         }
     }
@@ -522,8 +566,26 @@ class SelectionScaleManager {
         })
     }
 
+    removeResizePoints(o){
+        this.selectedPoints = this.selectedPoints.filter(p => p.parentObstacle !== o);
+    }
+
     onMouseUp(event){
         this.transformActive = false;
+
+        // this could be more efficient but idc
+        for(let i = 0; i < this.selectedPoints.length; i++){
+            const obstacle = this.selectedPoints[i].parentObstacle;
+            if(obstacle.initialShape === 'poly'){
+                const last = {x: obstacle.x, y: obstacle.y};
+                window.recalculateBound(obstacle);
+                this.defineResizePoints(obstacle);
+                if(last.x !== obstacle.x || last.y !== obstacle.y){
+                    obstacle.pivot.x += obstacle.x - last.x;
+                    obstacle.pivot.y += obstacle.y - last.y;
+                }
+            }
+        }
     }
 }
 

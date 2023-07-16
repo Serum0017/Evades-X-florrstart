@@ -40,9 +40,9 @@ const initSimulateMap = {
 
         obs.timeRemain = Math.sqrt((obs.pointOn.x - obs.pointTo.x)**2 + (obs.pointOn.y - obs.pointTo.y)**2) / obs.speed;
 
-        if(init.refresh === true){
-            return;   
-        }
+        // if(init.refresh === true){
+        //     return;   
+        // }
         
         const fractionalPointOffset = toNumber(init.currentPoint, 0) % 1;
         if(fractionalPointOffset !== 0){

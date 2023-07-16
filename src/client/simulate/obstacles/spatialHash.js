@@ -13,6 +13,13 @@ export default class SpatialHash {
         this.hashId++;
 
         entity.hashPositions = [];
+        
+        Object.defineProperty(entity, 'hashPositions', {
+            value: [],
+            enumerable: false,
+            configurable: true,
+            writable: true
+        })
         const hashPoints = this.calculateHashPoints(entity);
         for(let x in hashPoints){
             for(let y in hashPoints[x]){

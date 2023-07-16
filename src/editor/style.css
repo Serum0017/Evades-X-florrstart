@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
 :root {
     --gui-bg: rgb(9, 9, 9);
     --gui-alt: rgb(21, 21, 21);
@@ -6,8 +8,6 @@
     --bg-hover: rgba(50, 50, 50, 0.7);
     --submenu-bg: rgba(12, 12, 12, 0.7);
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 
 * {
     margin: 0;

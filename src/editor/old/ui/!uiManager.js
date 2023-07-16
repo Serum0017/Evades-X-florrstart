@@ -1,4 +1,4 @@
-import Ref from '../editorRef.js';
+import Ref from '../../editorRef.js';
 import CreateMenuManager from './createMenuManager.js';
 import EditMenuManager from './editMenuManager.js';
 
@@ -114,7 +114,7 @@ export default class UIManager {
         Ref.importButton.onclick = (event) => {
             navigator.clipboard.readText()
                 .then((clipboardText) => {
-                    const toOverride = confirm('Override data? (OK) or add to existing (CANCEL)');
+                    const toOverride = this.map.obstacles.length === 0 ? true : confirm('Override data? (OK) or add to existing (CANCEL)');
                     this.importMap(clipboardText, toOverride);
                 })
                 .catch((e) => {
@@ -157,7 +157,7 @@ export default class UIManager {
         }
     }
     addInitObstacle(o){
-        const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['parentObstacle','resizePoints','parentObject'/*,'inputRef'*/]);
+        const deepObstacle = window.structuredCloneWithoutKey({...o, render: undefined, spatialHash: undefined}, ['parentObstacle','resizePoints','parentObject'/*,'htmlRef'*/]);
         // const deepObstacle = window.structuredClone({...o, render: undefined, spatialHash: undefined});
 
         o.mapInitId = this.mapInitId++;
@@ -209,6 +209,7 @@ export default class UIManager {
         } catch(e){
             console.error('Map importing error! ', e);
             console.warn('here is happy face to make you feel better :D');
+            alert('Map importing error: ' + e);
             return;
         }
     }

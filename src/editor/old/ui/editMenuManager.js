@@ -1,4 +1,6 @@
-import Ref from '../editorRef.js';
+import editorUtils from '../../editorUtils.js';
+const {defineAsUnEnumerable} = editorUtils;
+import Ref from '../../editorRef.js';
 
 // right side menu that can be used to edit obstacles and their parameters after they have been placed
 
@@ -22,8 +24,8 @@ export default class EditMenuManager {
         this.excludedProps = [
             'shape',/*'simulate',*/'effect','difference','type','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv','_properties','editorPropertyReferences',
             'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
-            '_parentKeyChain','parentObstacle','inputRef','visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
-            'refresh','initialShape','hasParent','specialPropsToReset','parentObject','lastChangedKey'
+            '_parentKeyChain','parentObstacle',/*'htmlRef', -TODO: remove all htmlref comments once new system is proven to work*/'visible','renderCircleSize','snapRotateMovementExpansion','rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected',
+            'refresh','initialShape','hasParent','specialPropsToReset','parentObject','lastChangedKey','folderRef'
         ];
         this.excludedProperties = {};
         for(let i = 0; i < this.excludedProps.length; i++){
@@ -41,7 +43,7 @@ export default class EditMenuManager {
                 Ref.toggleGui.dataset.usage = 'on';
                 Ref.gui.classList.remove('hidden');
                 Ref.guiContainer.classList.add('gui-on');
-                this.editMenuGenerator.reloadMenu();
+                this.editMenuGenerator.generateMenu();
             } else {
                 Ref.toggleGui.innerText = 'Open Menu';
                 Ref.toggleGui.dataset.usage = 'off';
@@ -51,89 +53,17 @@ export default class EditMenuManager {
             event.preventDefault();
         }
     }
-    // the function to rule them all!
-    link(object, input, key, value){
-        // console.log({object, input, key, value});
-        if(object.inputRef === undefined){
-            defineAsUnEnumerable(object, 'inputRef', {});
-        }
-        Object.defineProperty(object.inputRef, key, {
-            get() {
-                return input;
-            },
-            enumerable: false,
-            configurable: true,
-        });
-
-        object.hasParent = object.parentObstacle !== undefined;
-
-        if(object._properties === undefined){
-            defineAsUnEnumerable(object, '_properties', {});
-        }
-        object._properties[key] = value;
-        if(object.isEditorProperties === undefined){
-            Object.defineProperty(object, key, {
-                set(value) {
-                    if(key !== 'lastChangedKey')object.lastChangedKey = key;
-                    object._properties[key] = value;
-                    if(object.inputRef !== undefined){
-                        object.inputRef[key].value = value;
-                    }
-                },
-                get() {
-                    return object._properties[key];
-                },
-                enumerable: true,
-                configurable: true,
-            });
-        }
-
-        input.oninput = ((event) => {
-            const targetValue = typeof object[key] === 'number' ? parseFloat(event.target.value) : event.target.value;
-
-            // preventing invalid inputs from resetting back to default
-            if(object.isEditorProperties === undefined && object.hasParent === false/*TODO: apply this to subobjects as well*/ && ((typeof object[key] === 'number' && isNaN(object[key]) === false) || typeof object[key] === 'string')){
-                if(window.initObstacle({...object, [key]: targetValue})[key] !== targetValue){
-                    return event.preventDefault();
-                }
-                if(typeof object[key] === 'number' && targetValue.toString() !== event.target.value){
-                    return event.preventDefault();
-                }
-            }
-
-            // this.handleSpecialProperties(object, key, targetValue);
-
-            object[key] = targetValue;
-
-            // /*const toReset = */this.handleSpecialProperties(object, key, targetValue);
-
-            if(object.isEditorProperties === undefined){
-                if(object.hasParent === true){
-                    applyToKeyChain(object.parentObstacle, object._parentKeyChain, object);
-                    this.client.updateObstacle(object.parentObstacle);
-                } else {
-                    this.client.updateObstacle(object);
-                }
-            }
-
-            // if(toReset === true){
-            //     this.resetSpecialProperties(object, key, event, targetValue);
-            // }
-            
-            return event.preventDefault();
-        }).bind(this);
-    }
     // usurping the ruling party
-    unlink(object, input, key){
-        // console.log({object, input, key, value});
+    // unlink(object, input, key){
+    //     // console.log({object, input, key, value});
 
-        // delete object._properties[key];
-        // delete object[key];
+    //     // delete object._properties[key];
+    //     // delete object[key];
 
-        console.log('unlink:', {input, key, object});
-        input.oninput = () => {};
-        input.remove();
-    }
+    //     console.log('unlink:', {input, key, object});
+    //     input.oninput = () => {};
+    //     input.remove();
+    // }
     // TODO: make this system work better
     handleSpecialProperties(object, key, value){
         // if we change pivot param, then make rotation 0
@@ -150,14 +80,14 @@ export default class EditMenuManager {
         } else if(object._parentKeyChain === undefined && key === 'x'){
             // change pivot by the delta that is transformed as well
             object.pivot.x += value - object[key];
-            if(object?.pivot?.x?.inputRef !== undefined){
-                object.pivot.x.inputRef.value = value;
-            }
+            // if(object?.pivot?.x?.htmlRef !== undefined){
+            //     object.pivot.x.htmlRef.value = value;
+            // }
         } else if(object._parentKeyChain === undefined && key === 'y'){
             object.pivot.y += value - object[key];
-            if(object?.pivot?.y?.inputRef !== undefined){
-                object.pivot.y.inputRef.value = value;
-            }
+            // if(object?.pivot?.y?.htmlRef !== undefined){
+            //     object.pivot.y.htmlRef.value = value;
+            // }
         }
         // return false;
     }
@@ -170,16 +100,15 @@ export default class EditMenuManager {
     //     this.client.updateObstacle(parentObstacle);
     // }
     regenerateObstacle(obstacle, isRegeneratable=obstacle.isEditorProperties===undefined) {
-        if(isRegeneratable === false){
-            return;
-        }
+        if(isRegeneratable === false)return;
+
         obstacle.shape = obstacle.initialShape;
         obstacle.refresh = true;
+
         const newObstacle = window.initObstacle(obstacle);
         for(let key in newObstacle){
-            if(key === 'spatialHash')continue;
             obstacle[key] = newObstacle[key];
-            if(typeof newObstacle[key] === 'object' && this.excludedProperties[key] !== true){
+            if(typeof newObstacle[key] === 'object' && this.excludedProperties[key] !== true && key !== 'spatialHash'){
                 this.regenerateGettersAndSetters(newObstacle[key]);
             }
         }
@@ -195,34 +124,42 @@ export default class EditMenuManager {
         obstacle.y = bound.pos.y + bound.h/2;
         obstacle.difference = {x: bound.w, y: bound.h};
     }
-    regenerateGettersAndSetters(obstacle){
+    regenerateGettersAndSetters(object){
         // when sub-obstacles are regenerated, they lose all of their getters and setters... we need to refresh those
-        if(obstacle._properties === undefined){
-            obstacle._properties = {};
-        }
-        for(let key in obstacle){
-            if(this.excludedProperties[key] === true){
-                continue;
-            }
-            obstacle._properties[key] = obstacle[key];
-            Object.defineProperty(obstacle, key, {
-                set(value) {
-                    obstacle._properties[key] = value;
-                    if(obstacle.inputRef !== undefined){
-                        obstacle.inputRef[key].value = value;
-                    }
-                },
-                get() {
-                    return obstacle._properties[key];
-                },
-                enumerable: true,
-                configurable: true,
-            });
-        }
+        // if(obstacle._properties === undefined){
+        //     obstacle._properties = {};
+        // }
+        // for(let key in obstacle){
+        //     if(this.excludedProperties[key] === true){
+        //         continue;
+        //     }
+        //     obstacle._properties[key] = obstacle[key];
+        //     Object.defineProperty(obstacle, key, {
+        //         set(value) {
+        //             obstacle._properties[key] = value;
+        //             if(obstacle.htmlRef !== undefined){
+        //                 obstacle.htmlRef[key].value = value;
+        //             }
+        //         },
+        //         get() {
+        //             return obstacle._properties[key];
+        //         },
+        //         enumerable: true,
+        //         configurable: true,
+        //     });
+        // }
 
-        for(let key in obstacle){
-            if(this.excludedProperties[key] !== true && typeof obstacle[key] === 'object'){
-                this.regenerateGettersAndSetters(obstacle[key]);
+        // for(let key in obstacle){
+        //     if(this.excludedProperties[key] !== true && typeof obstacle[key] === 'object'){
+        //         this.regenerateGettersAndSetters(obstacle[key]);
+        //     }
+        // }
+
+        regenerateKeys(object);
+
+        for(let key in object){
+            if(typeof object[key] === 'object' && this.excludedProperties[key] !== true){
+                this.regenerateGettersAndSetters(object[key]);
             }
         }
     }
@@ -286,11 +223,12 @@ class EditMenuGenerator {
             object: (key, subObject, {input, property, obstacle}) => {
                 if(key === 'addButton'){
                     // TODO
-                    this.obstaclePropertyMap.addButton(key, subObject, {input, property, obstacle});
+                    // these things should be uncommented
+                    // this.obstaclePropertyMap.addButton(key, subObject, {input, property, obstacle});
                     return;
                 } else if(key === 'removeButton'){
-                    // property.appendChild(this.createObstacleProperties(subObject, this.formatName(key)));
-                    this.obstaclePropertyMap.removeButton(key, subObject, {input, property, obstacle});
+                    // property.appendChild(this.createProperties(subObject, this.formatName(key)));
+                    // this.obstaclePropertyMap.removeButton(key, subObject, {input, property, obstacle});
                     return;
                 }
 
@@ -303,15 +241,11 @@ class EditMenuGenerator {
                     subObject._parentKeyChain = [key];
                 }
 
-                if(key !== 'manageProperties' && key !== 'removeProperty' && key !== 'addProperty'){
-                    subObject.manageProperties = {addProperty: {name: '', value: '', addButton: {}}, removeProperty: {name: Object.keys(subObject)[0], removeButton: {}}};
-                    defineAsUnEnumerable(subObject.manageProperties.addProperty.addButton, 'parentObject', subObject);
-                    defineAsUnEnumerable(subObject.manageProperties.removeProperty.removeButton, 'parentObject', subObject);
+                const folder = property.appendChild(this.createProperties(subObject, this.formatName(key)));
+
+                if(subObject.folderRef === undefined){
+                    defineAsUnEnumerable(subObject, 'folderRef', folder);
                 }
-
-                const folder = property.appendChild(this.createObstacleProperties(subObject, this.formatName(key)));
-
-                defineAsUnEnumerable(subObject, 'folderRef', folder);
             },
             addButton: (key, object, {input, property, obstacle}) => {
                 // class to add a property to an object
@@ -339,9 +273,9 @@ class EditMenuGenerator {
                         if(parentObject[name].folderRef !== undefined){
                             propertyToRemove = parentObject[name].folderRef;
                         } else {
-                            propertyToRemove = parentObject.inputRef[name].parentElement;
+                            propertyToRemove = parentObject.htmlRef[name].parentElement;
                         }
-                        this.removeObstacleProperty(parentObject, propertyToRemove, name);
+                        // this.removeObstacleProperty(parentObject, propertyToRemove, name);
                     }
 
                     parentObject[name] = value;
@@ -349,11 +283,16 @@ class EditMenuGenerator {
 
                     // pro html
                     const parentFolderContent = input.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
-                    parentFolderContent.appendChild(this.createObstacleProperty(parentObject, name, parentObject[name]));
+                    parentFolderContent.appendChild(this.createProperty(parentObject, name, parentObject[name]));
 
                     this.client.updateObstacle(parentObstacle);
 
-                    this.reloadFolder(parentObject, parentObject.folderRef, this.formatName(parentObject._parentKeyChain[parentObject._parentKeyChain.length-1]));
+                    if(parentObject._parentKeyChain === undefined){
+                        var folderTitle = [parentObstacle.shape, parentObstacle.simulate.join('-'), parentObstacle.effect].map(s => s[0].toUpperCase() + s.slice(1)).join(' ')
+                    } else {
+                        var folderTitle = parentObject._parentKeyChain[parentObject._parentKeyChain.length-1];
+                    }
+                    this.reloadFolder(parentObject, parentObject.folderRef, this.formatName(folderTitle));
                 }
                 property.appendChild(input);
             },
@@ -372,10 +311,10 @@ class EditMenuGenerator {
                     if(parentObject[name].folderRef !== undefined){
                         propertyToRemove = parentObject[name].folderRef;
                     } else {
-                        propertyToRemove = parentObject.inputRef[name].parentElement;
+                        propertyToRemove = parentObject.htmlRef[name].parentElement;
                     }
                     
-                    this.removeObstacleProperty(parentObject, propertyToRemove, name);
+                    // this.removeObstacleProperty(parentObject, propertyToRemove, name);
 
                     deleteKeyChain(parentObstacle, [...parentObject._parentKeyChain, name]);
 
@@ -457,22 +396,28 @@ class EditMenuGenerator {
             }
         }
     }
-    reloadMenu(){
+    definePropertyManager(o, folder){
+        o.manageProperties = {addProperty: {name: '', value: '', addButton: {}}, removeProperty: {name: Object.keys(o)[0], removeButton: {}}};
+        defineAsUnEnumerable(o.manageProperties.addProperty.addButton, 'parentObject', o);
+        defineAsUnEnumerable(o.manageProperties.removeProperty.removeButton, 'parentObject', o);
+        defineAsUnEnumerable(o, 'folderRef', folder);
+    }
+    generateMenu(){
         while(Ref.gui.firstChild){
             Ref.gui.removeChild(Ref.gui.firstChild);
         }
         Ref.gui.appendChild(this.createEditorProperties());
         const selectedObstacles = this.selectionManager.collisionManager.selectedObstacles;
         for(let i = 0; i < selectedObstacles.length; i++){
-            Ref.gui.appendChild(this.createObstacleProperties(selectedObstacles[i]));
+            Ref.gui.appendChild(this.createProperties(selectedObstacles[i]));
         }
     }
-    reloadFolder(object, folder, name){
-        console.log(name);
-        const oldParent = folder.parentElement;
-        folder.remove();
-        oldParent.appendChild(this.createObstacleProperties(object, name));
-    }
+    // reloadFolder(object, folder, name){
+    //     console.log(name);
+    //     const oldParent = folder.parentElement;
+    //     folder.remove();
+    //     oldParent.appendChild(this.createProperties(object, name));
+    // }
 
     createEditorProperties(){
         // const obstacle = {editorPropertyReferences: {}, specialKeyNames: {}, isEditorProperties: true};
@@ -531,7 +476,7 @@ class EditMenuGenerator {
                 enumerable: true,
             });
         }
-        return this.createObstacleProperties(obstacle, 'Editor Settings');
+        return this.createProperties(obstacle, 'Editor Settings');
     }
     createFolder(folderName){
         const folder = document.createElement('div');
@@ -554,23 +499,6 @@ class EditMenuGenerator {
 
         return folder;
     }
-    createObstacleProperties(obstacle, folderName=[obstacle.shape, obstacle.simulate.join('-'), obstacle.effect].map(s => s[0].toUpperCase() + s.slice(1)).join(' ')) {
-        const folder = this.createFolder(folderName);
-        const folderContent = folder.getElementsByClassName('folder-content')[0];
-
-        for(let key in obstacle){
-            if(this.editMenuManager.excludedProperties[key] === true){
-                continue;
-            }
-            folderContent.appendChild(this.createObstacleProperty(obstacle, key, obstacle[key]));
-        }
-
-        for(let i = 0; i < folderContent.children.length; i++){
-            folderContent.children[i].classList.add('hidden');
-        }
-        
-        return folder;
-    }
     clickFolder(event, folder){
         folder.isOpen = !folder.isOpen;
         const folderContent = folder.getElementsByClassName('folder-content')[0];
@@ -587,7 +515,8 @@ class EditMenuGenerator {
             }
         }
     }
-    createObstacleProperty(obstacle, key, value){
+    // this function creates a folder/ input element property for a given field.
+    createProperty(object, key, value, isLinkable=object.isEditorProperties===undefined){
         const property = document.createElement('div');
         property.classList.add('property');
         property.classList.add('text');
@@ -595,26 +524,87 @@ class EditMenuGenerator {
         if(typeof value !== 'object'){
             const propName = document.createElement('span');
             propName.classList.add('property-name');
-            if(obstacle.specialKeyNames !== undefined){
-                propName.innerText = this.formatName(obstacle.specialKeyNames[key] ?? key);
+            if(object.specialKeyNames !== undefined){
+                propName.innerText = this.formatName(object.specialKeyNames[key] ?? key);
             } else {
                 propName.innerText = this.formatName(key);
             }
             property.appendChild(propName);
         }
-        
 
         const input = document.createElement('input');
         input.maxLength = 500;
         input.spellcheck = 'false';
 
-        input.value = value;
+        input.value = value//typeof value === 'number' ? Math.round(value * 10000) / 10000 : value;
 
-        this.editMenuManager.link(obstacle, input, key, value);
+        if(isLinkable === true){
+            defineKey(object, key, undefined, (value) => {
+                if(key !== 'lastChangedKey')object.lastChangedKey = key;// TODO: investigate if this is actually needed with the new system
+                input.value = value//typeof value === 'number' ? Math.round(value * 10000) / 10000 : value;
+                this.editMenuManager.regenerateObstacle(object.parentObstacle ?? object);
+            });
+        }
+        
+        input.oninput = ((event) => {
+            console.log('input');
+            const targetValue = typeof object[key] === 'number' ? parseFloat(event.target.value) : event.target.value;
+            object[key] = targetValue;
+            
+            return event.preventDefault();
+        }).bind(this);
+
+        // defineKey(o, key, undefined, (value) => {
+        //     input.value = value;
+        // });
+
+        // console.log({object, input, key, value});
+        // if(o.htmlRef === undefined){
+        //     defineAsUnEnumerable(o, 'htmlRef', {});
+        // }
+        
+        // object.hasParent = object.parentObstacle !== undefined;
+
+        // input.oninput = ((event) => {
+        //     const targetValue = typeof object[key] === 'number' ? parseFloat(event.target.value) : event.target.value;
+
+        //     // preventing invalid inputs from resetting back to default
+        //     if(object.isEditorProperties === undefined && object.hasParent === false/*TODO: apply this to subobjects as well*/ && ((typeof object[key] === 'number' && isNaN(object[key]) === false) || typeof object[key] === 'string')){
+        //         if(window.initObstacle({...object, [key]: targetValue})[key] !== targetValue){
+        //             return event.preventDefault();
+        //         }
+        //         if(typeof object[key] === 'number' && targetValue.toString() !== event.target.value){
+        //             return event.preventDefault();
+        //         }
+        //     }
+
+        //     // this.handleSpecialProperties(object, key, targetValue);
+
+        //     object[key] = targetValue;
+
+        //     // /*const toReset = */this.handleSpecialProperties(object, key, targetValue);
+
+        //     if(object.isEditorProperties === undefined){
+        //         if(object.hasParent === true){
+        //             applyToKeyChain(object.parentObstacle, object._parentKeyChain, object);
+        //             this.client.updateObstacle(object.parentObstacle);
+        //         } else {
+        //             this.client.updateObstacle(object);
+        //         }
+        //     }
+
+        //     // if(toReset === true){
+        //     //     this.resetSpecialProperties(object, key, event, targetValue);
+        //     // }
+            
+        //     return event.preventDefault();
+        // }).bind(this);
+
+        // this.editMenuManager.link(obstacle, input, key, value);
 
         // running the configuration function hashmap
         if(this.obstaclePropertyMap[typeof value] !== undefined){
-            this.obstaclePropertyMap[typeof value](key, value, {input, property, obstacle});
+            this.obstaclePropertyMap[typeof value](key, value, {input, property, obstacle: object});
         } else {
             input.classList.add('property-text-input');
             property.appendChild(input);
@@ -626,9 +616,39 @@ class EditMenuGenerator {
 
         return property;
     }
-    removeObstacleProperty(object, input, key){
-        this.editMenuManager.unlink(object, input, key);
+    // this function creates a group of properties for an obstacle or for the editor.
+    createProperties(obstacle, folderName=[obstacle.shape, obstacle.simulate.join('-'), obstacle.effect].map(s => s[0].toUpperCase() + s.slice(1)).join(' ')) {
+        const folder = this.createFolder(folderName);
+        const folderContent = folder.getElementsByClassName('folder-content')[0];
+
+        Object.defineProperty(obstacle, 'htmlRef', {
+            get() {
+                return folder;
+            },
+            enumerable: false,
+            configurable: true,
+        });
+
+        for(let key in obstacle){
+            if(this.editMenuManager.excludedProperties[key] === true){
+                continue;
+            }
+            folderContent.appendChild(this.createProperty(obstacle, key, obstacle[key]));
+        }
+
+        for(let i = 0; i < folderContent.children.length; i++){
+            folderContent.children[i].classList.add('hidden');
+        }
+
+        if(obstacle.manageProperties === undefined /*&& key !== 'manageProperties' && key !== 'removeProperty' && key !== 'addProperty'*/){
+            this.definePropertyManager(obstacle, folder);
+        }
+        
+        return folder;
     }
+    // removeObstacleProperty(object, input, key){
+    //     this.editMenuManager.unlink(object, input, key);
+    // }
 
     formatName(name){
         if(name.length > 1){

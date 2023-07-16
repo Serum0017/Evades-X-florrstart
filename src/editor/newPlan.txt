@@ -1,0 +1,32 @@
+Ok so basically we can have nested getters.
+First getter defines _properties, next defines _properties: {_properties} etc.
+
+So we rewrite everything in terms of event listeners and getters and setters. Also Array.push should trigger getters and setters
+So we can just do
+
+Array.prototype.push = (element) => {
+    array = [...array, element];
+}
+
+basically this will let us write cleaner code without having to worry about managing state manually.
+
+function defineGetter(object, key){
+    if(object.getters === undefined){
+        defineAsUnEnumerable(object, 'getters', key);
+    }
+    // traverse down the keychain
+    let nestedGetterObject = object.getters;
+    let lastObject = object.getters;
+    while(nestedGetterObject.getters){
+        lastObject = nestedGetterObject;
+        nestedGetterObject = nestedGetterObject.getters;
+    }
+
+    defineAsUnEnumerable(lastObject, 'getters', key);
+}
+
+also editor will regenerate the whole menu/ menu folder every time something is changed. This will eliminate the need for htmlRef
+
+When an obstacle's parameter is changed, create a new object. Reassign the getters and setters to the object through the hidden props
+
+also proxys (putting this here just so that i remember in case i have a stroke and forget everything that happens in the past hour. Pls help me if you see this send help)

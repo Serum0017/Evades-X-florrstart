@@ -1,4 +1,4 @@
-import Ref from '../editorRef.js';
+import Ref from '../../editorRef.js';
 
 export default class CreateMenuManager {
     constructor(client){
@@ -6,7 +6,7 @@ export default class CreateMenuManager {
     }
     start(){
         this.map = this.client.game.map;
-        this.topLevelCreateId = null;
+        // this.topLevelCreateId = null;
 
         this.obstacleTypes = {
             shape: Object.keys(window.initShapeMap),

@@ -146,6 +146,7 @@ SAT.Circle.prototype['getBoundingBox'] = function () {
 };
 
 function generateBody(obstacle) {
+    if(obstacle.refresh === true && obstacle.initialShape !== obstacle.shape && obstacle.initialShape !== undefined){ obstacle.shape = obstacle.initialShape; delete obstacle.points; }
     const init = {};
     init.body = SATMap[obstacle.shape](obstacle);
 

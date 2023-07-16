@@ -205,12 +205,25 @@ class SelectionCollisionManager {
     constructor(client, selectionManager){
         initClass(this, client, selectionManager);
 
-        this.selectedObstacles = [];
-        Object.defineProperty(this, 'selectedObstaclesChanged', {
+        this._selectedObstacles = [];
+        Object.defineProperty(this, 'selectedObstacles', {
             set(value) {
-                this.reloadMenu();
+                this._selectedObstacles = value;
+                this.generateMenu();
+            },
+            get() {
+                return this._selectedObstacles; 
             }
         })
+        this.selectedObstacles.push = (...items) => {
+            for(let i = 0; i < items.length; i++){
+                this.selectedObstacles[this.selectedObstacles.length] = items[i];
+            }
+            this.generateMenu();
+        }
+        this.selectedObstacles.splice = (start, deleteCount, ...items) => {
+            this.selectedObstacles = this.selectedObstacles.toSpliced(start, deleteCount, ...items);
+        }
     }
     start(){
         defineOtherClasses(this, 'collisionManager');
@@ -266,7 +279,6 @@ class SelectionCollisionManager {
         // TODO: spatial hash
         this.selectedObstacles = [];
         this.selectedObstacles.push(...this.findAllCollisions({x,y,w,h}));
-        this.selectedObstaclesChanged = true;
     }
     findFirstSelectedCollision({x,y,w=0.1,h=0.1}){
         return this.findFirstCollision({x,y,w,h}, this.selectedObstacles);
@@ -287,18 +299,15 @@ class SelectionCollisionManager {
         this.map.obstacles = this.map.obstacles.filter(o => o.toRemoveSelector !== true);
 
         this.selectedObstacles = [];
-        this.selectedObstaclesChanged = true;
     }
 
     selectAll(obstacles=this.selectionManager.map.obstacles){
         this.selectedObstacles = [];
         this.selectedObstacles.push(...obstacles);
-        this.selectedObstaclesChanged = true;
     }
     selectAllOfType({shape, simulate, effect}, obstacles=this.selectionManager.map.obstacles){
         this.selectedObstacles = [];
         this.selectedObstacles.push(...obstacles.filter(o => this.typesEqual({shape, simulate, effect}, o) === true))
-        this.selectedObstaclesChanged = true;
     }
     typesEqual(o1, o2){
         return o1.initialShape === o2.shape && this.arrayEquals(o1.simulate, o2.simulate) === true && o1.effect === o2.effect;
@@ -316,7 +325,7 @@ class SelectionCollisionManager {
         if(event.altKey === true && firstCollision !== false){
             // alt drag
             this.previewManager.addPreviewObstacle({...firstCollision, shape: firstCollision.initialShape});// TODO: add multiple obstacles and start a transform if multiple are selected
-            // window.structuredCloneWithoutKey({...firstCollision, shape: firstCollision.initialShape}, ['resizePoints','inputRef'])
+            // window.structuredCloneWithoutKey({...firstCollision, shape: firstCollision.initialShape}, ['resizePoints','htmlRef'])
         } else if(event.shiftKey === true){
             // shift click
             this.selectAllOfType(firstCollision);
@@ -332,7 +341,6 @@ class SelectionCollisionManager {
                 return;
             }
         })
-        this.selectedObstaclesChanged = true;
     }
     handleDirectClick(event, firstCollision){
         if(event.ctrlKey === true){
@@ -340,11 +348,10 @@ class SelectionCollisionManager {
         } else {
             this.selectedObstacles = [firstCollision];
         }
-        this.selectedObstaclesChanged = true;
     }
 
-    reloadMenu(){
-        this.selectionManager.client.uiManager.editMenuManager.editMenuGenerator.reloadMenu();
+    generateMenu(){
+        this.selectionManager.client.uiManager.editMenuManager.editMenuGenerator.generateMenu();
     }
 }
 
@@ -367,7 +374,7 @@ class CollisionClipboardManager {
                 x: o.x + this.clientSettings.snapDistance,
                 y: o.y + this.clientSettings.snapDistance,
                 shape: o.initialShape
-                /*window.initObstacle(window.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.initialShape}, ['resizePoints','inputRef']))*/
+                /*window.initObstacle(window.structuredCloneWithoutKey({...o, x: o.x + 25, y: o.y + 25, shape: o.initialShape}, ['resizePoints','htmlRef']))*/
             }));
         }// TODO: make offsetting by 25px a setting on by default
     }

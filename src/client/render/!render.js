@@ -203,10 +203,12 @@ export default class Renderer {
         if(this.client.clientType !== 'editor' || this.client.playerActive === true || this.zoomDirection === 'neutral'){
             return;
         }
+        const isShifting = this.client.inputHandler.input.shift;
+        const zoomSpeed = (1 + .014 * (2 * isShifting + 1));
         if(this.zoomDirection === 'in'){
-            this.camera.scale(1.014);
+            this.camera.scale(zoomSpeed);
         } else {
-            this.camera.scale(1 / 1.014);
+            this.camera.scale(1 / zoomSpeed);
         }
         if(this.camera.scalar > 5){
             this.camera.setScale(5);
@@ -239,9 +241,9 @@ export default class Renderer {
             // }
 
             // TODO
-            if(this.client.selectionManager.transformMode === 'resize' && this.client.playerActive === false){
-                this.renderResizePoints(o, ctx, advanced);
-            }
+            // if(this.client.selectionManager.transformMode === 'resize' && this.client.playerActive === false){
+            //     this.renderResizePoints(o, ctx, advanced);
+            // }
 
             ctx.globalAlpha = 1;
         }
@@ -251,62 +253,62 @@ export default class Renderer {
             return;
         }
 
-        const selectionManager = this.client.selectionManager;
-        const previewObstacle = selectionManager.previewManager.previewObstacle;
+        // const selectionManager = this.client.selectionManager;
+        // const previewObstacle = selectionManager.previewManager.previewObstacle;
 
-        // rendering tranparent preview obs
-        if(previewObstacle !== null){
-            ctx.globalAlpha = 0.5;
-            previewObstacle.render = previewObstacle;
-            this.renderObstacles([previewObstacle], this.client.game.players, this.client.map.self);
-        }
+        // // rendering tranparent preview obs
+        // if(previewObstacle !== null){
+        //     ctx.globalAlpha = 0.5;
+        //     previewObstacle.render = previewObstacle;
+        //     this.renderObstacles([previewObstacle], this.client.game.players, this.client.map.self);
+        // }
 
-        if(this.client.playerActive === false){
-            // rendering blue outline around selected obstacles
-            const selectedObstacles = selectionManager.collisionManager.selectedObstacles;
-            for(let i = 0; i < selectedObstacles.length; i++){
-                if(selectedObstacles[i].toRender === false)continue;
-                ctx.toStroke = true;
-                ctx.toFill = false;
-                ctx.toClip = false;
-                ctx.strokeStyle = 'blue';
-                ctx.lineWidth = 4;
+        // if(this.client.playerActive === false){
+        //     // rendering blue outline around selected obstacles
+        //     const selectedObstacles = selectionManager.collisionManager.selectedObstacles;
+        //     for(let i = 0; i < selectedObstacles.length; i++){
+        //         if(selectedObstacles[i].toRender === false)continue;
+        //         ctx.toStroke = true;
+        //         ctx.toFill = false;
+        //         ctx.toClip = false;
+        //         ctx.strokeStyle = 'blue';
+        //         ctx.lineWidth = 4;
 
-                renderShape(selectedObstacles[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
+        //         renderShape(selectedObstacles[i], ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
 
-                ctx.globalAlpha = 1;
-            }
+        //         ctx.globalAlpha = 1;
+        //     }
 
-            if(selectionManager.transformMode === 'resize'){
-                // rendering blue outlines around selected points
-                for(let i = 0; i < selectionManager.scaleManager.selectedPoints.length; i++){
-                    const resizePoint = selectionManager.scaleManager.selectedPoints[i];
-                    ctx.beginPath();
-                    ctx.strokeStyle = 'blue';
-                    ctx.lineWidth = 4;
-                    ctx.arc(resizePoint.parentObstacle.x + resizePoint.x, resizePoint.parentObstacle.y + resizePoint.y, 12.5, 0, Math.PI*2);
-                    ctx.stroke();
-                    ctx.closePath();
-                }
-            }
-        }
+        //     if(selectionManager.transformMode === 'resize'){
+        //         // rendering blue outlines around selected points
+        //         for(let i = 0; i < selectionManager.scaleManager.selectedPoints.length; i++){
+        //             const resizePoint = selectionManager.scaleManager.selectedPoints[i];
+        //             ctx.beginPath();
+        //             ctx.strokeStyle = 'blue';
+        //             ctx.lineWidth = 4;
+        //             ctx.arc(resizePoint.parentObstacle.x + resizePoint.x, resizePoint.parentObstacle.y + resizePoint.y, 12.5, 0, Math.PI*2);
+        //             ctx.stroke();
+        //             ctx.closePath();
+        //         }
+        //     }
+        // }
 
-        // rendering selection rect
-        const selectionRect = selectionManager.dragManager.selectionRect;
-        if(selectionRect !== null){
-            ctx.beginPath();
-            ctx.fillStyle = 'black';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 3;
-            ctx.rect(selectionRect.start.x, selectionRect.start.y, selectionRect.end.x - selectionRect.start.x, selectionRect.end.y - selectionRect.start.y);
-            ctx.globalAlpha = 0.3;
-            ctx.fill();
-            ctx.globalAlpha = 1;
-            ctx.stroke();
-            ctx.closePath();
+        // // rendering selection rect
+        // const selectionRect = selectionManager.dragManager.selectionRect;
+        // if(selectionRect !== null){
+        //     ctx.beginPath();
+        //     ctx.fillStyle = 'black';
+        //     ctx.strokeStyle = 'black';
+        //     ctx.lineWidth = 3;
+        //     ctx.rect(selectionRect.start.x, selectionRect.start.y, selectionRect.end.x - selectionRect.start.x, selectionRect.end.y - selectionRect.start.y);
+        //     ctx.globalAlpha = 0.3;
+        //     ctx.fill();
+        //     ctx.globalAlpha = 1;
+        //     ctx.stroke();
+        //     ctx.closePath();
 
-            selectionManager.dragManager.includePoint(selectionManager.inputManager.mouse.pos);
-        }
+        //     selectionManager.dragManager.includePoint(selectionManager.inputManager.mouse.pos);
+        // }
     }
     renderEditorObstacleOutline(o, ctx, advanced){
         if(this.client.playerActive === true){
@@ -353,6 +355,29 @@ export default class Renderer {
             ctx.textBaseline = 'middle';
             ctx.fillText(i + 1, o.x + o.resizePoints[i].x, o.y + o.resizePoints[i].y);
         }
+
+        // test
+        for(let i = 0; i < o.resizePoints.length; i++){
+            const rotatedPos = new SAT.Vector(o.resizePoints[i].x, o.resizePoints[i].y).rotateRelative(o.rotation, {x: 0, y: 0});
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(rotatedPos.x + o.x, rotatedPos.y + o.y, 12.5, 0, Math.PI*2);
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        const worldMousePos = this.client.selectionManager.screenToWorld(this.client.selectionManager.inputManager.mouse.pos);
+        ctx.fillStyle = 'blue';
+        ctx.beginPath();
+        ctx.arc(worldMousePos.x, worldMousePos.y, 12.5, 0, Math.PI*2);
+        ctx.fill();
+        ctx.closePath();
+
+        ctx.fillStyle = 'purple';
+        ctx.beginPath();
+        ctx.arc(o.pivot.x, o.pivot.y, 12.5, 0, Math.PI*2);
+        ctx.fill();
+        ctx.closePath();
     }
 
     renderDisconnectedText(){
