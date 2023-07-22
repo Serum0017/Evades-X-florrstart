@@ -19,8 +19,8 @@ const editorKeyCodes = {
     Delete: 'delete',
     KeyC: 'copy',
     KeyV: 'paste',
-    Digit0: 'toCenter',
-    Digit1: 'toCenterAndZoom',
+    Digit1: 'toCenter',
+    Digit0: 'toCenterAndZoom',
     ControlLeft: 'ctrl',
     ControlRight: 'ctrl',
     KeyB: 'sendtoback',
@@ -96,9 +96,9 @@ export default class InputHandler {
         }
 
         this.editorKeyMap = {
-            delete: () => {
-                this.client.selectionManager.collisionManager.deleteSelectedObstacles();
-            },
+            // delete: () => {
+            //     this.client.selectionManager.collisionManager.deleteSelectedObstacles();
+            // },
             zoomin: (e) => {
                 if(e.type === 'keydown'){
                     this.renderer.zoomDirection = 'in';
@@ -113,29 +113,29 @@ export default class InputHandler {
                     this.renderer.zoomDirection = 'neutral';   
                 }
             },
-            copy: (e) => {
-                if(e.type !== 'keydown' || this.input.ctrl === false){
-                    return;
-                }
-                this.client.selectionManager.collisionManager.clipboardManager.copy();
-            },
-            paste: (e) => {
-                if(e.type !== 'keydown' || this.input.ctrl === false){
-                    return;
-                }
-                this.client.selectionManager.collisionManager.clipboardManager.paste();
-            },
+            // copy: (e) => {
+            //     if(e.type !== 'keydown' || this.input.ctrl === false){
+            //         return;
+            //     }
+            //     this.client.selectionManager.collisionManager.clipboardManager.copy();
+            // },
+            // paste: (e) => {
+            //     if(e.type !== 'keydown' || this.input.ctrl === false){
+            //         return;
+            //     }
+            //     this.client.selectionManager.collisionManager.clipboardManager.paste();
+            // },
             // a in ctrl a is also the left key. Defined this way to avoid intersections
-            /*highlightall*/left: (e) => {
-                if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
-                    return;
-                }
-                this.client.selectionManager.collisionManager.selectAll();
-                if(this.client.selectionManager.transformMode === 'resize'){
-                    this.client.selectionManager.scaleManager.selectAll();
-                }
-                return e.preventDefault();
-            },
+            // /*highlightall*/left: (e) => {
+            //     if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
+            //         return;
+            //     }
+            //     this.client.selectionManager.collisionManager.selectAll();
+            //     if(this.client.selectionManager.transformMode === 'resize'){
+            //         this.client.selectionManager.scaleManager.selectAll();
+            //     }
+            //     return e.preventDefault();
+            // },
             toCenter: (e) => {
                 if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
                     return;
@@ -153,13 +153,13 @@ export default class InputHandler {
                 this.client.game.renderer.camera.setScale(1);
                 return e.preventDefault();
             },
-            sendToFront: (e) => {
-                if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
-                    return;
-                }
-                this.client
-                return e.preventDefault();
-            },
+            // sendToFront: (e) => {
+            //     if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
+            //         return;
+            //     }
+            //     this.client
+            //     return e.preventDefault();
+            // },
         }
     }
     handleKey(e){
@@ -212,6 +212,13 @@ export default class InputHandler {
         // if we're not typing and we repeat keys, return
         if (e.repeat && this.chatOpen === false) return e.preventDefault();
 
+        // if we're in editor, handle editor key presses
+        // as well as prevent input while typing in a input box
+        if (this.client.clientType === 'editor'){
+            if(document.activeElement.tagName === 'INPUT')return;
+            this.handleEditorKey(e);
+        }
+
         // if player is dead and key is r, respawn
         if (this.map.self.dead === true && e.code === 'KeyR'){
             this.map.self.respawn();
@@ -225,11 +232,6 @@ export default class InputHandler {
             return e.preventDefault();
         }
 
-        // if we're in editor, handle editor key presses as well
-        if (this.client.clientType === 'editor'){
-            this.handleEditorKey(e);
-        }
-
         // otherwise, set inputs in this.inputs as they're mapped by keycodes
         this.input[keycodes[e.code]] = e.type === 'keydown';
 
@@ -239,9 +241,6 @@ export default class InputHandler {
         this.map.self.input = this.input;
     }
     handleEditorKey(e){
-        if(document.activeElement.tagName === 'INPUT'){
-            return;
-        }
         if(this.editorKeyMap[keycodes[e.code]] !== undefined){
             this.editorKeyMap[keycodes[e.code]](e);
             return;

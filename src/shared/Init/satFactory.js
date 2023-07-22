@@ -124,16 +124,16 @@ SAT.Polygon.prototype['getBoundingBox'] = function () {
     for (var i = 1; i < len; i++) {
         var point = points[i];
         if (point['x'] < xMin) {
-        xMin = point['x'];
+            xMin = point['x'];
         }
         else if (point['x'] > xMax) {
-        xMax = point['x'];
+            xMax = point['x'];
         }
         if (point['y'] < yMin) {
-        yMin = point['y'];
+            yMin = point['y'];
         }
         else if (point['y'] > yMax) {
-        yMax = point['y'];
+            yMax = point['y'];
         }
     }
     return new SAT.Box(this['pos'].clone().add(new SAT.Vector(xMin, yMin)), xMax - xMin, yMax - yMin);
@@ -221,15 +221,15 @@ const DimensionsMap = {
 }
 
 // this function is slower but is needed for rotations
-function generateRotatedDimensions(obstacle){
-    const rotatedBody = generateBody(obstacle).body;
-    if(obstacle.renderFlag !== undefined){
-        obstacle.shape = obstacle.renderFlag;
-        delete obstacle.renderFlag;
-    }
-    const boundingBox = rotatedBody.getBoundingBox();
-    return {difference: {x: boundingBox.w, y: boundingBox.h}};
-}
+// function generateRotatedDimensions(obstacle){
+//     const rotatedBody = generateBody(obstacle).body;
+//     if(obstacle.renderFlag !== undefined){
+//         obstacle.shape = obstacle.renderFlag;
+//         delete obstacle.renderFlag;
+//     }
+//     const boundingBox = rotatedBody.getBoundingBox();
+//     return {difference: {x: boundingBox.w, y: boundingBox.h}};
+// }
 
 function generateDimensions(obstacle){
     obstacle.x = toNumber(obstacle.x);

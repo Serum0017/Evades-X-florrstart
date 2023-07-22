@@ -4,6 +4,7 @@ import initDefaultMap from "./initDefaultMap.js";
 // import UIManager from "./ui/!uiManager.js";
 // import SelectionManager from "./selectionManager.js";
 import EditorManager from './!editorManager.js';
+import SimulateGameManager from "./simulateGameManager.js";
 
 // export default class EditorClient {
 //     constructor(){
@@ -69,6 +70,7 @@ export default class EditorClient {
         this.inputHandler = new InputHandler(this);
         // this.selectionManager = new SelectionManager(this);
         this.editorManager = new EditorManager(this);
+        this.simulateGameManager = new SimulateGameManager(this);
         initDefaultMap(this);
     }
     start() {
@@ -77,6 +79,7 @@ export default class EditorClient {
         // this.selectionManager.start();
         // this.uiManager.start();
         this.editorManager.start();
+        this.simulateGameManager.start();
     }
     send(){}
     me(){

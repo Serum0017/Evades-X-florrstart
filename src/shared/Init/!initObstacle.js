@@ -49,6 +49,7 @@ function initGlobal(init){
         obs.eventRecievers = init.eventRecievers;
     }
     obs.spatialHash = {updateEntity: () => {}};
+
     return obs;
 }
 

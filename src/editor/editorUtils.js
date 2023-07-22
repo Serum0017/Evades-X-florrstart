@@ -79,7 +79,8 @@ const excludedProps = [
     'shape',/*'simulate',*/'effect','difference','type','body','render','lastState','toRender','parametersToReset','renderFlag','timeRemain','xv','yv',/*'_properties',*/'editorPropertyReferences',
     'hashId','hashPositions','lastCollidedTime','specialKeyNames','spatialHash','snapCooldown','snapToShowVelocity','interpolatePlayerData','difficultyNumber','map','acronym','isEditorProperties',
     /*'_parentKeyChain','parentObstacle','htmlRef', -TODO: remove all htmlref comments once new system is proven to work*/'visible','renderCircleSize','snapRotateMovementExpansion',
-    'rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected', 'refresh','initialShape','hasParent','specialPropsToReset','parentObject','lastChangedKey'/*,'folderRef'*/
+    'rotateMovementExpansion','mapInitId','resizePoints','pointOn','pointTo','isSelected', 'refresh','initialShape','hasParent','specialPropsToReset','parentObject','lastChangedKey',/*,'folderRef'*/
+    'subObjectHashId','parentKey'
 ];
 
 const excludedProperties = {};

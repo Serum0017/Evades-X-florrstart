@@ -121,6 +121,7 @@ export default class Map {
         this.spatialHash.addEntity(o);
     }
     removeObstacle(index){
+        this.spatialHash.removeEntity(this.obstacles[index]);
         this.obstacles.splice(index, 1);
     }
     addPlayer(id, init){

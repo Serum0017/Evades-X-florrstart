@@ -18,18 +18,59 @@ export default class EditorManager {
         this.createManager.start();
         this.editManager.start();
         this.bindManager.start();
+
+        // TODO
+        // this.defineImportantProps();
     }
     addObstacle(init){
-        if(init.editorId !== undefined)this.client.game.map.obstacles = this.client.game.map.obstacles.filter(o => o.editorId !== init.editorId);
+        const openTree = this.createOpenFolderStructure(init);
+        // if this gets any bigger then isolate it into a separate function. This will happen bc we'll fix rotation im pretty sure
+        const mapObstacles = this.client.game.map.obstacles;
+        for(let i = 0; i < mapObstacles.length; i++){
+            if(mapObstacles[i].editorId === init.editorId){
+                this.client.game.map.removeObstacle(i);
+                break;
+            }
+        }
+        // if(init.editorId !== undefined)this.client.game.map.obstacles = this.client.game.map.obstacles.filter(o => o.editorId !== init.editorId);
 
         init.refresh = true;
+
+        // TODO: fix rotation! its not a hard problem its just because im sick
+        // if(init.body !== undefined && init.rotation !== undefined && init.pivot !== undefined){
+        //     console.log(init);
+        //     init.body.rotateRelative(-init.rotation, init.pivot);// resetting rotation
+        // }
+        
         const o = window.initObstacle(init);
+        if(init.rotation !== undefined)o.body.rotateRelative(-init.rotation, o.pivot);
+
+        // whenever objects are assigned with the equals sign, this erases all of the manageProperties and other stuff needed. Usually this is fine but in this case we need to regenerate values in manageProperties before we bindToDOM
+        // TODO make sure there arent any other unexpected bugs because of this
+        // this.reAssignManageProperties(init, o);// TODO
+
+        // obstacle.pivot.manageProperties = init.pivot?.manageProperties;
+        // console.log(obstacle.pivot == init.pivot);
+        // console.log(o?.pivot?.manageProperties, init?.pivot?.manageProperties);
+        // console.log(obstacle, init);
+        // console.log(obstacle.pivot, init.pivot);
+        // console.log(obstacle.pivot?.manageProperties, init.pivot?.manageProperties);
+        // if(window.toThrow === true)throw new Error("Logs pls finish now!");
 
         const proxyObs = this.bindManager.bindToDOM(o);
         defineAsUnEnumerable(proxyObs, 'editorId', generateId());
 
-        if(init.el !== undefined){
-            this.openSubFolders(proxyObs, init);
+        // this.reDefinePropertyManager(proxyObs);
+
+        if(openTree !== false){
+            // make new elements have the same ids as the old ones
+            this.applyDomIds(init, o);
+
+            // re open sub folders
+            // this.openSubFolders(proxyObs, init);
+            this.reOpenFolderStructure(openTree, proxyObs);
+
+            // remove old html elements
             init.el.folder.remove();
         }
 
@@ -37,17 +78,99 @@ export default class EditorManager {
 
         return proxyObs;
     }
-    openSubFolders(o, last){
-        // bug: TODO: points always closes itself
-        if(last.el.folder.isOpen === true){
-            this.editManager.clickFolder(null, o.el.folder);
-        }
-        for(let key in o){
+    applyDomIds(last, o){
+        // takes the old ids and makes the new ones the same
+        // we'll remove the new ones anyways
+        for(let key in last){
             if(excludedProperties[key] === true)continue;
-            if(typeof o[key] === 'object' && typeof last[key] === 'object'){
-                this.openSubFolders(o[key], last[key]);
+            o.el.sub[key].id = last.el.sub[key].id;
+            last.el.sub[key].id = generateId();// make it something else
+
+            if(typeof last[key] !== 'object' || typeof o[key] !== 'object')continue;
+
+            this.applyDomIds(last[key], o[key]);
+        }
+    }
+    // openSubFolders(o, last){
+    //     // bug: TODO: points always closes itself
+    //     if(last.el.folder.isOpen === true){
+    //         this.editManager.clickFolder(null, o.el.folder);
+    //     }
+        
+    //     for(let key in o){
+    //         if(excludedProperties[key] === true)continue;
+    //         if(typeof o[key] === 'object' && typeof last[key] === 'object'){
+    //             this.openSubFolders(o[key], last[key]);
+    //         }
+    //     }
+    // }
+    // reDefinePropertyManager(o){
+    //     // folders are created before the object is a proxy, meaning that we have to reassign stuff here
+    //     // this.editManager.createPropertyManagerParentObject(o);
+    //     this.editManager.createPropertyManager(o);
+
+    //     for(let key in o){
+    //         if(typeof o[key] !== 'object')continue;
+    //         this.reDefinePropertyManager(o[key]);
+    //     }
+    // }
+    reAssignManageProperties(last, o){
+        o.manageProperties = last.manageProperties;
+
+        for(let key in last){
+            if(typeof last[key] !== 'object' || typeof o[key] !== 'object')continue;
+            this.reAssignManageProperties(last[key], o[key]);
+        }
+    }
+    reOpenFolderStructure(struc, o){
+        this.editManager.clickFolder(null, o.el.folder);
+        for(let key in struc){
+            this.reOpenFolderStructure(struc[key], o[key]);
+        }
+    }
+    // TODO
+    // defineImportantProps(){
+        
+    //     // these are properties that we don't want to be influenced by others. For example, if we change the angle of something then we don't want the x position to change if there's a different pivot.
+    //     this.importantProps = ['x','y','rotation','manageProperties'];
+
+    //     // this.importantProperties = {};
+    //     // for(let i = 0; i < this.importantProps.length; i++){
+    //     //     this.importantProperties[this.importantProps[i]] = true;
+    //     // }
+    //     // delete this.importantProps;
+    // }
+    // reAssignImportantProps(o, last){
+    //     return;
+    //     console.log(last);
+    //     for(let i = 0; i < this.importantProps.length; i++){
+    //         const importantKey = this.importantProps[i];
+    //         if(last[importantKey] !== undefined){
+    //             o[importantKey] = last[importantKey];
+    //         }
+    //     }
+    //     for(let key in last){
+    //         if(typeof last[key] !== 'object' || typeof o[key] !== 'object')continue;
+    //         this.reAssignImportantProps(o[key], last[key]);
+    //     }
+    // }
+    createOpenFolderStructure(last){
+        // returns nested objects with keys specifying the keys of last that were open
+        if(last?.el?.folder?.isOpen !== true){
+            return false;
+        }
+
+        const struc = {};
+        for(let key in last){
+            if(typeof last[key] !== "object" || excludedProperties[key] === true)continue;
+            if(last[key]?.el?.folder?.isOpen === true){
+                const subStruc = this.createOpenFolderStructure(last[key]);
+                if(subStruc !== false){
+                    struc[key] = subStruc;
+                }
             }
         }
+        return struc;
     }
 }
 

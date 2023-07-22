@@ -19,7 +19,10 @@ export default class BindManager {
         this.proxyHandler = {
             set(target, key, value) {
                 if(excludedProperties[key] !== true){
-                    // TODO: random bug?? Why does the currentPoint on square-move-lava go 0,1,2,4???
+                    if(key === 'rotation'){
+                        value = value % (Math.PI * 2);
+                    }
+                    // console.log('setting ' + key);
 
                     if(typeof target[key] === typeof value){
                         if(typeof value === 'number'){
@@ -53,7 +56,7 @@ export default class BindManager {
                     // delete target.el.sub[key];
                 }
                 
-                return Reflect.deleteProperty(target, key, true);
+                return Reflect.deleteProperty(target, key);
             },
         };
     }
