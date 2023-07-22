@@ -226,19 +226,19 @@ export default class Renderer {
             this.renderGlobal(o, ctx, advanced);
             EffectManager.renderEffect(o, ctx, advanced);
 
-            // if(ctx.toFill === false && ctx.toStroke === false || ctx.globalAlpha === 0){
-            //     this.renderEditorObstacleOutline(o, ctx, advanced);
-            //     o.visible = false;
-            // }
+            if(ctx.toFill === false && ctx.toStroke === false || ctx.globalAlpha === 0){
+                this.renderEditorObstacleOutline(o, ctx, advanced);
+                o.visible = false;
+            }
 
             renderShape(o, ctx, advanced);
             if(EffectManager.renderEffectAfterShapeMap[o.effect] !== undefined){
                 EffectManager.renderEffectAfterShape(o, ctx, advanced);
             }
 
-            // if(o.visible === false){
-            //     this.resetEditorObstacleOutline(o, ctx, advanced);
-            // }
+            if(o.visible === false){
+                this.resetEditorObstacleOutline(o, ctx, advanced);
+            }
 
             // TODO
             // if(this.client.selectionManager.transformMode === 'resize' && this.client.playerActive === false){
