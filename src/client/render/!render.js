@@ -112,11 +112,15 @@ export default class Renderer {
         this.camera.resetTranslate();
 
         // TODO: uncomment this and make it cached because vinete drawing is really laggy
-        // this.renderOverlay(me);
+        this.renderOverlay(me);
     }
     renderOverlay(me){
         if (me.dead === true){
             this.renderRespawnPrompt();
+        }
+
+        if(this.client.clientType === 'editor'){
+            this.renderEditorOverlay();
         }
 
         this.renderVinette();
@@ -253,6 +257,55 @@ export default class Renderer {
             return;
         }
 
+        const createModeManager = this.client.editorManager.createManager.createModeManager;
+        const inCreateMode = createModeManager.active;
+        const activelyCreating = createModeManager.creatingActive;
+        if(inCreateMode && activelyCreating){
+            const rect = createModeManager.rect;
+            ctx.beginPath();
+            ctx.fillStyle = 'black';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.rect(rect.start.x, rect.start.y, rect.end.x - rect.start.x, rect.end.y - rect.start.y);
+            ctx.globalAlpha = 0.3;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.stroke();
+            ctx.closePath();
+
+            // TODO
+            // selectionManager.dragManager.includePoint(selectionManager.inputManager.mouse.pos);
+        }
+
+        const selectionManager = this.client.editorManager.selectionManager;
+        for(let i = 0; i < selectionManager.selectedObstacles.length; i++){
+            const selectedObstacle = selectionManager.selectedObstacles[i];
+            if(selectedObstacle.toRender === false)continue;
+            ctx.toStroke = true;
+            ctx.toFill = false;
+            ctx.toClip = false;
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 4;
+
+            renderShape(selectedObstacle, ctx, {canvas, obstacles: this.client.game.map.obstacles, players: this.client.game.players, player: this.client.me(), colors: this.colors});
+
+            ctx.globalAlpha = 1;
+        }
+
+        if(selectionManager.dragActive){
+            const rect = selectionManager.rect;
+            ctx.beginPath();
+            ctx.fillStyle = 'black';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 3;
+            ctx.rect(rect.start.x, rect.start.y, rect.end.x - rect.start.x, rect.end.y - rect.start.y);
+            ctx.globalAlpha = 0.3;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.stroke();
+            ctx.closePath();
+        }
+
         // const selectionManager = this.client.selectionManager;
         // const previewObstacle = selectionManager.previewManager.previewObstacle;
 
@@ -309,6 +362,20 @@ export default class Renderer {
 
         //     selectionManager.dragManager.includePoint(selectionManager.inputManager.mouse.pos);
         // }
+    }
+    renderEditorOverlay(){
+        const inCreateMode = this.client.editorManager.createManager.createModeManager.active;
+        if(inCreateMode){
+            ctx.fillStyle = 'black';
+            ctx.globalAlpha = 0.3;
+            ctx.fillRect(0,0,canvas.w,canvas.h);
+            ctx.globalAlpha = 1;
+
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.font = '30px Inter';
+            ctx.fillText('Space to leave Create Mode', canvas.w/2, canvas.h - 65 / 2);
+        }
     }
     renderEditorObstacleOutline(o, ctx, advanced){
         if(this.client.playerActive === true){

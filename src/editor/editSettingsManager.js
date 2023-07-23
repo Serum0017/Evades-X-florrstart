@@ -18,7 +18,9 @@ export default class EditSettingsManager {
             // {object: this.client.selectionManager.settings, key: 'snapDistance'},
             // {object: this.client.selectionManager.settings, key: 'toSnap'},
             {object: this.client.game.map.settings.dimensions, key: 'x', keyName: 'map width'},
-            {object: this.client.game.map.settings.dimensions, key: 'y', keyName: 'map height'}
+            {object: this.client.game.map.settings.dimensions, key: 'y', keyName: 'map height'},
+            {object: this.client.editorManager.snapGridManager, key: 'snapDistance', keyName: 'snap distance'},
+            {object: this.client.editorManager.snapGridManager, key: 'enabled', keyName: 'snap enabled'},
             /*, {object: window, key: 'isFullScreen', keyName: 'toggle full screen'}*/
         ];
     }

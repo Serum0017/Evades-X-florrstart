@@ -4,10 +4,14 @@ const {defineAsUnEnumerable, generateId, excludedProperties} = editorUtils;
 import CreateManager from './createManager.js';
 import EditManager from './editManager.js';
 import BindManager from './bindManager.js';
+import SnapGridManager from './snapGridManager.js';
+import SelectionManager from './selectionManager.js';
 
 export default class EditorManager {
     constructor(client){
         this.client = client;
+        this.selectionManager = new SelectionManager(client);
+        this.snapGridManager = new SnapGridManager(client);
         this.createManager = new CreateManager(client);
         this.editManager = new EditManager(client);
         this.bindManager = new BindManager(client);
@@ -15,6 +19,7 @@ export default class EditorManager {
     start(){
         this.game = this.client.game;
         this.map = this.client.game.map;
+        this.selectionManager.start();
         this.createManager.start();
         this.editManager.start();
         this.bindManager.start();
@@ -74,9 +79,62 @@ export default class EditorManager {
             init.el.folder.remove();
         }
 
+        // lets add special properties to an object for the addButtons and removeButtons. We want to add stuff based on type.
+        // we have to do this as a proxyObs because otherwise it won't bind and create the elements we want
+        this.addManageButtons(proxyObs);
+
         this.map.addObstacle(proxyObs);
 
         return proxyObs;
+    }
+    addManageButtons(o){
+        // o.manageProperties = {
+        //     // addProperty: {
+        //     //     name: '', value: '',
+        //     //     addButton: {
+        //     //         ref: {
+        //     //             parent: o,
+        //     //             name: undefined,
+        //     //             value: undefined,
+        //     //         }
+        //     //     }
+        //     // },
+        //     // removeProperty: {
+        //     //     name: Object.keys(o)[0],
+        //     //     removeButton: {
+        //     //         ref: {
+        //     //             parent: o,
+        //     //             name: undefined,
+        //     //             value: undefined,
+        //     //         }
+        //     //     }
+        //     // }
+        // };
+        // // defining undefined pieces of ref
+        // // o.manageProperties.addProperty.addButton.ref.name = o.manageProperties.addProperty.name;
+        // // o.manageProperties.addProperty.addButton.ref.value = o.manageProperties.addProperty.value;
+        // // o.manageProperties.removeProperty.removeButton.ref.name = o.manageProperties.removeProperty.name;
+        // // o.manageProperties.removeProperty.removeButton.ref.value = o.manageProperties.removeProperty.value;
+
+        // console.log(o);
+
+        // // o[key].addButton = {ref: o[key], parentRef: o};
+        // // o[key].removeButton = {ref: o[key], parentRef: o};
+
+        // for(let key in o){
+        //     if(typeof o[key] !== 'object' || ['addProperty','removeProperty','manageProperties','addButton','removeButton'].includes(key) || excludedProperties[key] === true)continue;
+        //     this.addManageButtons(o[key]);
+        // }
+        if(o.shape === 'poly' && o.initialShape === undefined){
+            o.points.addButton = {ref: o.points, keyName: 0, keyValue: [0, 0]};
+            o.points.removeButton = {ref: o.points};
+        }
+        if(o.simulate === 'move'){
+            o.path.addButton = {ref: o.path, keyName: 0, keyValue: {x: 0, y: 0}};
+            o.path.removeButton = {ref: o.path};
+        }
+        // global properties
+        // o.addButton = 
     }
     applyDomIds(last, o){
         // takes the old ids and makes the new ones the same

@@ -24,7 +24,8 @@ const editorKeyCodes = {
     ControlLeft: 'ctrl',
     ControlRight: 'ctrl',
     KeyB: 'sendtoback',
-    KeyF: 'sendtofront'
+    KeyF: 'sendtofront',
+    Space: 'toggleCreateMode'
 }
 
 const chatCommandMap = {
@@ -96,9 +97,12 @@ export default class InputHandler {
         }
 
         this.editorKeyMap = {
-            // delete: () => {
-            //     this.client.selectionManager.collisionManager.deleteSelectedObstacles();
-            // },
+            delete: (e) => {
+                if(e.type !== 'keydown' || this.client.playerActive === true){
+                    return;
+                }
+                this.client.editorManager.selectionManager.deleteAllSelected();
+            },
             zoomin: (e) => {
                 if(e.type === 'keydown'){
                     this.renderer.zoomDirection = 'in';
@@ -136,6 +140,13 @@ export default class InputHandler {
             //     }
             //     return e.preventDefault();
             // },
+            /*duplicate*/right: (e) => {
+                if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
+                    return;
+                }
+                this.client.editorManager.selectionManager.duplicateAllSelected();
+                return e.preventDefault();
+            },
             toCenter: (e) => {
                 if(e.type !== 'keydown' || this.input.ctrl === false || this.client.playerActive === true){
                     return;
@@ -160,6 +171,15 @@ export default class InputHandler {
             //     this.client
             //     return e.preventDefault();
             // },
+            toggleCreateMode: (e) => {
+                if(e.type !== 'keydown')return;
+                const createModeManager = this.client.editorManager.createManager.createModeManager;
+                if(createModeManager.active === true){
+                    createModeManager.exitCreateMode();
+                } else {
+                    createModeManager.enterCreateMode();
+                }
+            }
         }
     }
     handleKey(e){

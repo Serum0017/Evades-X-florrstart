@@ -1,3 +1,4 @@
+import CreateModeManager from './createModeManager.js';
 import Ref from './editorRef.js';
 import editorUtils from './editorUtils.js';
 const {defineAsUnEnumerable} = editorUtils;
@@ -6,8 +7,10 @@ const {defineAsUnEnumerable} = editorUtils;
 export default class CreateManager {
     constructor(client){
         this.client = client;
+        this.createModeManager = new CreateModeManager(client);
     }
     start(){
+        this.createModeManager.start();
         this.map = this.client.game.map;
         this.editorManager = this.client.editorManager;
 
@@ -121,7 +124,8 @@ export default class CreateManager {
         }
     
         // we shouldn't have to add any more properties because that would mean that it was unsafe to begin with
-        this.editorManager.addObstacle({type: `${obsTypes.shape}-${obsTypes.simulate}-${obsTypes.effect}`});
+        // this.editorManager.addObstacle({type: `${obsTypes.shape}-${obsTypes.simulate}-${obsTypes.effect}`});
+        this.createModeManager.enterCreateMode({type: `${obsTypes.shape}-${obsTypes.simulate}-${obsTypes.effect}`});
         // this.client.selectionManager.previewManager.addPreviewObstacle({type: `${obsTypes.shape}-${obsTypes.simulate}-${obsTypes.effect}`});
     }
     addFolderChild(folder, child){

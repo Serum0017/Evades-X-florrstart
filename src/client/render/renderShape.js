@@ -23,6 +23,9 @@ const renderShapeMap = {
 
         // TODO: uncomment and fix this (idk why but they dont un-offset after this)
         // ctx.translate(o.render.x - o.x, o.render.y - o.y);
+        // ctx.translate(o.pivot.x, o.pivot.y);
+        // ctx.rotate(o.render.rotation - o.rotation);
+        // ctx.translate(-o.pivot.x, -o.pivot.y);
         ctx.beginPath();
         
         ctx.moveTo(o.body.calcPoints[0].x + o.body.pos.x, o.body.calcPoints[0].y + o.body.pos.y);
@@ -36,6 +39,9 @@ const renderShapeMap = {
 
         // testRect({x: o.x - o.difference.x/2, y: o.y - o.difference.y/2, w: o.difference.x, h:o.difference.y}, ctx);
         // testPoint(o.pivot, ctx);
+        // ctx.translate(o.pivot.x, o.pivot.y);
+        // ctx.rotate(o.rotation - o.render.rotation);
+        // ctx.translate(-o.pivot.x, -o.pivot.y);
         // ctx.translate(o.x - o.render.x, o.y - o.render.y);
     },
     // TODO

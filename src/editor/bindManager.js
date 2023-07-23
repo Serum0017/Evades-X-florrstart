@@ -34,11 +34,10 @@ export default class BindManager {
                         return Reflect.set(...arguments);
                     }
 
-                    const parentFolder = target.el.sub[key].parentElement;
-
+                    const parentFolder = target.el.folder.getElementsByClassName('folder-content')[0];//target.el.sub[key].parentElement;
                     if(target.el.sub[key] !== undefined){
                         target.el.sub[key].remove();
-                    }
+                    } 
     
                     // code review: this is not maintainable code. There's some logic of looping through params and excluded properties that doesn't exactly match this in editManager. Maybe call a function there instead so that stuff can be more maintainable. Also i dont like how sub isnt defined here but thats just more fuel to the flames rather than a problem in its own right 
                     // const folderContent = target.el.folder.getElementsByClassName('folder-content')[0];

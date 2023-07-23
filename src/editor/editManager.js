@@ -160,119 +160,119 @@ export default class EditManager {
                 
                 property.appendChild(this.createFolder(subObject, this.formatName(key)));
             },
-            // addButton: (key, object, {input, property, obstacle}) => {
-            //     // class to add a property to an object
-            //     input.classList.add('property-button-input');
-            //     input.type = 'button';
-            //     input.value = 'add property';
+            addButton: (key, object, {input, property, obstacle}) => {
+                // class to add a property to an object
+                input.classList.add('property-button-input');
+                input.type = 'button';
+                input.value = 'add property';
 
-            //     const parent = object.parentObject;
+                const parent = object.parentObject;
 
-            //     // const parentObstacle = obstacle.parentObstacle;
-            //     // const parentObject = object.parentObject;
+                // const parentObstacle = obstacle.parentObstacle;
+                // const parentObject = object.parentObject;
 
-            //     input.onclick = () => {
-            //         const name = parent.manageProperties.addProperty.name;
-            //         const value = parent.manageProperties.addProperty.value;
+                input.onclick = () => {
+                    const name = parent.manageProperties.addProperty.name;
+                    const value = parent.manageProperties.addProperty.value;
 
-            //         parent[name] = value;
-            //         // this.editorManager.addObstacle(parent.parentObstacle ?? parent);
-            //         // const name = parentObject.manageProperties.addProperty.name;
-            //         // let value = parentObject.manageProperties.addProperty.value;
-            //         // if(value.slice(0,4) === 'JSON'){
-            //         //     //try adding JSON{"x":5,"y":100}
-            //         //     try{
-            //         //         value = JSON.parse(value.slice(4));
-            //         //     } catch(e){
-            //         //         value = parentObject.manageProperties.addProperty.value;
-            //         //     }
-            //         // }
+                    parent[name] = value;
+                    // this.editorManager.addObstacle(parent.parentObstacle ?? parent);
+                    // const name = parentObject.manageProperties.addProperty.name;
+                    // let value = parentObject.manageProperties.addProperty.value;
+                    // if(value.slice(0,4) === 'JSON'){
+                    //     //try adding JSON{"x":5,"y":100}
+                    //     try{
+                    //         value = JSON.parse(value.slice(4));
+                    //     } catch(e){
+                    //         value = parentObject.manageProperties.addProperty.value;
+                    //     }
+                    // }
 
-            //         // if(parentObject[name] !== undefined){
-            //         //     let propertyToRemove;
-            //         //     if(parentObject[name].folderRef !== undefined){
-            //         //         propertyToRemove = parentObject[name].folderRef;
-            //         //     } else {
-            //         //         propertyToRemove = parentObject.htmlRef[name].parentElement;
-            //         //     }
-            //         //     // this.removeObstacleProperty(parentObject, propertyToRemove, name);
-            //         // }
+                    // if(parentObject[name] !== undefined){
+                    //     let propertyToRemove;
+                    //     if(parentObject[name].folderRef !== undefined){
+                    //         propertyToRemove = parentObject[name].folderRef;
+                    //     } else {
+                    //         propertyToRemove = parentObject.htmlRef[name].parentElement;
+                    //     }
+                    //     // this.removeObstacleProperty(parentObject, propertyToRemove, name);
+                    // }
 
-            //         // parentObject[name] = value;
-            //         // // applyToKeyChain(parentObstacle, [...parentObject._parentKeyChain, name], value);
+                    // parentObject[name] = value;
+                    // // applyToKeyChain(parentObstacle, [...parentObject._parentKeyChain, name], value);
 
-            //         // // pro html
-            //         // const parentFolderContent = input.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
-            //         // parentFolderContent.appendChild(this.createProperty(parentObject, name, parentObject[name]));
+                    // // pro html
+                    // const parentFolderContent = input.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+                    // parentFolderContent.appendChild(this.createProperty(parentObject, name, parentObject[name]));
 
-            //         // this.client.updateObstacle(parentObstacle);
+                    // this.client.updateObstacle(parentObstacle);
 
-            //         // if(parentObject._parentKeyChain === undefined){
-            //         //     var folderTitle = [parentObstacle.shape, parentObstacle.simulate.join('-'), parentObstacle.effect].map(s => s[0].toUpperCase() + s.slice(1)).join(' ')
-            //         // } else {
-            //         //     var folderTitle = parentObject._parentKeyChain[parentObject._parentKeyChain.length-1];
-            //         // }
-            //         // this.reloadFolder(parentObject, parentObject.folderRef, this.formatName(folderTitle));
-            //     }
-            //     property.appendChild(input);
-            // },
-            // removeButton: (key, object, {input, property, obstacle}) => {
-            //     // class to add a property to an object
-            //     input.classList.add('property-button-input');
-            //     input.type = 'button';
-            //     input.value = 'remove property';
+                    // if(parentObject._parentKeyChain === undefined){
+                    //     var folderTitle = [parentObstacle.shape, parentObstacle.simulate.join('-'), parentObstacle.effect].map(s => s[0].toUpperCase() + s.slice(1)).join(' ')
+                    // } else {
+                    //     var folderTitle = parentObject._parentKeyChain[parentObject._parentKeyChain.length-1];
+                    // }
+                    // this.reloadFolder(parentObject, parentObject.folderRef, this.formatName(folderTitle));
+                }
+                property.appendChild(input);
+            },
+            removeButton: (key, object, {input, property, obstacle}) => {
+                // class to add a property to an object
+                input.classList.add('property-button-input');
+                input.type = 'button';
+                input.value = 'remove property';
 
-            //     // const parentObstacle = obstacle.parentObstacle;
-            //     // const parentObject = object.parentObject;
+                // const parentObstacle = obstacle.parentObstacle;
+                // const parentObject = object.parentObject;
 
-            //     const parentObject = object.parentObject;
+                const parentObject = object.parentObject;
 
-            //     input.onclick = () => {
-            //         const name = parentObject.manageProperties.removeProperty.name;
-            //         delete parentObject[name];
-            //         // const name = parentObject.manageProperties.removeProperty.name;
-            //         // let propertyToRemove;
-            //         // if(parentObject[name].folderRef !== undefined){
-            //         //     propertyToRemove = parentObject[name].folderRef;
-            //         // } else {
-            //         //     propertyToRemove = parentObject.htmlRef[name].parentElement;
-            //         // }
+                input.onclick = () => {
+                    const name = parentObject.manageProperties.removeProperty.name;
+                    delete parentObject[name];
+                    // const name = parentObject.manageProperties.removeProperty.name;
+                    // let propertyToRemove;
+                    // if(parentObject[name].folderRef !== undefined){
+                    //     propertyToRemove = parentObject[name].folderRef;
+                    // } else {
+                    //     propertyToRemove = parentObject.htmlRef[name].parentElement;
+                    // }
                     
-            //         // // this.removeObstacleProperty(parentObject, propertyToRemove, name);
+                    // // this.removeObstacleProperty(parentObject, propertyToRemove, name);
 
-            //         // deleteKeyChain(parentObstacle, [...parentObject._parentKeyChain, name]);
+                    // deleteKeyChain(parentObstacle, [...parentObject._parentKeyChain, name]);
 
-            //         // // filtering out empty elements of arrays
-            //         // if(Array.isArray(parentObject) === true){
-            //         //     let objToApply = parentObstacle;
-            //         //     const keyChain = parentObject._parentKeyChain;
-            //         //     for(let i = 0; i < keyChain.length; i++){
-            //         //         objToApply = objToApply[keyChain[i]];
-            //         //     }
-            //         //     delete objToApply[name];
+                    // // filtering out empty elements of arrays
+                    // if(Array.isArray(parentObject) === true){
+                    //     let objToApply = parentObstacle;
+                    //     const keyChain = parentObject._parentKeyChain;
+                    //     for(let i = 0; i < keyChain.length; i++){
+                    //         objToApply = objToApply[keyChain[i]];
+                    //     }
+                    //     delete objToApply[name];
 
-            //         //     // TODO: if we remove element 2, then element 3 in an array should become element 2 (but rn it just stays as 3)
-            //         //     applyToKeyChain(parentObstacle, parentObject._parentKeyChain, parentObject.filter(p => p != null || p === null || p === undefined || isNaN(p) === true));
+                    //     // TODO: if we remove element 2, then element 3 in an array should become element 2 (but rn it just stays as 3)
+                    //     applyToKeyChain(parentObstacle, parentObject._parentKeyChain, parentObject.filter(p => p != null || p === null || p === undefined || isNaN(p) === true));
 
-            //         //     console.log({parentObstacle, chain: [...parentObject._parentKeyChain, name], parentObject: object.parentObject, objToApply});
-            //         // }
+                    //     console.log({parentObstacle, chain: [...parentObject._parentKeyChain, name], parentObject: object.parentObject, objToApply});
+                    // }
 
-            //         // // removing empty elements from array
-            //         // // only removing "empty" elements
-            //         // // parentObject.path = parentObject.path.filter(p => p != null || p === null || p === undefined || isNaN(p) === true);
-            //         // // console.log(parentObstacle.path.map(p => typeof p));
-            //         // // console.log(parentObstacle.path);
+                    // // removing empty elements from array
+                    // // only removing "empty" elements
+                    // // parentObject.path = parentObject.path.filter(p => p != null || p === null || p === undefined || isNaN(p) === true);
+                    // // console.log(parentObstacle.path.map(p => typeof p));
+                    // // console.log(parentObstacle.path);
 
-            //         // this.client.updateObstacle(parentObstacle);
+                    // this.client.updateObstacle(parentObstacle);
 
-            //         // this.reloadFolder(parentObject, parentObject.folderRef, this.formatName(parentObject._parentKeyChain[parentObject._parentKeyChain.length-1]));
+                    // this.reloadFolder(parentObject, parentObject.folderRef, this.formatName(parentObject._parentKeyChain[parentObject._parentKeyChain.length-1]));
 
-            //         // // console.log(parentObstacle.path);
+                    // // console.log(parentObstacle.path);
 
-            //         // console.log({propertyToRemove,name, parentObject,  parentObstacle});
-            //     }
-            //     property.appendChild(input);
-            // },
+                    // console.log({propertyToRemove,name, parentObject,  parentObstacle});
+                }
+                property.appendChild(input);
+            },
             color: (key, value, {input, property, obstacle}) => {
                 input.classList.add('property-color-input');
                 input.type = 'color';

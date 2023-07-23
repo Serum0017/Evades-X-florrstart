@@ -71,6 +71,7 @@ export default class Map {
 
                 // simulate extra ticks
                 this.players[id].predictionLimit.ticksBehind = Math.min(30,Math.max(0,this.tick - playerData[id].lastTick));
+                // TODO: fix prediction (working, just jittery and doesnt work for some reason, probably bc too variable ping)
                 for(let i = 0; i < this.players[id].predictionLimit.ticksBehind; i++){
                     this.players[id].simulate(this);
                 }
@@ -121,6 +122,7 @@ export default class Map {
         this.spatialHash.addEntity(o);
     }
     removeObstacle(index){
+        if(this.obstacles[index].el !== undefined)this.obstacles[index].el.folder.remove();
         this.spatialHash.removeEntity(this.obstacles[index]);
         this.obstacles.splice(index, 1);
     }
